@@ -1,0 +1,12 @@
+Format: board channel/keyword shift
+NOTE: Do not delete these lines! If no shift is specified for a channel, no shift is applied. Use keyword 'all' to apply a uniform shift to all channels in a single board. Shifts are in ps.
+0 all 260000
+1 all 220000
+2 all 220000
+3 all 335000
+4 all 385000
+5 all 395000
+6 all 425000
+7 all 435000
+8 0 900000
+8 1 900000

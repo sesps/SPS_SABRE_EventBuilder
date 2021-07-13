@@ -1,0 +1,5 @@
+###ignore pch###
+*.gch
+
+###include this###
+!.gitignore

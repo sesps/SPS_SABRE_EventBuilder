@@ -1,0 +1,4 @@
+E_dE_CutFile: /data1/gwm17/10B3He/Feb2021/cuts/edeCut_Rachel.root
+dE_position_CutFile: /data1/gwm17/10B3He/Feb2021/cuts/alphaCut_03012021.root
+E_positon_CutFile: /data1/gwm17/10B3He/Feb2021/cuts/alphaCut_03012021.root
+x1_x2_CutFile: /data1/gwm17/10B3He/Feb2021/cuts/xxCut_Rachel.root

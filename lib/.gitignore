@@ -1,0 +1,7 @@
+###ignore these files####
+*.dylib
+*.so
+*.pcm
+
+###keep this one###
+!.gitignore

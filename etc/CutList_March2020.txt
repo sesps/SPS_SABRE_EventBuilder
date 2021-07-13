@@ -1,0 +1,4 @@
+E_dE_CutFile: /Volumes/LaCie/9BMarch2020/cuts/alphaCut_dbr_sl.root
+dE_position_CutFile: /Volumes/LaCie/9BMarch2020/cuts/delayEXavgCut.root
+E_positon_CutFile: /Volumes/LaCie/9BMarch2020/cuts/scintXavgCut.root
+x1_x2_CutFile: /Volumes/LaCie/9BMarch2020/cuts/x1x2Cut.root

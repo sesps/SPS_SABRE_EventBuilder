@@ -1,0 +1,22 @@
+###directories to ignore###
+./rootfiles/
+./pics/
+./images/
+./hotfixes/
+
+###file types to ignore###
+*.swp
+*.o
+*.cxx
+*.root
+*.bin
+*.pcm
+*.jpg
+*.png
+*.sublime-project
+*.sublime-workspace
+event_log.txt
+.DS_Store
+
+###include this###
+!.gitignore

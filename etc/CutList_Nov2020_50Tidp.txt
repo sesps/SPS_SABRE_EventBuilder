@@ -1,0 +1,4 @@
+E_dE_CutFile: /media/gordon/b6414c35-ec1f-4fc1-83bc-a6b68ca4325a/gwm17/50Tidp/cuts/EdECut_run16.root
+dE_position_CutFile: /media/gordon/b6414c35-ec1f-4fc1-83bc-a6b68ca4325a/gwm17/50Tidp/cuts/EdECut_run16.root
+E_positon_CutFile: /media/gordon/b6414c35-ec1f-4fc1-83bc-a6b68ca4325a/gwm17/50Tidp/cuts/EdECut_run16.root
+x1_x2_CutFile: /media/gordon/b6414c35-ec1f-4fc1-83bc-a6b68ca4325a/gwm17/50Tidp/cuts/x1x2Cut_run16.root

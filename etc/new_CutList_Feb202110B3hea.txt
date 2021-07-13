@@ -1,0 +1,3 @@
+Name File VarX VarY
+edeAlphas /data1/gwm17/10B3He/Feb2021/cuts/alphaCut_03012021.root scintLeft cathode
+x1x2 /data1/gwm17/10B3He/Feb2021/cuts/xxCut_03012021.root x1 x2

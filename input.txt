@@ -1,0 +1,27 @@
+-------Data Location----------
+WorkspaceDirectory: /data1/gwm17/10B3He/Feb2021/
+-------------------------------
+------Experimental Inputs------
+ChannelMapFile: /home/gwm17/GWM_EventBuilder/etc/orig_ChannelMap_Feb2021_SABRE.txt
+ScalerFile: /home/gwm17/GWM_EventBuilder/etc/orig_ScalerFile_Feb2021_SABRE.txt
+CutListFile: /home/gwm17/GWM_EventBuilder/etc/new_CutList_Feb202110B3hea.txt
+ZT: 5
+AT: 10
+ZP: 2
+AP: 3
+ZE: 2
+AE: 4
+BField(G): 8925
+BeamKE(MeV): 24
+Theta(deg): 15
+-------------------------------
+-------Timing Information------
+BoardOffsetFile: /home/gwm17/GWM_EventBuilder/etc/orig_ShiftMap_Feb2021_SABRE.txt
+SlowCoincidenceWindow(ps): 1.5e+06
+FastCoincidenceWindow_IonCh(ps): 250000
+FastCoincidenceWindow_SABRE(ps): 150000
+-------------------------------
+--------Run Information--------
+MinRun: 99
+MaxRun: 99
+-------------------------------
