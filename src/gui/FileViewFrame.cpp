@@ -112,7 +112,9 @@ void FileViewFrame::DoOk() {
 	fCancelButton->SetState(kButtonDisabled);
 
 	TString filename = fNameField->GetText();
-	TString fullpath = TString(fContents->GetDirectory()) + "/" + filename;
+	TString fullpath;
+	if(!dirFlag) fullpath = TString(fContents->GetDirectory()) + "/" + filename;
+	else fullpath = filename;
 	if(fullpath == "") { //check validity
 		std::cerr<<"Need to give a name!"<<std::endl;
 		fOkButton->SetState(kButtonUp);
