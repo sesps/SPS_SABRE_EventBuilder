@@ -52,7 +52,11 @@ void CutHandler::SetCuts(const std::string& filename) {
 		}
 	}
 
-	validFlag = true;
+	if(cut_array.size() > 0) {
+		validFlag = true;
+	} else {
+		validFlag = false;
+	}
 }
 
 /*

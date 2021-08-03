@@ -42,7 +42,6 @@ class SFPPlotter {
 
     /*Cuts*/
     CutHandler cutter;
-    bool cutFlag;
     
     TChain *chain;
 

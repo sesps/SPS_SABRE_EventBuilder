@@ -16,7 +16,6 @@ SFPPlotter::SFPPlotter() {
   rootObj->SetOwner(false);//THashTable doesnt own members; avoid double delete
   event_address = new ProcessedEvent();
   chain = new TChain("SPSTree");
-  cutFlag = false;
   m_pb = NULL;
 }
 
@@ -51,7 +50,6 @@ void SFPPlotter::MyFill(const string& name, int binsx, double minx, double maxx,
 
 void SFPPlotter::ApplyCutlist(const string& listname) {
   cutter.SetCuts(listname);
-  cutFlag = true;
 }
 
 /*Makes histograms where only rejection is unset data*/
@@ -158,7 +156,6 @@ void SFPPlotter::MakeUncutHistograms(ProcessedEvent ev) {
 
 /*Makes histograms with cuts & gates implemented*/
 void SFPPlotter::MakeCutHistograms(ProcessedEvent ev) {
-  if(!cutter.IsValid()) return;
   if(cutter.IsInside(&ev)) {
     MyFill("x1_bothplanes_Cut",600,-300,300,ev.x1);
     MyFill("x2_bothplanes_Cut",600,-300,300,ev.x2);
@@ -265,12 +262,12 @@ void SFPPlotter::Run(vector<TString> files, const string& output) {
     }
     chain->GetEntry(i);
     MakeUncutHistograms(*event_address);
-    if(cutFlag) MakeCutHistograms(*event_address);
+    if(cutter.IsValid()) MakeCutHistograms(*event_address);
   }
   cout<<endl;
   outfile->cd();
   rootObj->Write();
-  if(cutFlag && cutter.IsValid()) {
+  if(cutter.IsValid()) {
     auto clist = cutter.GetCuts();
     for(unsigned int i=0; i<clist.size(); i++) {
       clist[i]->Write();
