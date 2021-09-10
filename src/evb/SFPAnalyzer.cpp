@@ -6,6 +6,8 @@
  *Gordon M. Oct. 2019
  *
  *Refurbished and updated Jan 2020 by GWM. Now uses both focal plane and SABRE data
+ *
+ * Position calibrations swapped as of Aug. 2021 due to detector fixes -- GWM
  */
 #include "EventBuilder.h"
 #include "SFPAnalyzer.h"
@@ -123,8 +125,7 @@ void SFPAnalyzer::AnalyzeEvent(CoincEvent& event) {
     pevent.fp1_tsum = (event.focalPlane.delayFL[0].Time+event.focalPlane.delayFR[0].Time);
     pevent.fp1_tcheck = (pevent.fp1_tsum)/2.0-pevent.anodeFrontTime;
     pevent.delayFrontMaxTime = max(event.focalPlane.delayFL[0].Time, event.focalPlane.delayFR[0].Time);
-    pevent.x1 = pevent.fp1_tdiff*1.0/1.98; //position from time, based on total delay
-    //pevent.x1 = 0.52*pevent.fp1_tdiff - 0.128; //position from time, based on delay chips
+    pevent.x1 = pevent.fp1_tdiff*1.0/2.10; //position from time, based on total delay
     MyFill("x1",1200,-300,300,pevent.x1);
     MyFill("x1 vs anodeBack",600,-300,300,pevent.x1,512,0,4096,pevent.anodeBack);
   }
@@ -133,8 +134,7 @@ void SFPAnalyzer::AnalyzeEvent(CoincEvent& event) {
     pevent.fp2_tsum = (event.focalPlane.delayBL[0].Time+event.focalPlane.delayBR[0].Time);
     pevent.fp2_tcheck = (pevent.fp2_tsum)/2.0-pevent.anodeBackTime;
     pevent.delayBackMaxTime = max(event.focalPlane.delayBL[0].Time, event.focalPlane.delayBR[0].Time);
-    pevent.x2 = pevent.fp2_tdiff*1.0/2.10; //position from time, based on total delay
-    //pevent.x2 = 0.48*pevent.fp2_tdiff - 2.365; //position from time, based on delay chips
+    pevent.x2 = pevent.fp2_tdiff*1.0/1.98; //position from time, based on total delay
     MyFill("x2",1200,-300,300,pevent.x2);
     MyFill("x2 vs anodeBack",600,-300,300,pevent.x2,512,0,4096,pevent.anodeBack);
   }
