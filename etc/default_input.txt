@@ -1,15 +1,27 @@
-Ztarget: 6 Atarget: 12 Zproj: 2 Aproj: 3 Zeject: 2 Aeject: 4
-BeamE(MeV): 24 Angle(deg): 20 Bfield(G): 9500
-Board_shift_file: ./etc/ShiftMap_April2020.txt
-Scint_offset(ps): 0.65e6
-coincidence_window(ps): 1.5e6
-si_fast_coincidence_window(ps): 0.125e6
-ion_chamber_fast_coincidence_window(ps): 0.25e6
-DataDir: /Users/gordonmccann/Desktop/GWM_EventBuilder/example/raw_root/
-MinRun: -99 MaxRun: 99
-TimeshiftedDir: /Users/gordonmccann/Desktop/GWM_EventBuilder/example/shifted/
-SortedDir: /Users/gordonmccann/Desktop/GWM_EventBuilder/example//sorted/
-FastDir: /Users/gordonmccann/Desktop/GWM_EventBuilder/example/fast/
-AnalyzedDir: /Users/gordonmccann/Desktop/GWM_EventBuilder/example/analyzed/
-SABREChannelMapFile: ./etc/ChannelMap_March2020.dat
-GainMatchingFile: ./etc/March2020_gainmatch_2.0V_5486Am241.txt
+-------Data Location----------
+WorkspaceDirectory: /data1/gwm17/10B3He/Feb2021/
+-------------------------------
+------Experimental Inputs------
+ChannelMapFile: /home/gwm17/GWM_EventBuilder/etc/orig_ChannelMap_Feb2021_SABRE.txt
+ScalerFile: /home/gwm17/GWM_EventBuilder/etc/orig_ScalerFile_Feb2021_SABRE.txt
+CutListFile: /home/gwm17/GWM_EventBuilder/etc/new_CutList_Feb202110B3hea.txt
+ZT: 5
+AT: 10
+ZP: 2
+AP: 3
+ZE: 2
+AE: 4
+BField(G): 8925
+BeamKE(MeV): 24
+Theta(deg): 15
+-------------------------------
+-------Timing Information------
+BoardOffsetFile: /home/gwm17/GWM_EventBuilder/etc/orig_ShiftMap_Feb2021_SABRE.txt
+SlowCoincidenceWindow(ps): 1.5e+06
+FastCoincidenceWindow_IonCh(ps): 250000
+FastCoincidenceWindow_SABRE(ps): 150000
+-------------------------------
+--------Run Information--------
+MinRun: 99
+MaxRun: 99
+-------------------------------
