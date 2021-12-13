@@ -10,8 +10,8 @@
 
 #include <chrono>
 
-class Stopwatch {
-
+class Stopwatch 
+{
 public:
 	Stopwatch();
 	~Stopwatch();

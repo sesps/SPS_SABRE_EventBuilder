@@ -1,5 +1,5 @@
 /*
-	GWMEventBuilder.cpp
+	EVBApp.cpp
 	Class which represents the API of the event building environment. Wraps together the core concepts
 	of the event builder, from conversion to plotting. Even intended to be able to archive data.
 	Currently under development.
@@ -8,7 +8,7 @@
 */
 #include "EventBuilder.h"
 #include <cstdlib>
-#include "GWMEventBuilder.h"
+#include "EVBApp.h"
 #include "RunCollector.h"
 #include "CompassRun.h"
 #include "SlowSort.h"
@@ -16,21 +16,23 @@
 #include "SFPAnalyzer.h"
 #include "SFPPlotter.h"
 
-GWMEventBuilder::GWMEventBuilder() :
+EVBApp::EVBApp() :
 	m_rmin(0), m_rmax(0), m_ZT(0), m_AT(0), m_ZP(0), m_AP(0), m_ZE(0), m_AE(0), m_ZR(0), m_AR(0),
 	m_B(0), m_Theta(0), m_BKE(0), m_workspace("none"), m_mapfile("none"), m_shiftfile("none"),
 	m_cutList("none"), m_SlowWindow(0), m_FastWindowIonCh(0), m_FastWindowSABRE(0), m_pb(nullptr)
 {
 }
 
-GWMEventBuilder::~GWMEventBuilder() 
+EVBApp::~EVBApp() 
 {
 }
 
-bool GWMEventBuilder::ReadConfigFile(const std::string& fullpath) {
+bool EVBApp::ReadConfigFile(const std::string& fullpath) 
+{
 	std::cout<<"Reading in configuration from file: "<<fullpath<<std::endl;
 	std::ifstream input(fullpath);
-	if(!input.is_open()) {
+	if(!input.is_open()) 
+	{
 		std::cout<<"Read failed! Unable to open input file!"<<std::endl;
 		return false;
 	}
@@ -70,11 +72,13 @@ bool GWMEventBuilder::ReadConfigFile(const std::string& fullpath) {
 	return true;
 }
 
-void GWMEventBuilder::WriteConfigFile(const std::string& fullpath) {
+void EVBApp::WriteConfigFile(const std::string& fullpath) 
+{
 
 	std::cout<<"Writing out configuration to file: "<<fullpath<<std::endl;
 	std::ofstream output(fullpath);
-	if(!output.is_open()) {
+	if(!output.is_open()) 
+	{
 		std::cout<<"Write failed! Unable to open output file!"<<std::endl;
 		return;
 	}
@@ -113,7 +117,8 @@ void GWMEventBuilder::WriteConfigFile(const std::string& fullpath) {
 
 }
 
-void GWMEventBuilder::PlotHistograms() {
+void EVBApp::PlotHistograms() 
+{
 	std::string analyze_dir = m_workspace+"/analyzed/";
 	std::string plot_file = m_workspace+"/histograms/run_"+to_string(m_rmin)+"_"+to_string(m_rmax)+".root";
 	SFPPlotter grammer;
@@ -125,20 +130,25 @@ void GWMEventBuilder::PlotHistograms() {
 	std::cout<<"Cut List File: "<<m_cutList<<std::endl;
 	std::cout<<"Histogram File: "<<plot_file<<std::endl;
 
-	if(m_pb) grammer.AttachProgressBar(m_pb);
+	if(m_pb) 
+		grammer.AttachProgressBar(m_pb);
 	grabber.SetSearchParams(analyze_dir, "", ".root", m_rmin, m_rmax);
-	if(grabber.GrabFilesInRange()) {
+	if(grabber.GrabFilesInRange()) 
+	{
 		std::cout<<"Working...";
 		grammer.Run(grabber.filelist, plot_file);
 		std::cout<<" Complete."<<std::endl;
-	} else {
+	} 
+	else 
+	{
 		std::cout<<"Unable to find files at PlotHistograms"<<std::endl;
 	}
 	std::cout<<"-------------------------------------------"<<std::endl;
 
 }
 
-void GWMEventBuilder::Convert2RawRoot() {
+void EVBApp::Convert2RawRoot() 
+{
 	std::string rawroot_dir = m_workspace+"/raw_root/";
 	std::string unpack_dir = m_workspace+"/temp_binary/";
 	std::string binary_dir = m_workspace+"/raw_binary/";
@@ -160,13 +170,16 @@ void GWMEventBuilder::Convert2RawRoot() {
 	CompassRun converter(unpack_dir);
 	converter.SetShiftMap(m_shiftfile);
 	converter.SetScalerInput(m_scalerfile);
-	if(m_pb) converter.AttachProgressBar(m_pb);
+	if(m_pb)
+		converter.AttachProgressBar(m_pb);
 
 	std::cout<<"Beginning conversion..."<<std::endl;
 
-	for(int i=m_rmin; i<=m_rmax; i++) {
+	for(int i=m_rmin; i<=m_rmax; i++) 
+	{
 		binfile = grabber.GrabFile(i);
-		if(binfile == "") continue;
+		if(binfile == "") 
+			continue;
 		converter.SetRunNumber(i);
 		std::cout<<"Converting file: "<<binfile<<std::endl;
 
@@ -184,7 +197,8 @@ void GWMEventBuilder::Convert2RawRoot() {
 
 }
 
-void GWMEventBuilder::MergeROOTFiles() {
+void EVBApp::MergeROOTFiles() 
+{
 	std::string merge_file = m_workspace+"/merged/run_"+to_string(m_rmin)+"_"+to_string(m_rmax)+".root";
 	std::string file_dir = m_workspace+"/analyzed/";
 	std::cout<<"-------------GWM Event Builder-------------"<<std::endl;
@@ -196,7 +210,8 @@ void GWMEventBuilder::MergeROOTFiles() {
 	std::string suffix = ".root";
 	grabber.SetSearchParams(file_dir, prefix, suffix,m_rmin,m_rmax);
 	std::cout<<"Beginning the merge...";
-	if(!grabber.Merge_TChain(merge_file)) {
+	if(!grabber.Merge_TChain(merge_file)) 
+	{
 		std::cout<<"Unable to find files at MergeROOTFiles"<<std::endl;
 		return;
 	}
@@ -204,7 +219,8 @@ void GWMEventBuilder::MergeROOTFiles() {
 	std::cout<<"-------------------------------------------"<<std::endl;
 }
 
-void GWMEventBuilder::Convert2SortedRoot() {
+void EVBApp::Convert2SortedRoot() 
+{
 	std::string sortroot_dir = m_workspace+"/sorted/";
 	std::string unpack_dir = m_workspace+"/temp_binary/";
 	std::string binary_dir = m_workspace+"/raw_binary/";
@@ -227,13 +243,16 @@ void GWMEventBuilder::Convert2SortedRoot() {
 	CompassRun converter(unpack_dir);
 	converter.SetShiftMap(m_shiftfile);
 	converter.SetScalerInput(m_scalerfile);
-	if(m_pb) converter.AttachProgressBar(m_pb);
+	if(m_pb) 
+		converter.AttachProgressBar(m_pb);
 
 	std::cout<<"Beginning conversion..."<<std::endl;
 
-	for(int i=m_rmin; i<= m_rmax; i++) {
+	for(int i=m_rmin; i<= m_rmax; i++) 
+	{
 		binfile = grabber.GrabFile(i);
-		if(binfile == "") continue;
+		if(binfile == "") 
+			continue;
 		converter.SetRunNumber(i);
 		std::cout<<"Converting file: "<<binfile<<std::endl;
 
@@ -250,7 +269,7 @@ void GWMEventBuilder::Convert2SortedRoot() {
 	std::cout<<"-------------------------------------------"<<std::endl;
 }
 
-void GWMEventBuilder::Convert2FastSortedRoot() {
+void EVBApp::Convert2FastSortedRoot() {
 	std::string sortroot_dir = m_workspace+"/fast/";
 	std::string unpack_dir = m_workspace+"/temp_binary/";
 	std::string binary_dir = m_workspace+"/raw_binary/";
@@ -273,13 +292,16 @@ void GWMEventBuilder::Convert2FastSortedRoot() {
 	CompassRun converter(unpack_dir);
 	converter.SetShiftMap(m_shiftfile);
 	converter.SetScalerInput(m_scalerfile);
-	if(m_pb) converter.AttachProgressBar(m_pb);
+	if(m_pb) 
+		converter.AttachProgressBar(m_pb);
 
 	std::cout<<"Beginning conversion..."<<std::endl;
 
-	for(int i=m_rmin; i<=m_rmax; i++) {
+	for(int i=m_rmin; i<=m_rmax; i++) 
+	{
 		binfile = grabber.GrabFile(i);
-		if(binfile == "") continue;
+		if(binfile == "") 
+			continue;
 		converter.SetRunNumber(i);
 		std::cout<<"Converting file: "<<binfile<<std::endl;
 
@@ -296,7 +318,7 @@ void GWMEventBuilder::Convert2FastSortedRoot() {
 	std::cout<<"-------------------------------------------"<<std::endl;
 }
 
-void GWMEventBuilder::Convert2SlowAnalyzedRoot() {
+void EVBApp::Convert2SlowAnalyzedRoot() {
 	std::string sortroot_dir = m_workspace+"/analyzed/";
 	std::string unpack_dir = m_workspace+"/temp_binary/";
 	std::string binary_dir = m_workspace+"/raw_binary/";
@@ -318,13 +340,16 @@ void GWMEventBuilder::Convert2SlowAnalyzedRoot() {
 	CompassRun converter(unpack_dir);
 	converter.SetShiftMap(m_shiftfile);
 	converter.SetScalerInput(m_scalerfile);
-	if(m_pb) converter.AttachProgressBar(m_pb);
+	if(m_pb) 
+		converter.AttachProgressBar(m_pb);
 
 	std::cout<<"Beginning conversion..."<<std::endl;
 
-	for(int i=m_rmin; i<=m_rmax; i++) {
+	for(int i=m_rmin; i<=m_rmax; i++) 
+	{
 		binfile = grabber.GrabFile(i);
-		if(binfile == "") continue;
+		if(binfile == "") 
+			continue;
 		converter.SetRunNumber(i);
 		std::cout<<"Converting file: "<<binfile<<std::endl;
 
@@ -341,7 +366,8 @@ void GWMEventBuilder::Convert2SlowAnalyzedRoot() {
 	std::cout<<"-------------------------------------------"<<std::endl;
 }
 
-void GWMEventBuilder::Convert2FastAnalyzedRoot() {
+void EVBApp::Convert2FastAnalyzedRoot() 
+{
 	std::string sortroot_dir = m_workspace+"/analyzed/";
 	std::string unpack_dir = m_workspace+"/temp_binary/";
 	std::string binary_dir = m_workspace+"/raw_binary/";
@@ -366,13 +392,16 @@ void GWMEventBuilder::Convert2FastAnalyzedRoot() {
 	CompassRun converter(unpack_dir);
 	converter.SetShiftMap(m_shiftfile);
 	converter.SetScalerInput(m_scalerfile);
-	if(m_pb) converter.AttachProgressBar(m_pb);
+	if(m_pb) 
+		converter.AttachProgressBar(m_pb);
 
 	std::cout<<"Beginning conversion..."<<std::endl;
 
-	for(int i=m_rmin; i<=m_rmax; i++) {
+	for(int i=m_rmin; i<=m_rmax; i++) 
+	{
 		binfile = grabber.GrabFile(i);
-		if(binfile == "") continue;
+		if(binfile == "") 
+			continue;
 		converter.SetRunNumber(i);
 		std::cout<<"Converting file: "<<binfile<<std::endl;
 
@@ -389,9 +418,11 @@ void GWMEventBuilder::Convert2FastAnalyzedRoot() {
 	std::cout<<"-------------------------------------------"<<std::endl;
 }
 
-bool GWMEventBuilder::SetKinematicParameters(int zt, int at, int zp, int ap, int ze, int ae, double b, double theta, double bke) {
+bool EVBApp::SetKinematicParameters(int zt, int at, int zp, int ap, int ze, int ae, double b, double theta, double bke) 
+{
 
-	if((at + ap - ae) < 0 || (zt + zp - ze) < 0) {
+	if((at + ap - ae) < 0 || (zt + zp - ze) < 0) 
+	{
 		std::cout<<"Invalid Parameters at SetKinematicParameters"<<std::endl;
 		return false;
 	}

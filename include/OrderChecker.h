@@ -8,7 +8,8 @@
 #ifndef ORDERCHECKER_H
 #define ORDERCHECKER_H
 
-class OrderChecker {
+class OrderChecker 
+{
 public:
 	OrderChecker();
 	~OrderChecker();

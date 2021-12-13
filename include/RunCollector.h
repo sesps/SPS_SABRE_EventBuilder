@@ -10,41 +10,35 @@
 #ifndef RUNCOLLECTOR_H
 #define RUNCOLLECTOR_H
 
-#include <TSystemDirectory.h>
-#include <TSystemFile.h>
-#include <TCollection.h>
-#include <TList.h>
-#include <cstdlib>
-#include <cstdio>
+class RunCollector 
+{
+public:
+	RunCollector();
+	RunCollector(const std::string& dirname, const std::string& prefix, const std::string& suffix);
+	RunCollector(const std::string& dirname, const std::string& prefix, const std::string& suffix, int min, int max);
+	~RunCollector();
+	void SetSearchParams(const std::string& dirname, const std::string& prefix, const std::string& suffix, int min, int max);
+	bool Merge_hadd(const std::string& outname);
+	bool Merge_TChain(const std::string& outname);
+	bool GrabAllFiles();
+	bool GrabFilesInRange();
+	std::string GrabFile(int runNum);
+	inline std::string GetSearchDir() { return directory; }
+	inline std::string GetSearchPrefix() { return m_prefix; }
+	inline std::string GetSearchSuffix() { return m_suffix; }
+	inline int GetRunMin() { return m_minRun; }
+	inline int GetRunMax() { return m_maxRun; }
+	inline const std::vector<std::string>& GetFileList() { return m_filelist; }
 
-using namespace std;
-
-class RunCollector {
-  public:
-    RunCollector();
-    RunCollector(const string& dirname, const string& prefix, const string& suffix);
-    RunCollector(const string& dirname, const string& prefix, const string& suffix, int min, int max);
-    ~RunCollector();
-    void SetSearchParams(const string& dirname, const string& prefix, const string& suffix, int min, int max);
-    int Merge_hadd(const string& outname);
-    int Merge_TChain(const string& outname);
-    int GrabAllFiles();
-    int GrabFilesInRange();
-    std::string GrabFile(int runNum);
-    inline std::string GetSearchDir() {return dir.Data();};
-    inline std::string GetSearchPrefix() {return run.Data();};
-    inline std::string GetSearchSuffix() {return end.Data();};
-    inline int GetRunMin() {return MinRun;};
-    inline int GetRunMax() {return MaxRun;};
-    vector<TString> filelist;
-
-  private:
-    bool initFlag;
-    TString dir;
-    TString run;
-    TString end;
-    Int_t MaxRun, MinRun;  //user run limits
-    const Int_t LITERALMAX = 1000; //class run limit
+private:
+	bool m_initFlag;
+	std::string m_directory;
+	std::string m_prefix;
+	std::string m_suffix;
+	int m_minRun, m_maxRun;  //user run limits
+	const int m_maxAllowedRuns = 1000; //class run limit
+	std::vector<std::string> m_filelist;
+	
 };
 
 #endif

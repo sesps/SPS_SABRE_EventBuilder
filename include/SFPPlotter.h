@@ -13,39 +13,32 @@
 #include "CutHandler.h"
 #include <TGProgressBar.h>
 
-using namespace std;
+class SFPPlotter 
+{
+public:
+	SFPPlotter();
+	~SFPPlotter();
+	inline void AttachProgressBar(TGProgressBar* pb) { m_pb = pb; }
+	inline void ApplyCutlist(const std::string& listname) { cutter.SetCuts(listname); }
+	void Run(const std::vector<std::string>& files, const string& output);
 
-class SFPPlotter {
-  public:
-    SFPPlotter();
-    SFPPlotter(bool tf);
-    ~SFPPlotter();
-    inline void AttachProgressBar(TGProgressBar* pb) { m_pb = pb; };
-    void ApplyCutlist(const string& listname);
-    void Run(vector<TString> files, const string& output);
+private:
+	void SetProgressBar(long total);
+	void Chain(const std::vector<std::string>& files); //Form TChain
+	void MakeUncutHistograms(const ProcessedEvent& ev, THashTable* table);
+	void MakeCutHistograms(const ProcessedEvent& ev, THashTable* table);
 
-  private:
-    void SetProgressBar(long total);
-    void Chain(vector<TString> files); //Form TChain
-    void MakeUncutHistograms(ProcessedEvent ev);
-    void MakeCutHistograms(ProcessedEvent ev);
+	/*Histogram fill wrapper functions*/
+	void MyFill(THashTable* table, const std::string& name, int binsx, double minx, double maxx, double valuex,
+				int binsy, double miny, double maxy, double valuey);
+	void MyFill(THashTable* table, const std::string& name, int binsx, double minx, double maxx, double valuex);
 
-    /*Histogram fill wrapper functions*/
-    void MyFill(const string& name, int binsx, double minx, double maxx, double valuex,
-                             int binsy, double miny, double maxy, double valuey);
-    void MyFill(const string& name, int binsx, double minx, double maxx, double valuex);
+	ProcessedEvent *event_address;
 
-    ProcessedEvent *event_address;
-
-    /*ROOT Storage*/
-    THashTable *rootObj;
-
-    /*Cuts*/
-    CutHandler cutter;
-    
-    TChain *chain;
-
-    TGProgressBar* m_pb; //GUI progress
+	/*Cuts*/
+	CutHandler cutter;
+	
+	TGProgressBar* m_pb; //GUI progress
 
 };
 

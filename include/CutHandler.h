@@ -9,9 +9,9 @@ public:
 	CutHandler(const std::string& filename);
 	~CutHandler();
 	void SetCuts(const std::string& filename);
-	bool IsValid() { return validFlag; };
+	bool IsValid() { return validFlag; }
 	bool IsInside(ProcessedEvent* eaddress);
-	std::vector<TCutG*> GetCuts() { return cut_array; };
+	std::vector<TCutG*> GetCuts() { return cut_array; }
 
 private:
 	void InitVariableMap();

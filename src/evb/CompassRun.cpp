@@ -33,9 +33,11 @@ CompassRun::~CompassRun() {}
 
 
 /*Load em into a map*/
-void CompassRun::SetScalers() {
+void CompassRun::SetScalers() 
+{
 	std::ifstream input(m_scalerinput);
-	if(!input.is_open()) return;
+	if(!input.is_open()) 
+		return;
 
 	m_scaler_flag = true;
 	std::string junk, filename, varname;
@@ -43,7 +45,8 @@ void CompassRun::SetScalers() {
 	std::getline(input, junk);
 	std::getline(input, junk);
 	m_scaler_map.clear();
-	while(input>>filename) {
+	while(input>>filename) 
+	{
 		input>>varname;
 		filename = directory+filename+"_run_"+to_string(runNum)+".bin";
 		m_scaler_map[filename] = TParameter<Long64_t>(varname.c_str(), init);
@@ -51,7 +54,8 @@ void CompassRun::SetScalers() {
 	input.close();
 }
 
-bool CompassRun::GetBinaryFiles() {
+bool CompassRun::GetBinaryFiles() 
+{
 	std::string prefix = "";
 	std::string suffix = ".bin"; //binaries
 	RunCollector grabber(directory, prefix, suffix);
@@ -62,26 +66,31 @@ bool CompassRun::GetBinaryFiles() {
 	bool scalerd;
 	m_totalHits = 0; //reset total run size
 
-	for(auto& entry : grabber.filelist) {
+	for(auto& entry : grabber.filelist) 
+	{
 		//Handle scaler files, if they exist
-		if(m_scaler_flag) {
+		if(m_scaler_flag) 
+		{
 			scalerd = false;
-			for(auto& scaler_pair : m_scaler_map) {
-				if(std::string(entry.Data()) == scaler_pair.first) {
+			for(auto& scaler_pair : m_scaler_map) 
+			{
+				if(std::string(entry.Data()) == scaler_pair.first) 
+				{
 					ReadScalerData(entry.Data());
 					scalerd = true;
 					break;
 				}
 			}
-			if(scalerd) continue;
+			if(scalerd) 
+				continue;
 		}
 
 		m_datafiles.emplace_back(entry.Data());
 		m_datafiles[m_datafiles.size()-1].AttachShiftMap(&m_smap);
 		//Any time we have a file that fails to be found, we terminate the whole process
-		if(!m_datafiles[m_datafiles.size() - 1].IsOpen()) {
+		if(!m_datafiles[m_datafiles.size() - 1].IsOpen()) 
 			return false;
-		}
+
 		m_totalHits += m_datafiles[m_datafiles.size()-1].GetNumberOfHits();
 	}
 
@@ -92,16 +101,20 @@ bool CompassRun::GetBinaryFiles() {
 	Pure counting of scalers. Potential upgrade path to something like
 	average count rate etc. 
 */
-void CompassRun::ReadScalerData(const std::string& filename) {
-	if(!m_scaler_flag) return;
+void CompassRun::ReadScalerData(const std::string& filename) 
+{
+	if(!m_scaler_flag) 
+		return;
 
 	Long64_t count;
 	count = 0;
 	CompassFile file(filename);
 	auto& this_param = m_scaler_map[file.GetName()];
-	while(true) {
+	while(true) 
+	{
 		file.GetNextHit();
-		if(file.IsEOF()) break;
+		if(file.IsEOF()) 
+			break;
 		count++;
 	}
 	this_param.SetVal(count);
@@ -116,25 +129,34 @@ void CompassRun::ReadScalerData(const std::string& filename) {
 	of a rolling start index. Once a file has gone EOF, we no longer need it. If this is the first file in the list, we can just skip
 	that index all together. In this way, the loop can go from N times to N-1 times.
 */
-bool CompassRun::GetHitsFromFiles() {
+bool CompassRun::GetHitsFromFiles() 
+{
 
 	std::pair<CompassHit, bool*> earliestHit = make_pair(CompassHit(), nullptr);
-	for(unsigned int i=startIndex; i<m_datafiles.size(); i++) {
-		if(m_datafiles[i].CheckHitHasBeenUsed()) {
+	for(unsigned int i=startIndex; i<m_datafiles.size(); i++) 
+	{
+		if(m_datafiles[i].CheckHitHasBeenUsed()) 
+		{
 			m_datafiles[i].GetNextHit();
 		}
 
-		if(m_datafiles[i].IsEOF()) {
+		if(m_datafiles[i].IsEOF()) 
+		{
 			if(i == startIndex) startIndex++;
 			continue;
-		} else if(i == startIndex) {
+		} 
+		else if(i == startIndex) 
+		{
 			earliestHit = make_pair(m_datafiles[i].GetCurrentHit(), m_datafiles[i].GetUsedFlagPtr());
-		} else if(m_datafiles[i].GetCurrentHit().timestamp < earliestHit.first.timestamp) {
+		} 
+		else if(m_datafiles[i].GetCurrentHit().timestamp < earliestHit.first.timestamp) 
+		{
 			earliestHit = make_pair(m_datafiles[i].GetCurrentHit(), m_datafiles[i].GetUsedFlagPtr());
 		}
 	}
 
-	if(earliestHit.second == nullptr) return false; //Make sure that there actually was a hit
+	if(earliestHit.second == nullptr) 
+		return false; //Make sure that there actually was a hit
 	hit = earliestHit.first;
 	*earliestHit.second = true;
 	return true;
@@ -151,96 +173,118 @@ void CompassRun::Convert2RawRoot(const std::string& name) {
 	outtree->Branch("Timestamp", &hit.timestamp);
 	outtree->Branch("Flags", &hit.flags);
 
-	if(!m_smap.IsSet()) {
+	if(!m_smap.IsSet()) 
+	{
 		std::cerr<<"Bad shift map at CompassRun::Convert()."<<std::endl;
 		std::cerr<<"Shifts will be locked to 0"<<std::endl;
 	}
 
 	SetScalers();
 
-	if(!GetBinaryFiles()) {
+	if(!GetBinaryFiles()) 
+	{
 		std::cerr<<"Unable to open a file!"<<std::endl;
 		return;
 	}
 
-	if(m_pb) SetProgressBar();
+	if(m_pb) 
+		SetProgressBar();
 
 	startIndex = 0; //Reset the startIndex
 	unsigned int count = 0, flush = m_totalHits*0.01, flush_count = 0;
-	if(flush == 0) flush = 1;
-	while(true) {
+	if(flush == 0) 
+		flush = 1;
+	while(true) 
+	{
 		count++;
-		if(count == flush) { //Progress Log
-			if(m_pb) {
+		if(count == flush) 
+		{ //Progress Log
+			if(m_pb)
+			{
 				m_pb->Increment(count);
 				gSystem->ProcessEvents();
 				count=0;
-			} else {
+			} 
+			else 
+			{
 				count = 0;
 				flush_count++;
 				std::cout<<"\rPercent of run built: "<<flush_count*10<<"%"<<std::flush;
 			}	
 		}
 
-		if(!GetHitsFromFiles()) break;
+		if(!GetHitsFromFiles()) 
+			break;
 		outtree->Fill();
 	}
 
 	output->cd();
 	outtree->Write(outtree->GetName(), TObject::kOverwrite);
-	for(auto& entry : m_scaler_map) {
+	for(auto& entry : m_scaler_map)
 		entry.second.Write();
-	}
+
 	output->Close();
 }
 
-void CompassRun::Convert2SortedRoot(const std::string& name, const std::string& mapfile, double window) {
+void CompassRun::Convert2SortedRoot(const std::string& name, const std::string& mapfile, double window) 
+{
 	TFile* output = TFile::Open(name.c_str(), "RECREATE");
 	TTree* outtree = new TTree("SortTree", "SortTree");
 
 	outtree->Branch("event", &event);
 
-	if(!m_smap.IsSet()) {
+	if(!m_smap.IsSet()) 
+	{
 		std::cerr<<"Bad shift map at CompassRun::Convert()."<<std::endl;
 		std::cerr<<"Shifts will be locked to 0"<<std::endl;
 	}
 
 	SetScalers();
 
-	if(!GetBinaryFiles()) {
+	if(!GetBinaryFiles()) 
+	{
 		std::cerr<<"Unable to open a file!"<<std::endl;
 		return;
 	}
 
-	if(m_pb) SetProgressBar();
+	if(m_pb) 
+		SetProgressBar();
 
 	startIndex = 0;
 	SlowSort coincidizer(window, mapfile);
 	bool killFlag = false;
 	unsigned int count = 0, flush = m_totalHits*0.01, flush_count = 0;
-	if(flush == 0) flush = 1;
-	while(true) {
+	if(flush == 0) 
+		flush = 1;
+	while(true) 
+	{
 		count++;
-		if(count == flush) {
-			if(m_pb) {
+		if(count == flush) 
+		{
+			if(m_pb) 
+			{
 				m_pb->Increment(count);
 				gSystem->ProcessEvents();
 				count=0;
-			} else {
+			} 
+			else 
+			{
 				count = 0;
 				flush_count++;
 				std::cout<<"\rPercent of run built: "<<flush_count*10<<"%"<<std::flush;
 			}
 		}
 
-		if(!GetHitsFromFiles()) {
+		if(!GetHitsFromFiles()) 
+		{
 			coincidizer.FlushHitsToEvent();
 			killFlag = true;
-		} else {
+		} 
+		else
 			coincidizer.AddHitToEvent(hit);
-		}
 
-		if(coincidizer.IsEventReady()) {
+		if(coincidizer.IsEventReady()) 
+		{
 			event = coincidizer.GetEvent();
 			outtree->Fill();
 			if(killFlag) break;
@@ -249,32 +293,36 @@ void CompassRun::Convert2SortedRoot(const std::string& name, const std::string& 
 
 	output->cd();
 	outtree->Write(outtree->GetName(), TObject::kOverwrite);
-	for(auto& entry : m_scaler_map) {
+	for(auto& entry : m_scaler_map)
 		entry.second.Write();
-	}
+
 	coincidizer.GetEventStats()->Write();
 	output->Close();
 }
 
-void CompassRun::Convert2FastSortedRoot(const std::string& name, const std::string& mapfile, double window, double fsi_window, double fic_window) {
+void CompassRun::Convert2FastSortedRoot(const std::string& name, const std::string& mapfile, double window, double fsi_window, double fic_window) 
+{
 	TFile* output = TFile::Open(name.c_str(), "RECREATE");
 	TTree* outtree = new TTree("SortTree", "SortTree");
 
 	outtree->Branch("event", &event);
 
-	if(!m_smap.IsSet()) {
+	if(!m_smap.IsSet()) 
+	{
 		std::cerr<<"Bad shift map at CompassRun::Convert()."<<std::endl;
 		std::cerr<<"Shifts will be locked to 0"<<std::endl;
 	}
 
 	SetScalers();
 
-	if(!GetBinaryFiles()) {
+	if(!GetBinaryFiles()) 
+	{
 		std::cerr<<"Unable to open a file!"<<std::endl;
 		return;
 	}
 
-	if(m_pb) SetProgressBar();
+	if(m_pb) 
+		SetProgressBar();
 
 	startIndex = 0;
 	CoincEvent this_event;
@@ -286,72 +334,88 @@ void CompassRun::Convert2FastSortedRoot(const std::string& name, const std::stri
 
 	bool killFlag = false;
 	unsigned int count = 0, flush = m_totalHits*0.01, flush_count = 0;
-	if(flush == 0) flush = 1;
-	while(true) {
+	if(flush == 0) 
+		flush = 1;
+	while(true) 
+	{
 		count++;
-		if(count == flush) {
-			if(m_pb) {
+		if(count == flush) 
+		{
+			if(m_pb) 
+			{
 				m_pb->Increment(count);
 				gSystem->ProcessEvents();
 				count=0;
-			} else {
+			} 
+			else 
+			{
 				count = 0;
 				flush_count++;
 				std::cout<<"\rPercent of run built: "<<flush_count*10<<"%"<<std::flush;
 			}
 		}
 		
-		if(!GetHitsFromFiles()) {
+		if(!GetHitsFromFiles()) 
+		{
 			coincidizer.FlushHitsToEvent();
 			killFlag = true;
-		} else {
+		} 
+		else 
+		{
 			flagger.CheckFlag(hit.board, hit.channel, hit.flags);
 			coincidizer.AddHitToEvent(hit);
 		}
 
-		if(coincidizer.IsEventReady()) {
+		if(coincidizer.IsEventReady()) 
+		{
 			this_event = coincidizer.GetEvent();
 
 			fast_events = speedyCoincidizer.GetFastEvents(this_event);
-			for(auto& entry : fast_events) {
+			for(auto& entry : fast_events) 
+			{
 				event = entry;
 				outtree->Fill();
 			}
-			if(killFlag) break;
+			if(killFlag) 
+				break;
 		}
 	}
 
 	output->cd();
 	outtree->Write(outtree->GetName(), TObject::kOverwrite);
-	for(auto& entry : m_scaler_map) {
+	for(auto& entry : m_scaler_map)
 		entry.second.Write();
-	}
+	
 	coincidizer.GetEventStats()->Write();
 	output->Close();
 }
 
 
 void CompassRun::Convert2SlowAnalyzedRoot(const std::string& name, const std::string& mapfile, double window,
-									  int zt, int at, int zp, int ap, int ze, int ae, double bke, double b, double theta) {
+									  int zt, int at, int zp, int ap, int ze, int ae, double bke, double b, double theta) 
+{
 
 	TFile* output = TFile::Open(name.c_str(), "RECREATE");
 	TTree* outtree = new TTree("SPSTree", "SPSTree");
 
 	outtree->Branch("event", &pevent);
 
-	if(!m_smap.IsSet()) {
+	if(!m_smap.IsSet()) 
+	{
 		std::cerr<<"Bad shift map at CompassRun::Convert()."<<std::endl;
 		std::cerr<<"Shifts will be locked to 0"<<std::endl;
 	}
 
 	SetScalers();
 
-	if(!GetBinaryFiles()) {
+	if(!GetBinaryFiles()) 
+	{
 		std::cerr<<"Unable to open a file!"<<std::endl;
 		return;
 	}
 
-	if(m_pb) SetProgressBar();
+	if(m_pb) 
+		SetProgressBar();
 
 	startIndex = 0;
 	CoincEvent this_event;
@@ -372,44 +436,55 @@ void CompassRun::Convert2SlowAnalyzedRoot(const std::string& name, const std::st
 
 	bool killFlag = false;
 	unsigned int count = 0, flush = m_totalHits*0.01, flush_count = 0;
-	if(flush == 0) flush = 1;
-	while(true) {
+	if(flush == 0) 
+		flush = 1;
+	while(true) 
+	{
 		count++;
-		if(count == flush) {
-			if(m_pb) {
+		if(count == flush) 
+		{
+			if(m_pb) 
+			{
 				m_pb->Increment(count);
 				gSystem->ProcessEvents();
 				count=0;
-			} else {
+			} 
+			else 
+			{
 				count = 0;
 				flush_count++;
 				std::cout<<"\rPercent of run built: "<<flush_count*10<<"%"<<std::flush;
 			}
 		}
 
-		if(!GetHitsFromFiles()) {
+		if(!GetHitsFromFiles()) 
+		{
 			coincidizer.FlushHitsToEvent();
 			killFlag = true;
-		} else {
+		} 
+		else 
+		{
 			coincidizer.AddHitToEvent(hit);
 		}
 
-		if(coincidizer.IsEventReady()) {
+		if(coincidizer.IsEventReady()) 
+		{
 			this_event = coincidizer.GetEvent();
 			pevent = analyzer.GetProcessedEvent(this_event);
 			outtree->Fill();
-			if(killFlag) break;
+			if(killFlag) 
+				break;
 		}
 	}
 
 	output->cd();
 	outtree->Write(outtree->GetName(), TObject::kOverwrite);
-	for(auto& entry : m_scaler_map) {
+	for(auto& entry : m_scaler_map)
 		entry.second.Write();
-	}
-	for(auto& entry : parvec) {
+
+	for(auto& entry : parvec)
 		entry.Write();
-	}
+
 	coincidizer.GetEventStats()->Write();
 	analyzer.GetHashTable()->Write();
 	analyzer.ClearHashTable();
@@ -417,26 +492,30 @@ void CompassRun::Convert2SlowAnalyzedRoot(const std::string& name, const std::st
 }
 
 void CompassRun::Convert2FastAnalyzedRoot(const std::string& name, const std::string& mapfile, double window, double fsi_window, double fic_window,
-									  int zt, int at, int zp, int ap, int ze, int ae, double bke, double b, double theta) {
+									  int zt, int at, int zp, int ap, int ze, int ae, double bke, double b, double theta) 
+{
 
 	TFile* output = TFile::Open(name.c_str(), "RECREATE");
 	TTree* outtree = new TTree("SPSTree", "SPSTree");
 
 	outtree->Branch("event", &pevent);
 
-	if(!m_smap.IsSet()) {
+	if(!m_smap.IsSet()) 
+	{
 		std::cerr<<"Bad shift map at CompassRun::Convert()."<<std::endl;
 		std::cerr<<"Shifts will be locked to 0"<<std::endl;
 	}
 
 	SetScalers();
 
-	if(!GetBinaryFiles()) {
+	if(!GetBinaryFiles()) 
+	{
 		std::cerr<<"Unable to open a file!"<<std::endl;
 		return;
 	}
 
-	if(m_pb) SetProgressBar();
+	if(m_pb) 
+		SetProgressBar();
 
 	startIndex = 0;
 	CoincEvent this_event;
@@ -461,56 +540,69 @@ void CompassRun::Convert2FastAnalyzedRoot(const std::string& name, const std::st
 
 	bool killFlag = false;
 	unsigned int count = 0, flush = m_totalHits*0.01, flush_count = 0;
-	if(flush == 0) flush = 1;
-	while(true) {
+	if(flush == 0) 
+		flush = 1;
+	while(true) 
+	{
 		count++;
-		if(count == flush) {
-			if(m_pb) {
+		if(count == flush) 
+		{
+			if(m_pb) 
+			{
 				m_pb->Increment(count);
 				gSystem->ProcessEvents();
 				count=0;
-			} else {
+			} 
+			else 
+			{
 				count = 0;
 				flush_count++;
 				std::cout<<"\rPercent of run built: "<<flush_count*10<<"%"<<std::flush;
 			}
 		}
 
-		if(!GetHitsFromFiles()) {
+		if(!GetHitsFromFiles()) 
+		{
 			coincidizer.FlushHitsToEvent();
 			killFlag = true;
-		} else {
+		} 
+		else 
+		{
 			flagger.CheckFlag(hit.board, hit.channel, hit.flags);
 			coincidizer.AddHitToEvent(hit);
 		}
 
-		if(coincidizer.IsEventReady()) {
+		if(coincidizer.IsEventReady()) 
+		{
 			this_event = coincidizer.GetEvent();
 
 			fast_events = speedyCoincidizer.GetFastEvents(this_event);
-			for(auto& entry : fast_events) {
+			for(auto& entry : fast_events) 
+			{
 				pevent = analyzer.GetProcessedEvent(entry);
 				outtree->Fill();
 			}
-			if(killFlag) break;
+			if(killFlag) 
+				break;
 		}
 	}
 
 	output->cd();
 	outtree->Write(outtree->GetName(), TObject::kOverwrite);
-	for(auto& entry : m_scaler_map) {
+	for(auto& entry : m_scaler_map) 
 		entry.second.Write();
-	}
-	for(auto& entry : parvec) {
+
+	for(auto& entry : parvec)
 		entry.Write();
-	}
+
 	coincidizer.GetEventStats()->Write();
 	analyzer.GetHashTable()->Write();
 	analyzer.ClearHashTable();
 	output->Close();
 }
 
-void CompassRun::SetProgressBar() {
+void CompassRun::SetProgressBar() 
+{
 	m_pb->SetMax(m_totalHits);
 	m_pb->SetMin(0);
 	m_pb->SetPosition(0);

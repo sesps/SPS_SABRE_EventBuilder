@@ -35,11 +35,13 @@ CompassFile::CompassFile(const std::string& filename, int bsize) :
 	Open(filename);
 }
 
-CompassFile::~CompassFile() {
+CompassFile::~CompassFile() 
+{
 	Close();
 }
 
-void CompassFile::Open(const std::string& filename) {
+void CompassFile::Open(const std::string& filename) 
+{
 	eofFlag = false;
 	hitUsedFlag = true;
 	m_filename = filename;
@@ -48,21 +50,28 @@ void CompassFile::Open(const std::string& filename) {
 	m_file->seekg(0, std::ios_base::end);
 	m_size = m_file->tellg();
 	m_nHits = m_size/24;
-	if(m_size == 0) {
+	if(m_size == 0) 
+	{
 		eofFlag = true;
-	} else {
+	} 
+	else 
+	{
 		m_file->seekg(0, std::ios_base::beg);
 	}
 }
 
-void CompassFile::Close() {
-	if(IsOpen()) {
+void CompassFile::Close() 
+{
+	if(IsOpen()) 
+	{
 		m_file->close();
 	}
 }
 
-int CompassFile::GetHitSize() {
-	if(!IsOpen()) {
+int CompassFile::GetHitSize() 
+{
+	if(!IsOpen()) 
+	{
 		std::cerr<<"Unable to get hit size due to file not being open!"<<std::endl;
 		return 0;
 	}
@@ -90,14 +99,17 @@ int CompassFile::GetHitSize() {
 
 	If the file cannot be opened, signals as though file is EOF
 */
-bool CompassFile::GetNextHit() {
+bool CompassFile::GetNextHit()
+{
 	if(!IsOpen()) return true;
 
-	if((bufferIter == nullptr || bufferIter == bufferEnd) && !IsEOF()) {
+	if((bufferIter == nullptr || bufferIter == bufferEnd) && !IsEOF()) 
+	{
 		GetNextBuffer();
 	}
 
-	if(!IsEOF()) {
+	if(!IsEOF()) 
+	{
 		ParseNextHit();
 		hitUsedFlag = false;
 	}
@@ -112,9 +124,11 @@ bool CompassFile::GetNextHit() {
 	bit upon pulling the last buffer, but this class waits until that entire
 	last buffer is read to singal EOF (the true end of file). 
 */
-void CompassFile::GetNextBuffer() {
+void CompassFile::GetNextBuffer() 
+{
 
-	if(m_file->eof()) {
+	if(m_file->eof()) 
+	{
 		eofFlag = true;
 		return;
 	}
@@ -126,24 +140,26 @@ void CompassFile::GetNextBuffer() {
 
 }
 
-void CompassFile::ParseNextHit() {
+void CompassFile::ParseNextHit() 
+{
 
-	m_currentHit.board = *((UShort_t*)bufferIter);
+	m_currentHit.board = *((uint16_t*)bufferIter);
 	bufferIter += 2;
-	m_currentHit.channel = *((UShort_t*)bufferIter);
+	m_currentHit.channel = *((uint16_t*)bufferIter);
 	bufferIter += 2;
-	m_currentHit.timestamp = *((ULong64_t*)bufferIter);
+	m_currentHit.timestamp = *((uint64_t*)bufferIter);
 	bufferIter += 8;
-	m_currentHit.lgate = *((UShort_t*)bufferIter);
+	m_currentHit.lgate = *((uint16_t*)bufferIter);
 	bufferIter += 2;
-	m_currentHit.sgate = *((UShort_t*)bufferIter);
+	m_currentHit.sgate = *((uint16_t*)bufferIter);
 	bufferIter += 2;
-	m_currentHit.flags = *((UInt_t*)bufferIter);
+	m_currentHit.flags = *((uint32_t*)bufferIter);
 	bufferIter += 4;
-	m_currentHit.Ns = *((UInt_t*)bufferIter);
+	m_currentHit.Ns = *((uint32_t*)bufferIter);
 	bufferIter += 4;
 
-	if(m_smap != nullptr) { //memory safety
+	if(m_smap != nullptr) 
+	{ //memory safety
 		int gchan = m_currentHit.channel + m_currentHit.board*16;
 		m_currentHit.timestamp += m_smap->GetShift(gchan);
 	}

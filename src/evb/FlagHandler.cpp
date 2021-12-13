@@ -2,65 +2,85 @@
 #include "FlagHandler.h"
 
 FlagHandler::FlagHandler() : 
-log("./event_log.txt")
+	log("./event_log.txt")
 {
 }
 
 FlagHandler::FlagHandler(const std::string& filename) :
-log(filename)
+	log(filename)
 {
 }
 
-FlagHandler::~FlagHandler() {
+FlagHandler::~FlagHandler() 
+{
 	WriteLog();
 	log.close();
 }
 
-void FlagHandler::CheckFlag(int board, int channel, int flag) {
+void FlagHandler::CheckFlag(int board, int channel, int flag) 
+{
 
 	int gchan = channel + board*16;
 	FlagCount& counter = event_count_map[gchan]; //yikes
 
 	counter.total_counts++;
 
-	if(flag & DEAD_TIME) counter.dead_time++;
+	if(flag & DeadTime) 
+		counter.dead_time++;
 
-	if(flag & TIME_ROLLOVER) counter.time_roll++;
+	if(flag & TimeRollover) 
+		counter.time_roll++;
 
-	if(flag & TIME_RESET) counter.time_reset++;
+	if(flag & TimeReset) 
+		counter.time_reset++;
 
-	if(flag & FAKE_EVENT) counter.fake_event++;
+	if(flag & FakeEvent) 
+		counter.fake_event++;
 
-	if(flag & MEM_FULL) counter.mem_full++;
+	if(flag & MemFull) 
+		counter.mem_full++;
 
-	if(flag & TRIG_LOST) counter.trig_lost++;
+	if(flag & TrigLost) 
+		counter.trig_lost++;
 
-	if(flag & N_TRIG_LOST) counter.n_trig_lost++;
+	if(flag & NTrigLost) 
+		counter.n_trig_lost++;
 
-	if(flag & SATURATING_IN_GATE) counter.sat_in_gate++;
+	if(flag & SaturatingInGate) 
+		counter.sat_in_gate++;
 
-	if(flag & TRIG_1024_COUNTED) counter.trig_1024++;;
+	if(flag & Trig1024Counted) 
+		counter.trig_1024++;;
 
-	if(flag & SATURATING_INPUT) counter.sat_input++;
+	if(flag & SaturatingInput) 
+		counter.sat_input++;
 
-	if(flag & N_TRIG_COUNTED) counter.n_trig_count++;
+	if(flag & NTrigCounted) 
+		counter.n_trig_count++;
 
-	if(flag & EVENT_NOT_MATCHED) counter.event_not_matched++;
+	if(flag & EventNotMatched) 
+		counter.event_not_matched++;
 
-	if(flag & PILE_UP) counter.pile_up++;
+	if(flag & PileUp) 
+		counter.pile_up++;
 
-	if(flag & PLL_LOCK_LOSS) counter.pll_lock_loss++;
+	if(flag & PLLLockLoss) 
+		counter.pll_lock_loss++;
 
-	if(flag & OVER_TEMP) counter.over_temp++;
+	if(flag & OverTemp) 
+		counter.over_temp++;
 
-	if(flag & ADC_SHUTDOWN) counter.adc_shutdown++;
+	if(flag & ADCShutdown) 
+		counter.adc_shutdown++;
 
 }
 
-void FlagHandler::WriteLog() {
+void FlagHandler::WriteLog() 
+{
 	log<<"Event Flag Log"<<std::endl;
 	log<<"-----------------------------"<<std::endl;
-	for(auto& counter : event_count_map) {
+	for(auto& counter : event_count_map) 
+	{
 		log<<"-----------------------------"<<std::endl;
 		log<<"GLOBAL CHANNEL No.: "<<counter.first<<std::endl;
 		log<<"Total number of events: "<<counter.second.total_counts<<std::endl;

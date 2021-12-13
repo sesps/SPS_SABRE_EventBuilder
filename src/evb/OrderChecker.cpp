@@ -8,25 +8,28 @@
 #include "EventBuilder.h"
 #include "OrderChecker.h"
 
-OrderChecker::OrderChecker() {
-
+OrderChecker::OrderChecker() 
+{
 }
 
-OrderChecker::~OrderChecker() {
-
+OrderChecker::~OrderChecker() 
+{
 }
 
-bool OrderChecker::IsOrdered(const std::string& filename)  {
+bool OrderChecker::IsOrdered(const std::string& filename)  
+{
 	TFile* file = TFile::Open(filename.c_str(), "READ");
 	TTree* tree = (TTree*) file->Get("Data");
 
-	ULong64_t ts;
+	uint64_t ts;
 	tree->SetBranchAddress("Timestamp", &ts);
-	ULong64_t prevStamp = 0;
+	uint64_t prevStamp = 0;
 
-	for(Long64_t i=0; i<tree->GetEntries(); i++) {
+	for(Long64_t i=0; i<tree->GetEntries(); i++) 
+	{
 		tree->GetEntry();
-		if(prevStamp >= ts) {
+		if(prevStamp >= ts) 
+		{
 			std::cerr<<"Bad order at entry "<<i<<" out of "<<tree->GetEntries()<<std::endl;
 			return false;
 		}

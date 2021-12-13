@@ -12,23 +12,24 @@
 #ifndef SHIFTMAP_H
 #define SHIFTMAP_H
 
-class ShiftMap {
+class ShiftMap 
+{
 public:
 	ShiftMap();
 	ShiftMap(const std::string& filename);
 	~ShiftMap();
 	void SetFile(const std::string& filename);
-	inline bool IsSet() { return is_set; };
-	inline std::string GetFilename() { return m_filename; };
+	inline bool IsValid() { return m_validFlag; }
+	inline std::string GetFilename() { return m_filename; }
 	Long64_t GetShift(int gchan);
 
 private:
 	void ParseFile();
 
 	std::string m_filename;
-	bool is_set;
+	bool m_validFlag;
 
-	std::unordered_map<int, Long64_t> m_map;
+	std::unordered_map<int, uint64_t> m_map;
 
 };
 

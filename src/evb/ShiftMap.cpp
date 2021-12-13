@@ -13,57 +13,69 @@
 #include "ShiftMap.h"
 
 ShiftMap::ShiftMap() :
-	m_filename(""), is_set(false)
+	m_filename(""), m_validFlag(false)
 {
 }
 
 ShiftMap::ShiftMap(const std::string& filename) :
-	m_filename(filename), is_set(false)
+	m_filename(filename), m_validFlag(false)
 {
 	ParseFile();
 }
 
 ShiftMap::~ShiftMap() {}
 
-void ShiftMap::SetFile(const std::string& filename) {
+void ShiftMap::SetFile(const std::string& filename) 
+{
 	m_filename = filename;
 	ParseFile();
 }
 
-Long64_t ShiftMap::GetShift(int gchan) {
-	if(!is_set) return 0.0;
+uint64_t ShiftMap::GetShift(int gchan) 
+{
+	if(!m_validFlag)
+		return 0;
 	
 	auto iter = m_map.find(gchan);
-	if(iter == m_map.end()) {
-		return 0.0;
-	} else return iter->second;
+	if(iter == m_map.end())
+		return 0;
+	else 
+		return iter->second;
 }
 
-void ShiftMap::ParseFile() {
+void ShiftMap::ParseFile() 
+{
+	m_validFlag = false;
 	std::ifstream input(m_filename);
-	if(!input.is_open()) return;
+	if(!input.is_open()) 
+		return;
 
 	int board, channel, gchan;
-	Long64_t shift;
+	uint64_t shift;
 	std::string junk, temp;
 
 	std::getline(input, junk);
 	std::getline(input, junk);
 
-	while(input>>board) {
+	while(input>>board) 
+	{
 		input>>temp;
 		input>>shift;
-		if(temp == "all") { //keyword to set all channels in this board to same shift
-			for(int i=0; i<16; i++) {
+		if(temp == "all") //keyword to set all channels in this board to same shift
+		{ 
+			for(int i=0; i<16; i++) 
+			{
 				gchan = board*16 + i;
 				m_map[gchan] = shift;
 			}
-		} else {
+		}
+		else 
+		{
 			channel = stoi(temp);
 			gchan = channel + board*16;
 			m_map[gchan] = shift;
 		}
 	}
 
-	is_set = true;
+	m_validFlag = true;
 }

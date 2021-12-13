@@ -3,7 +3,8 @@
 
 #include <map>
 
-struct FlagCount {
+struct FlagCount 
+{
 	long total_counts=0;
 	long dead_time=0;
 	long time_roll=0;
@@ -24,30 +25,31 @@ struct FlagCount {
 	long adc_shutdown=0;
 };
 
-class FlagHandler {
+class FlagHandler 
+{
 public:
 	FlagHandler();
 	FlagHandler(const std::string& filename);
 	~FlagHandler();
 	void CheckFlag(int board, int channel, int flag);
 
-	const int DEAD_TIME = 0x00000001;
-	const int TIME_ROLLOVER = 0x00000002;
-	const int TIME_RESET = 0x00000004;
-	const int FAKE_EVENT = 0x00000008;
-	const int MEM_FULL = 0x00000010;
-	const int TRIG_LOST = 0x00000020;
-	const int N_TRIG_LOST = 0x00000040;
-	const int SATURATING_IN_GATE = 0x00000080;
-	const int TRIG_1024_COUNTED = 0x00000100;
-	const int SATURATING_INPUT = 0x00000400;
-	const int N_TRIG_COUNTED = 0x00000800;
-	const int EVENT_NOT_MATCHED = 0x00001000;
-	const int FINE_TIME  = 0x00004000;
-	const int PILE_UP = 0x00008000;
-	const int PLL_LOCK_LOSS = 0x00080000;
-	const int OVER_TEMP = 0x00100000;
-	const int ADC_SHUTDOWN = 0x00200000;
+	const int DeadTime = 0x00000001;
+	const int TimeRollover = 0x00000002;
+	const int TimeReset = 0x00000004;
+	const int FakeEvent = 0x00000008;
+	const int MemFull = 0x00000010;
+	const int TrigLost = 0x00000020;
+	const int NTrigLost = 0x00000040;
+	const int SaturatingInGate = 0x00000080;
+	const int Trig1024Counted = 0x00000100;
+	const int SaturatingInput = 0x00000400;
+	const int NTrigCounted = 0x00000800;
+	const int EventNotMatched = 0x00001000;
+	const int FineTime  = 0x00004000;
+	const int PileUp = 0x00008000;
+	const int PLLLockLoss = 0x00080000;
+	const int OverTemp = 0x00100000;
+	const int ADCShutdown = 0x00200000;
 
 private:
 	std::ofstream log;

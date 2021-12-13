@@ -9,35 +9,38 @@
 #ifndef CHANNELMAP_H
 #define CHANNELMAP_H
 
-struct Channel {
+struct Channel 
+{
 	int detectorType; //What kind of detector we're looking at
 	int detectorID; //Which specific detector we're looking at
 	int detectorPart; //Which specific part we're looking at
 };
 
 //Detector part/type identifiers for use in the code
-enum DetAttribute {
-	FOCALPLANE,
-	SCINTLEFT,
-	SCINTRIGHT,
-	ANODEFRONT,
-	ANODEBACK,
-	DELAYFR,
-	DELAYFL,
-	DELAYBR,
-	DELAYBL,
-	CATHODE,
-	MONITOR,
-	SABRERING = 88, //These are offset to avoid interference at the variable mapping phase
-	SABREWEDGE = 99 //Just don't add any new attributes with values greater than 88
+enum class DetAttribute 
+{
+	FocalPlane,
+	ScintLeft,
+	ScintRight,
+	AnodeFront,
+	AnodeBack,
+	DelayFR,
+	DelayFL,
+	DelayBR,
+	DelayBL,
+	Cathode,
+	Monitor,
+	SabreRing = 88, //These are offset to avoid interference at the variable mapping phase
+	SabreWedge = 99 //Just don't add any new attributes with values greater than 88
 };
 
 
-class ChannelMap {
+class ChannelMap 
+{
 	
 public:
-	typedef std::unordered_map<int, Channel> Containter;
-	typedef std::unordered_map<int, Channel>::iterator Iterator;
+	typedef std::unordered_map<DetAttribute, Channel> Containter;
+	typedef std::unordered_map<DetAttribute, Channel>::iterator Iterator;
 
 	ChannelMap();
 	ChannelMap(const std::string& filename);
