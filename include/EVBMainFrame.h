@@ -12,10 +12,11 @@
 #include <TGProgressBar.h>
 #include <TTimer.h>
 #include <TGComboBox.h>
-#include "GWMEventBuilder.h"
+#include "EVBApp.h"
 
 
-class EVBMainFrame : public TGMainFrame {
+class EVBMainFrame : public TGMainFrame 
+{
 public:
 	EVBMainFrame(const TGWindow* p, UInt_t w, UInt_t h);
 	virtual ~EVBMainFrame();
@@ -47,31 +48,32 @@ public:
 	void EnableAllInput();
 
 
-	enum WidgetId {
-		WORKDIR,
-		CMAP,
-		SMAP,
-		SCALER,
-		CUT,
-		PLOTF,
-		BFIELD,
-		BKE,
-		THETA,
+	enum WidgetId 
+	{
+		WorkDir,
+		Cmap,
+		Smap,
+		Scaler,
+		Cut,
+		PlotF,
+		BField,
+		Bke,
+		Theta,
 		ZT,
 		AT,
 		ZP,
 		AP,
 		ZE,
 		AE,
-		SLOWWIND,
-		FASTWIND_IC,
-		FASTWIND_SABRE,
-		TYPEBOX,
-		RMIN,
-		RMAX,
-		M_LOAD_CONFIG,
-		M_SAVE_CONFIG,
-		M_EXIT
+		SlowWind,
+		FastWind_IC,
+		FastWind_Sabre,
+		TypeBox,
+		RMin,
+		RMax,
+		M_Load_Config,
+		M_Save_Config,
+		M_Exit
 	};
 
 	ClassDef(EVBMainFrame, 0);
@@ -92,7 +94,7 @@ private:
 
 	TGPopupMenu *fFileMenu;
 
-	GWMEventBuilder fBuilder;
+	EVBApp fBuilder;
 
 	int counter;
 	UInt_t MAIN_W, MAIN_H;

@@ -78,7 +78,7 @@ void CutHandler::InitVariableMap()
 	varmap["cathode"] = &m_event.cathode;
 }
 
-bool CutHandler::IsInside(ProcessedEvent* eaddress) 
+bool CutHandler::IsInside(const ProcessedEvent* eaddress) 
 {
 	m_event = *eaddress;
 	std::string x, y;

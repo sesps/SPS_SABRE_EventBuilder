@@ -120,7 +120,7 @@ void EVBApp::WriteConfigFile(const std::string& fullpath)
 void EVBApp::PlotHistograms() 
 {
 	std::string analyze_dir = m_workspace+"/analyzed/";
-	std::string plot_file = m_workspace+"/histograms/run_"+to_string(m_rmin)+"_"+to_string(m_rmax)+".root";
+	std::string plot_file = m_workspace+"/histograms/run_"+std::to_string(m_rmin)+"_"+std::to_string(m_rmax)+".root";
 	SFPPlotter grammer;
 	grammer.ApplyCutlist(m_cutList);
 	std::cout<<"-------------GWM Event Builder-------------"<<std::endl;
@@ -136,7 +136,7 @@ void EVBApp::PlotHistograms()
 	if(grabber.GrabFilesInRange()) 
 	{
 		std::cout<<"Working...";
-		grammer.Run(grabber.filelist, plot_file);
+		grammer.Run(grabber.GetFileList(), plot_file);
 		std::cout<<" Complete."<<std::endl;
 	} 
 	else 
@@ -183,7 +183,7 @@ void EVBApp::Convert2RawRoot()
 		converter.SetRunNumber(i);
 		std::cout<<"Converting file: "<<binfile<<std::endl;
 
-		rawfile = rawroot_dir + "compass_run_"+ to_string(i) + ".root";
+		rawfile = rawroot_dir + "compass_run_"+ std::to_string(i) + ".root";
 		unpack_command = "tar -xzf "+binfile+" --directory "+unpack_dir;
 		wipe_command = "rm -r "+unpack_dir+"*.bin";
 
@@ -199,7 +199,7 @@ void EVBApp::Convert2RawRoot()
 
 void EVBApp::MergeROOTFiles() 
 {
-	std::string merge_file = m_workspace+"/merged/run_"+to_string(m_rmin)+"_"+to_string(m_rmax)+".root";
+	std::string merge_file = m_workspace+"/merged/run_"+std::to_string(m_rmin)+"_"+std::to_string(m_rmax)+".root";
 	std::string file_dir = m_workspace+"/analyzed/";
 	std::cout<<"-------------GWM Event Builder-------------"<<std::endl;
 	std::cout<<"Merging ROOT files into single ROOT file"<<std::endl;
@@ -256,7 +256,7 @@ void EVBApp::Convert2SortedRoot()
 		converter.SetRunNumber(i);
 		std::cout<<"Converting file: "<<binfile<<std::endl;
 
-		sortfile = sortroot_dir +"run_"+to_string(i)+ ".root";
+		sortfile = sortroot_dir +"run_"+std::to_string(i)+ ".root";
 		unpack_command = "tar -xzf "+binfile+" --directory "+unpack_dir;
 		wipe_command = "rm -r "+unpack_dir+"*.bin";
 
@@ -305,7 +305,7 @@ void EVBApp::Convert2FastSortedRoot() {
 		converter.SetRunNumber(i);
 		std::cout<<"Converting file: "<<binfile<<std::endl;
 
-		sortfile = sortroot_dir + "run_" + to_string(i) + ".root";
+		sortfile = sortroot_dir + "run_" + std::to_string(i) + ".root";
 		unpack_command = "tar -xzf "+binfile+" --directory "+unpack_dir;
 		wipe_command = "rm -r "+unpack_dir+"*.bin";
 
@@ -353,7 +353,7 @@ void EVBApp::Convert2SlowAnalyzedRoot() {
 		converter.SetRunNumber(i);
 		std::cout<<"Converting file: "<<binfile<<std::endl;
 
-		sortfile = sortroot_dir + "run_" + to_string(i) + ".root";
+		sortfile = sortroot_dir + "run_" + std::to_string(i) + ".root";
 		unpack_command = "tar -xzf "+binfile+" --directory "+unpack_dir;
 		wipe_command = "rm -r "+unpack_dir+"*.bin";
 
@@ -405,7 +405,7 @@ void EVBApp::Convert2FastAnalyzedRoot()
 		converter.SetRunNumber(i);
 		std::cout<<"Converting file: "<<binfile<<std::endl;
 
-		sortfile = sortroot_dir + "run_" + to_string(i) + ".root";
+		sortfile = sortroot_dir + "run_" + std::to_string(i) + ".root";
 		unpack_command = "tar -xzf "+binfile+" --directory "+unpack_dir;
 		wipe_command = "rm -r "+unpack_dir+"*.bin";
 

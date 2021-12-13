@@ -13,10 +13,7 @@
 /*Generates storage and initializes pointers*/
 SFPPlotter::SFPPlotter()
 {
-	rootObj = new THashTable();
-	rootObj->SetOwner(false);//THashTable doesnt own members; avoid double delete
 	event_address = new ProcessedEvent();
-	chain = new TChain("SPSTree");
 	m_pb = nullptr;
 }
 
@@ -29,28 +26,28 @@ SFPPlotter::~SFPPlotter()
 void SFPPlotter::MyFill(THashTable* table, const std::string& name, int binsx, double minx, double maxx, double valuex,
 						int binsy, double miny, double maxy, double valuey)
 {
-	TH2F *histo = (TH2F*) rootObj->FindObject(name.c_str());
+	TH2F *histo = (TH2F*) table->FindObject(name.c_str());
 	if(histo != nullptr) 
 		histo->Fill(valuex, valuey);
 	else
 	{
 		TH2F *h = new TH2F(name.c_str(), name.c_str(), binsx, minx, maxx, binsy, miny, maxy);
 		h->Fill(valuex, valuey);
-		rootObj->Add(h);
+		table->Add(h);
 	}
 }
 
 /*1D histogram fill wrapper*/
 void SFPPlotter::MyFill(THashTable* table, const std::string& name, int binsx, double minx, double maxx, double valuex)
 {
-	TH1F *histo = (TH1F*) rootObj->FindObject(name.c_str());
+	TH1F *histo = (TH1F*) table->FindObject(name.c_str());
 	if(histo != nullptr)
 		histo->Fill(valuex);
 	else 
 	{
 		TH1F *h = new TH1F(name.c_str(), name.c_str(), binsx, minx, maxx);
 		h->Fill(valuex);
-		rootObj->Add(h);
+		table->Add(h);
 	}
 }
 
@@ -247,12 +244,12 @@ void SFPPlotter::Run(const std::vector<std::string>& files, const std::string& o
 	for(unsigned int i=0; i<files.size(); i++)
 		chain->Add(files[i].c_str()); 
 	chain->SetBranchAddress("event", &event_address);
-	THastTable* table = new THashTable();
+	THashTable* table = new THashTable();
 
 	long blentries = chain->GetEntries();
 	if(m_pb) 
 		SetProgressBar(blentries);
-	cout<<"Total number of events: "<<blentries<<endl;
+	std::cout<<"Total number of events: "<<blentries<<std::endl;
 
 	long count=0, flush_val=blentries*0.01, flush_count=0;
 
@@ -272,19 +269,19 @@ void SFPPlotter::Run(const std::vector<std::string>& files, const std::string& o
 			}
 		}
 		chain->GetEntry(i);
-		MakeUncutHistograms(*event_address);
-		if(cutter.IsValid()) MakeCutHistograms(*event_address);
+		MakeUncutHistograms(*event_address, table);
+		if(cutter.IsValid()) MakeCutHistograms(*event_address, table);
 	}
-	cout<<endl;
+	std::cout<<std::endl;
 	outfile->cd();
-	rootObj->Write();
+	table->Write();
 	if(cutter.IsValid()) 
 	{
 		auto clist = cutter.GetCuts();
 		for(unsigned int i=0; i<clist.size(); i++) 
 		  clist[i]->Write();
 	}
-	delete rootObj;
+	delete table;
 	outfile->Close();
 	delete outfile;
 }

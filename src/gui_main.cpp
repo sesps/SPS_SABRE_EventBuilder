@@ -2,7 +2,8 @@
 #include <TApplication.h>
 #include "EVBMainFrame.h"
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv) 
+{
 	TApplication app("app", &argc, argv);
 	UInt_t h = 400;
 	UInt_t w = 400;

@@ -2,7 +2,7 @@
 #include "FastSort.h"
 
 //windows given in picoseconds, converted to nanoseconds
-FastSort::FastSort(float si_windowSize, float ion_windowSize)
+FastSort::FastSort(float si_windowSize, float ion_windowSize) :
 	si_coincWindow(si_windowSize/1.0e3), ion_coincWindow(ion_windowSize/1.0e3), event_address(nullptr)
 {
 }
@@ -105,7 +105,7 @@ std::vector<CoincEvent> FastSort::GetFastEvents(CoincEvent& event)
 	sizeArray[4] = slowEvent.focalPlane.anodeF.size();
 	sizeArray[5] = slowEvent.focalPlane.anodeB.size();
 	sizeArray[6] = slowEvent.focalPlane.cathode.size();
-	unsigned int maxSize = *max_element(sizeArray, sizeArray+7);
+	unsigned int maxSize = *std::max_element(sizeArray, sizeArray+7);
 	//loop over scints
 	for(unsigned int i=0; i<slowEvent.focalPlane.scintL.size(); i++) 
 	{

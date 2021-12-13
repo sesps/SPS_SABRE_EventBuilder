@@ -18,13 +18,13 @@
 #include "FlagHandler.h"
 
 CompassRun::CompassRun() :
-	directory(""), m_scalerinput(""), runNum(0), m_scaler_flag(false), m_pb(nullptr)
+	m_directory(""), m_scalerinput(""), m_runNum(0), m_scaler_flag(false), m_pb(nullptr)
 {
 
 }
 
 CompassRun::CompassRun(const std::string& dir) :
-	directory(dir), m_scalerinput(""), runNum(0), m_scaler_flag(false), m_pb(nullptr)
+	m_directory(dir), m_scalerinput(""), m_runNum(0), m_scaler_flag(false), m_pb(nullptr)
 {
 
 }
@@ -48,7 +48,7 @@ void CompassRun::SetScalers()
 	while(input>>filename) 
 	{
 		input>>varname;
-		filename = directory+filename+"_run_"+to_string(runNum)+".bin";
+		filename = m_directory+filename+"_run_"+std::to_string(m_runNum)+".bin";
 		m_scaler_map[filename] = TParameter<Long64_t>(varname.c_str(), init);
 	}
 	input.close();
@@ -58,15 +58,15 @@ bool CompassRun::GetBinaryFiles()
 {
 	std::string prefix = "";
 	std::string suffix = ".bin"; //binaries
-	RunCollector grabber(directory, prefix, suffix);
+	RunCollector grabber(m_directory, prefix, suffix);
 	grabber.GrabAllFiles();
 
 	m_datafiles.clear(); //so that the CompassRun can be reused
-	m_datafiles.reserve(grabber.filelist.size());
+	m_datafiles.reserve(grabber.GetFileList().size());
 	bool scalerd;
 	m_totalHits = 0; //reset total run size
 
-	for(auto& entry : grabber.filelist) 
+	for(auto& entry : grabber.GetFileList()) 
 	{
 		//Handle scaler files, if they exist
 		if(m_scaler_flag) 
@@ -74,9 +74,9 @@ bool CompassRun::GetBinaryFiles()
 			scalerd = false;
 			for(auto& scaler_pair : m_scaler_map) 
 			{
-				if(std::string(entry.Data()) == scaler_pair.first) 
+				if(entry == scaler_pair.first) 
 				{
-					ReadScalerData(entry.Data());
+					ReadScalerData(entry);
 					scalerd = true;
 					break;
 				}
@@ -85,7 +85,7 @@ bool CompassRun::GetBinaryFiles()
 				continue;
 		}
 
-		m_datafiles.emplace_back(entry.Data());
+		m_datafiles.emplace_back(entry);
 		m_datafiles[m_datafiles.size()-1].AttachShiftMap(&m_smap);
 		//Any time we have a file that fails to be found, we terminate the whole process
 		if(!m_datafiles[m_datafiles.size() - 1].IsOpen()) 
@@ -132,26 +132,25 @@ void CompassRun::ReadScalerData(const std::string& filename)
 bool CompassRun::GetHitsFromFiles() 
 {
 
-	std::pair<CompassHit, bool*> earliestHit = make_pair(CompassHit(), nullptr);
+	std::pair<CompassHit, bool*> earliestHit = std::make_pair(CompassHit(), nullptr);
 	for(unsigned int i=startIndex; i<m_datafiles.size(); i++) 
 	{
 		if(m_datafiles[i].CheckHitHasBeenUsed()) 
-		{
 			m_datafiles[i].GetNextHit();
-		}
 
 		if(m_datafiles[i].IsEOF()) 
 		{
-			if(i == startIndex) startIndex++;
+			if(i == startIndex)
+				startIndex++;
 			continue;
 		} 
 		else if(i == startIndex) 
 		{
-			earliestHit = make_pair(m_datafiles[i].GetCurrentHit(), m_datafiles[i].GetUsedFlagPtr());
+			earliestHit = std::make_pair(m_datafiles[i].GetCurrentHit(), m_datafiles[i].GetUsedFlagPtr());
 		} 
 		else if(m_datafiles[i].GetCurrentHit().timestamp < earliestHit.first.timestamp) 
 		{
-			earliestHit = make_pair(m_datafiles[i].GetCurrentHit(), m_datafiles[i].GetUsedFlagPtr());
+			earliestHit = std::make_pair(m_datafiles[i].GetCurrentHit(), m_datafiles[i].GetUsedFlagPtr());
 		}
 	}
 
@@ -173,7 +172,7 @@ void CompassRun::Convert2RawRoot(const std::string& name) {
 	outtree->Branch("Timestamp", &hit.timestamp);
 	outtree->Branch("Flags", &hit.flags);
 
-	if(!m_smap.IsSet()) 
+	if(!m_smap.IsValid()) 
 	{
 		std::cerr<<"Bad shift map at CompassRun::Convert()."<<std::endl;
 		std::cerr<<"Shifts will be locked to 0"<<std::endl;
@@ -233,7 +232,7 @@ void CompassRun::Convert2SortedRoot(const std::string& name, const std::string& 
 
 	outtree->Branch("event", &event);
 
-	if(!m_smap.IsSet()) 
+	if(!m_smap.IsValid()) 
 	{
 		std::cerr<<"Bad shift map at CompassRun::Convert()."<<std::endl;
 		std::cerr<<"Shifts will be locked to 0"<<std::endl;
@@ -307,7 +306,7 @@ void CompassRun::Convert2FastSortedRoot(const std::string& name, const std::stri
 
 	outtree->Branch("event", &event);
 
-	if(!m_smap.IsSet()) 
+	if(!m_smap.IsValid()) 
 	{
 		std::cerr<<"Bad shift map at CompassRun::Convert()."<<std::endl;
 		std::cerr<<"Shifts will be locked to 0"<<std::endl;
@@ -400,7 +399,7 @@ void CompassRun::Convert2SlowAnalyzedRoot(const std::string& name, const std::st
 
 	outtree->Branch("event", &pevent);
 
-	if(!m_smap.IsSet()) 
+	if(!m_smap.IsValid()) 
 	{
 		std::cerr<<"Bad shift map at CompassRun::Convert()."<<std::endl;
 		std::cerr<<"Shifts will be locked to 0"<<std::endl;
@@ -422,7 +421,7 @@ void CompassRun::Convert2SlowAnalyzedRoot(const std::string& name, const std::st
 	SlowSort coincidizer(window, mapfile);
 	SFPAnalyzer analyzer(zt, at, zp, ap, ze, ae, bke, theta, b);
 
-	vector<TParameter<Double_t>> parvec;
+	std::vector<TParameter<Double_t>> parvec;
 	parvec.reserve(9);
 	parvec.emplace_back("ZT", zt);
 	parvec.emplace_back("AT", at);
@@ -500,7 +499,7 @@ void CompassRun::Convert2FastAnalyzedRoot(const std::string& name, const std::st
 
 	outtree->Branch("event", &pevent);
 
-	if(!m_smap.IsSet()) 
+	if(!m_smap.IsValid()) 
 	{
 		std::cerr<<"Bad shift map at CompassRun::Convert()."<<std::endl;
 		std::cerr<<"Shifts will be locked to 0"<<std::endl;
@@ -524,7 +523,7 @@ void CompassRun::Convert2FastAnalyzedRoot(const std::string& name, const std::st
 	FastSort speedyCoincidizer(fsi_window, fic_window);
 	SFPAnalyzer analyzer(zt, at, zp, ap, ze, ae, bke, theta, b);
 
-	vector<TParameter<Double_t>> parvec;
+	std::vector<TParameter<Double_t>> parvec;
 	parvec.reserve(9);
 	parvec.emplace_back("ZT", zt);
 	parvec.emplace_back("AT", at);

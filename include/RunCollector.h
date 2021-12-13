@@ -23,7 +23,7 @@ public:
 	bool GrabAllFiles();
 	bool GrabFilesInRange();
 	std::string GrabFile(int runNum);
-	inline std::string GetSearchDir() { return directory; }
+	inline std::string GetSearchDir() { return m_directory; }
 	inline std::string GetSearchPrefix() { return m_prefix; }
 	inline std::string GetSearchSuffix() { return m_suffix; }
 	inline int GetRunMin() { return m_minRun; }

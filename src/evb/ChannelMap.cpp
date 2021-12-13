@@ -10,12 +10,12 @@
 #include "ChannelMap.h"
 
 ChannelMap::ChannelMap() :
-	is_valid(false)
+	m_validFlag(false)
 {
 }
 
 ChannelMap::ChannelMap(const std::string& name) :
-	is_valid(false)
+	m_validFlag(false)
 {
 	FillMap(name);
 }
@@ -27,8 +27,8 @@ bool ChannelMap::FillMap(const std::string& name)
 	std::ifstream input(name);
 	if(!input.is_open()) 
 	{
-		is_valid = false;
-		return is_valid;
+		m_validFlag = false;
+		return m_validFlag;
 	}
 	std::string junk, type, partname;
 	int gchan, id;
@@ -39,42 +39,56 @@ bool ChannelMap::FillMap(const std::string& name)
 	while(input>>gchan) 
 	{
 		//Set default values
-		this_chan.detectorType = -1;
-		this_chan.detectorID = -1;
-		this_chan.detectorPart = -1;
+		this_chan.type = DetType::NoneType;
+		this_chan.local_channel = -1;
+		this_chan.attribute = DetAttribute::NoneAttr;
 		input>>id>>type>>partname;
-		if(type == "SABRERING") 
+		if(type == "SABRERING")
 		{
-			this_chan.detectorType = DetAttribute::SabreRing;
-			this_chan.detectorID = id;
-			this_chan.detectorPart = std::stoi(partname);
+			this_chan.type = DetType::Sabre;
+			switch(id)
+			{
+				case 0: this_chan.attribute = DetAttribute::SabreRing0; break;
+				case 1: this_chan.attribute = DetAttribute::SabreRing1; break;
+				case 2: this_chan.attribute = DetAttribute::SabreRing2; break;
+				case 3: this_chan.attribute = DetAttribute::SabreRing3; break;
+				case 4: this_chan.attribute = DetAttribute::SabreRing4; break;
+			}
+			this_chan.local_channel = std::stoi(partname);
 		} 
 		else if(type == "SABREWEDGE") 
 		{
-			this_chan.detectorType = DetAttribute::SabreWedge;
-			this_chan.detectorID = id;
-			this_chan.detectorPart = std::stoi(partname);
+			this_chan.type = DetType::Sabre;
+			switch(id)
+			{
+				case 0: this_chan.attribute = DetAttribute::SabreWedge0; break;
+				case 1: this_chan.attribute = DetAttribute::SabreWedge1; break;
+				case 2: this_chan.attribute = DetAttribute::SabreWedge2; break;
+				case 3: this_chan.attribute = DetAttribute::SabreWedge3; break;
+				case 4: this_chan.attribute = DetAttribute::SabreWedge4; break;
+			}
+			this_chan.local_channel = std::stoi(partname);
 		} 
 		else if (type == "FOCALPLANE") 
 		{
-			this_chan.detectorType = FOCALPLANE;
-			this_chan.detectorID = id;
-			if(partname == "SCINTRIGHT") this_chan.detectorPart = DetAttribute::ScintRight;
-			else if(partname == "SCINTLEFT") this_chan.detectorPart = DetAttribute::ScintLeft;
-			else if(partname == "DELAYFR") this_chan.detectorPart = DetAttribute::DelayFR;
-			else if(partname == "DELAYFL") this_chan.detectorPart = DetAttribute::DelayFL;
-			else if(partname == "DELAYBR") this_chan.detectorPart = DetAttribute::DelayBR;
-			else if(partname == "DELAYBL") this_chan.detectorPart = DetAttribute::DelayBL;
-			else if(partname == "CATHODE") this_chan.detectorPart = DetAttribute::Cathode;
-			else if(partname == "ANODEFRONT") this_chan.detectorPart = DetAttribute::AnodeFront;
-			else if(partname == "ANODEBACK") this_chan.detectorPart = DetAttribute::AnodeBack;
-			else if(partname == "MONITOR") this_chan.detectorPart = DetAttribute::Monitor;
+			this_chan.type = DetType::FocalPlane;
+			this_chan.local_channel = id;
+			if(partname == "SCINTRIGHT") this_chan.attribute = DetAttribute::ScintRight;
+			else if(partname == "SCINTLEFT") this_chan.attribute = DetAttribute::ScintLeft;
+			else if(partname == "DELAYFR") this_chan.attribute = DetAttribute::DelayFR;
+			else if(partname == "DELAYFL") this_chan.attribute = DetAttribute::DelayFL;
+			else if(partname == "DELAYBR") this_chan.attribute = DetAttribute::DelayBR;
+			else if(partname == "DELAYBL") this_chan.attribute = DetAttribute::DelayBL;
+			else if(partname == "CATHODE") this_chan.attribute = DetAttribute::Cathode;
+			else if(partname == "ANODEFRONT") this_chan.attribute = DetAttribute::AnodeFront;
+			else if(partname == "ANODEBACK") this_chan.attribute = DetAttribute::AnodeBack;
+			else if(partname == "MONITOR") this_chan.attribute = DetAttribute::Monitor;
 		}
 
-		cmap[gchan] = this_chan;
+		m_cmap[gchan] = this_chan;
 	}
 
 	input.close();
-	is_valid = true;
-	return is_valid;
+	m_validFlag = true;
+	return m_validFlag;
 }

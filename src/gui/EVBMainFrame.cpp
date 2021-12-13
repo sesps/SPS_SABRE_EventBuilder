@@ -28,7 +28,7 @@ EVBMainFrame::EVBMainFrame(const TGWindow* p, UInt_t w, UInt_t h) :
 
 	TGHorizontalFrame *WorkFrame = new TGHorizontalFrame(NameFrame, w, h*0.1);
 	TGLabel* workLabel = new TGLabel(WorkFrame, "Workspace Directory:");
-	fWorkField = new TGTextEntry(WorkFrame, new TGTextBuffer(120), WORKDIR);
+	fWorkField = new TGTextEntry(WorkFrame, new TGTextBuffer(120), WorkDir);
 	fWorkField->Resize(w*0.25, fWorkField->GetDefaultHeight());
 	fWorkField->Connect("ReturnPressed()","EVBMainFrame",this,"UpdateWorkdir()");
 	fOpenWorkButton = new TGTextButton(WorkFrame, "Open");
@@ -39,7 +39,7 @@ EVBMainFrame::EVBMainFrame(const TGWindow* p, UInt_t w, UInt_t h) :
 
 	TGHorizontalFrame *CMapFrame = new TGHorizontalFrame(NameFrame, w, h*0.1);
 	TGLabel* cmaplabel = new TGLabel(CMapFrame, "Channel Map File:");
-	fCMapField = new TGTextEntry(CMapFrame, new TGTextBuffer(120), CMAP);
+	fCMapField = new TGTextEntry(CMapFrame, new TGTextBuffer(120), Cmap);
 	fCMapField->Resize(w*0.25, fCMapField->GetDefaultHeight());
 	fCMapField->Connect("ReturnPressed()","EVBMainFrame",this,"UpdateCMap()");
 	fOpenCMapButton = new TGTextButton(CMapFrame, "Open");
@@ -50,7 +50,7 @@ EVBMainFrame::EVBMainFrame(const TGWindow* p, UInt_t w, UInt_t h) :
 
 	TGHorizontalFrame *SMapFrame = new TGHorizontalFrame(NameFrame, w, h*0.1);
 	TGLabel* smaplabel = new TGLabel(SMapFrame, "Board Shift File:");
-	fSMapField = new TGTextEntry(SMapFrame, new TGTextBuffer(120), SMAP);
+	fSMapField = new TGTextEntry(SMapFrame, new TGTextBuffer(120), Smap);
 	fSMapField->Resize(w*0.25, fSMapField->GetDefaultHeight());
 	fSMapField->Connect("ReturnPressed()","EVBMainFrame",this,"UpdateSMap()");
 	fOpenSMapButton = new TGTextButton(SMapFrame, "Open");
@@ -61,7 +61,7 @@ EVBMainFrame::EVBMainFrame(const TGWindow* p, UInt_t w, UInt_t h) :
 
 	TGHorizontalFrame *ScalerFrame = new TGHorizontalFrame(NameFrame, w, h*0.1);
 	TGLabel* sclabel = new TGLabel(ScalerFrame, "Scaler File: ");
-	fScalerField = new TGTextEntry(ScalerFrame, new TGTextBuffer(120), SCALER);
+	fScalerField = new TGTextEntry(ScalerFrame, new TGTextBuffer(120), Scaler);
 	fScalerField->Connect("ReturnPressed()","EVBMainFrame",this,"UpdateScaler()");
 	fOpenScalerButton = new TGTextButton(ScalerFrame, "Open");
 	fOpenScalerButton->Connect("Clicked()","EVBMainFrame", this, "DoOpenScalerfile()");
@@ -71,7 +71,7 @@ EVBMainFrame::EVBMainFrame(const TGWindow* p, UInt_t w, UInt_t h) :
 
 	TGHorizontalFrame *CutFrame = new TGHorizontalFrame(NameFrame, w, h*0.1);
 	TGLabel* clabel = new TGLabel(CutFrame, "Cut List: ");
-	fCutField = new TGTextEntry(CutFrame, new TGTextBuffer(120), CUT);
+	fCutField = new TGTextEntry(CutFrame, new TGTextBuffer(120), Cut);
 	fCutField->Connect("ReturnPressed()","EVBMainFrame",this,"UpdateCut()");
 	fOpenCutButton = new TGTextButton(CutFrame, "Open");
 	fOpenCutButton->Connect("Clicked()","EVBMainFrame",this,"DoOpenCutfile()");
@@ -88,11 +88,11 @@ EVBMainFrame::EVBMainFrame(const TGWindow* p, UInt_t w, UInt_t h) :
 
 	TGHorizontalFrame *ParamFrame = new TGHorizontalFrame(InputFrame, w, h*0.1);
 	TGLabel *bkelabel = new TGLabel(ParamFrame, "Beam KE (MeV):");
-	fBKEField = new TGNumberEntryField(ParamFrame, BKE, 0, TGNumberEntry::kNESRealFour, TGNumberEntry::kNEANonNegative);
+	fBKEField = new TGNumberEntryField(ParamFrame, Bke, 0, TGNumberEntry::kNESRealFour, TGNumberEntry::kNEANonNegative);
 	TGLabel *bfieldlabel = new TGLabel(ParamFrame, "B-Field (G):");
-	fBField = new TGNumberEntryField(ParamFrame, BFIELD, 0, TGNumberEntry::kNESRealFour, TGNumberEntry::kNEANonNegative);
+	fBField = new TGNumberEntryField(ParamFrame, BField, 0, TGNumberEntry::kNESRealFour, TGNumberEntry::kNEANonNegative);
 	TGLabel *thetalabel = new TGLabel(ParamFrame, "Angle (deg):");
-	fThetaField = new TGNumberEntryField(ParamFrame, THETA, 0, TGNumberEntry::kNESRealFour, TGNumberEntry::kNEANonNegative);
+	fThetaField = new TGNumberEntryField(ParamFrame, Theta, 0, TGNumberEntry::kNESRealFour, TGNumberEntry::kNEANonNegative);
 	TGLabel *ztlabel = new TGLabel(ParamFrame, "ZT:");
 	fZTField = new TGNumberEntryField(ParamFrame, ZT, 0, TGNumberEntry::kNESInteger, TGNumberEntry::kNEANonNegative);
 	TGLabel *atlabel = new TGLabel(ParamFrame, "AT:");
@@ -126,11 +126,11 @@ EVBMainFrame::EVBMainFrame(const TGWindow* p, UInt_t w, UInt_t h) :
 
 	TGHorizontalFrame *WindowFrame = new TGHorizontalFrame(InputFrame, w, h*0.1);
 	TGLabel *slowlabel = new TGLabel(WindowFrame, "Slow Coincidence Window (ps):");
-	fSlowWindowField = new TGNumberEntryField(WindowFrame, SLOWWIND, 0, TGNumberEntry::kNESReal, TGNumberEntry::kNEANonNegative);
+	fSlowWindowField = new TGNumberEntryField(WindowFrame, SlowWind, 0, TGNumberEntry::kNESReal, TGNumberEntry::kNEANonNegative);
 	TGLabel *fasticlabel = new TGLabel(WindowFrame, "Fast Coincidence Window IC (ps):");
-	fFastICField = new TGNumberEntryField(WindowFrame, FASTWIND_IC, 0, TGNumberEntry::kNESReal, TGNumberEntry::kNEANonNegative);
+	fFastICField = new TGNumberEntryField(WindowFrame, FastWind_IC, 0, TGNumberEntry::kNESReal, TGNumberEntry::kNEANonNegative);
 	TGLabel *fastsabrelabel = new TGLabel(WindowFrame, "Fast Coincidence Window SABRE (ps):");
-	fFastSABREField = new TGNumberEntryField(WindowFrame, FASTWIND_SABRE, 0, TGNumberEntry::kNESReal, TGNumberEntry::kNEANonNegative);
+	fFastSABREField = new TGNumberEntryField(WindowFrame, FastWind_Sabre, 0, TGNumberEntry::kNESReal, TGNumberEntry::kNEANonNegative);
 	WindowFrame->AddFrame(slowlabel, lhints);
 	WindowFrame->AddFrame(fSlowWindowField, fhints);
 	WindowFrame->AddFrame(fasticlabel, lhints);
@@ -140,21 +140,21 @@ EVBMainFrame::EVBMainFrame(const TGWindow* p, UInt_t w, UInt_t h) :
 
 	TGHorizontalFrame *RunFrame = new TGHorizontalFrame(InputFrame, w, h*0.1);
 	TGLabel *typelabel = new TGLabel(RunFrame, "Operation Type:");
-	fTypeBox = new TGComboBox(RunFrame, TYPEBOX);
+	fTypeBox = new TGComboBox(RunFrame, TypeBox);
 	//Needs modification for new conversion based sorting GWM -- Dec 2020
-	fTypeBox->AddEntry("Convert Slow", GWMEventBuilder::CONVERT_S);
-	fTypeBox->AddEntry("Convert Fast", GWMEventBuilder::CONVERT_F);
-	fTypeBox->AddEntry("Convert SlowA", GWMEventBuilder::CONVERT_SA);
-	fTypeBox->AddEntry("Convert FastA", GWMEventBuilder::CONVERT_FA);
-	fTypeBox->AddEntry("Convert", GWMEventBuilder::CONVERT);
-	fTypeBox->AddEntry("Merge ROOT", GWMEventBuilder::MERGE);
-	fTypeBox->AddEntry("Plot", GWMEventBuilder::PLOT);
+	fTypeBox->AddEntry("Convert Slow", EVBApp::Operation::ConvertSlow);
+	fTypeBox->AddEntry("Convert Fast", EVBApp::Operation::ConvertFast);
+	fTypeBox->AddEntry("Convert SlowA", EVBApp::Operation::ConvertSlowA);
+	fTypeBox->AddEntry("Convert FastA", EVBApp::Operation::ConvertFastA);
+	fTypeBox->AddEntry("Convert", EVBApp::Operation::Convert);
+	fTypeBox->AddEntry("Merge ROOT", EVBApp::Operation::Merge);
+	fTypeBox->AddEntry("Plot", EVBApp::Operation::Plot);
 	fTypeBox->Resize(200,20);
 	fTypeBox->Connect("Selected(Int_t, Int_t)","EVBMainFrame",this,"HandleTypeSelection(Int_t,Int_t)");
 	TGLabel *rminlabel = new TGLabel(RunFrame, "Min Run:");
-	fRMinField = new TGNumberEntryField(RunFrame, RMIN, 0, TGNumberEntry::kNESInteger, TGNumberEntry::kNEANonNegative);
+	fRMinField = new TGNumberEntryField(RunFrame, RMin, 0, TGNumberEntry::kNESInteger, TGNumberEntry::kNEANonNegative);
 	TGLabel *rmaxlabel = new TGLabel(RunFrame, "Max Run:");
-	fRMaxField = new TGNumberEntryField(RunFrame, RMAX, 0, TGNumberEntry::kNESInteger, TGNumberEntry::kNEANonNegative);
+	fRMaxField = new TGNumberEntryField(RunFrame, RMax, 0, TGNumberEntry::kNESInteger, TGNumberEntry::kNEANonNegative);
 	fRunButton = new TGTextButton(RunFrame, "Run!");
 	fRunButton->SetState(kButtonDisabled);
 	fRunButton->Connect("Clicked()","EVBMainFrame",this,"DoRun()");
@@ -182,9 +182,9 @@ EVBMainFrame::EVBMainFrame(const TGWindow* p, UInt_t w, UInt_t h) :
 
 	TGMenuBar* menuBar = new TGMenuBar(this, w, h*0.1);
 	fFileMenu = new TGPopupMenu(gClient->GetRoot());
-	fFileMenu->AddEntry("Load...", M_LOAD_CONFIG);
-	fFileMenu->AddEntry("Save...", M_SAVE_CONFIG);
-	fFileMenu->AddEntry("Exit", M_EXIT);
+	fFileMenu->AddEntry("Load...", M_Load_Config);
+	fFileMenu->AddEntry("Save...", M_Save_Config);
+	fFileMenu->AddEntry("Exit", M_Exit);
 	fFileMenu->Connect("Activated(Int_t)","EVBMainFrame", this, "HandleMenuSelection(Int_t)");
 	menuBar->AddPopup("File", fFileMenu, mhints);
 
@@ -199,82 +199,94 @@ EVBMainFrame::EVBMainFrame(const TGWindow* p, UInt_t w, UInt_t h) :
 
 }
 
-EVBMainFrame::~EVBMainFrame() {
+EVBMainFrame::~EVBMainFrame() 
+{
 	Cleanup();
 	delete this;
 }
 
-void EVBMainFrame::CloseWindow() {
+void EVBMainFrame::CloseWindow() 
+{
 	gApplication->Terminate();
 }
 
-void EVBMainFrame::HandleMenuSelection(int id) {
-	if(id == M_SAVE_CONFIG) new FileViewFrame(gClient->GetRoot(), this, MAIN_W*0.5, MAIN_H*0.25, this, M_SAVE_CONFIG);
-	else if(id == M_LOAD_CONFIG) new FileViewFrame(gClient->GetRoot(), this, MAIN_W*0.5, MAIN_H*0.25, this, M_LOAD_CONFIG);
-	else if(id == M_EXIT) CloseWindow();
+void EVBMainFrame::HandleMenuSelection(int id) 
+{
+	if(id == M_Save_Config)
+		new FileViewFrame(gClient->GetRoot(), this, MAIN_W*0.5, MAIN_H*0.25, this, M_Save_Config);
+	else if(id == M_Load_Config)
+		new FileViewFrame(gClient->GetRoot(), this, MAIN_W*0.5, MAIN_H*0.25, this, M_Load_Config);
+	else if(id == M_Exit)
+		CloseWindow();
 }
 
-void EVBMainFrame::DoOpenWorkdir() {
-	new FileViewFrame(gClient->GetRoot(), this, MAIN_W*0.5, MAIN_H*0.25, this, WORKDIR);
+void EVBMainFrame::DoOpenWorkdir() 
+{
+	new FileViewFrame(gClient->GetRoot(), this, MAIN_W*0.5, MAIN_H*0.25, this, WorkDir);
 }
 
-void EVBMainFrame::DoOpenCMapfile() {
-	new FileViewFrame(gClient->GetRoot(), this, MAIN_W*0.5, MAIN_H*0.25, this, CMAP);	
+void EVBMainFrame::DoOpenCMapfile() 
+{
+	new FileViewFrame(gClient->GetRoot(), this, MAIN_W*0.5, MAIN_H*0.25, this, Cmap);	
 }
 
-void EVBMainFrame::DoOpenSMapfile() {
-	new FileViewFrame(gClient->GetRoot(), this, MAIN_W*0.5, MAIN_H*0.25, this, SMAP);	
+void EVBMainFrame::DoOpenSMapfile() 
+{
+	new FileViewFrame(gClient->GetRoot(), this, MAIN_W*0.5, MAIN_H*0.25, this, Smap);	
 }
 
-void EVBMainFrame::DoOpenScalerfile() {
-	new FileViewFrame(gClient->GetRoot(), this, MAIN_W*0.5, MAIN_H*0.25, this, SCALER);
+void EVBMainFrame::DoOpenScalerfile() 
+{
+	new FileViewFrame(gClient->GetRoot(), this, MAIN_W*0.5, MAIN_H*0.25, this, Scaler);
 }
 
-void EVBMainFrame::DoOpenCutfile() {
-	new FileViewFrame(gClient->GetRoot(), this, MAIN_W*0.5, MAIN_H*0.25, this, CUT);
+void EVBMainFrame::DoOpenCutfile() 
+{
+	new FileViewFrame(gClient->GetRoot(), this, MAIN_W*0.5, MAIN_H*0.25, this, Cut);
 }
 
-void EVBMainFrame::DoRun() {
+void EVBMainFrame::DoRun() 
+{
 
 	DisableAllInput();
 
 	SetParameters();
 
 	int type = fTypeBox->GetSelected();
-	fBuilder.SetAnalysisType(type);
 
-	switch(type) {
-		case GWMEventBuilder::PLOT :
+	switch(type)
+	{
+		case EVBApp::Operation::Plot :
 		{
 			RunPlot();
 			break;
 		}
-		case GWMEventBuilder::CONVERT :
+		case EVBApp::Operation::Convert :
 		{
 			fBuilder.Convert2RawRoot();
 			break;
 		}
-		case GWMEventBuilder::MERGE :
+		case EVBApp::Operation::Merge :
 		{
 			fBuilder.MergeROOTFiles();
 			break;
 		}
-		case GWMEventBuilder::CONVERT_S :
+		case EVBApp::Operation::ConvertSlow :
 		{
 			fBuilder.Convert2SortedRoot();
 			break;
 		}
-		case GWMEventBuilder::CONVERT_F :
+		case EVBApp::Operation::ConvertFast :
 		{
 			fBuilder.Convert2FastSortedRoot();
 			break;
 		}
-		case GWMEventBuilder::CONVERT_SA :
+		case EVBApp::Operation::ConvertSlowA :
 		{
 			fBuilder.Convert2SlowAnalyzedRoot();
 			break;
 		}
-		case GWMEventBuilder::CONVERT_FA :
+		case EVBApp::Operation::ConvertFastA :
 		{
 			fBuilder.Convert2FastAnalyzedRoot();
 			break;
@@ -284,11 +296,13 @@ void EVBMainFrame::DoRun() {
 	EnableAllInput();
 }
 
-void EVBMainFrame::HandleTypeSelection(int box, int entry) {
+void EVBMainFrame::HandleTypeSelection(int box, int entry)
+{
 	fRunButton->SetState(kButtonUp);
 }
 
-bool EVBMainFrame::SetParameters() {
+bool EVBMainFrame::SetParameters()
+{
 	fBuilder.SetRunRange(fRMinField->GetIntNumber(), fRMaxField->GetIntNumber());
 	fBuilder.SetSlowCoincidenceWindow(fSlowWindowField->GetNumber());
 	fBuilder.SetFastWindowIonChamber(fFastICField->GetNumber());
@@ -306,37 +320,44 @@ bool EVBMainFrame::SetParameters() {
 	return test;
 }
 
-void EVBMainFrame::DisplayWorkdir(const char* dir) {
+void EVBMainFrame::DisplayWorkdir(const char* dir) 
+{
 	fWorkField->SetText(dir);
 	fBuilder.SetWorkDirectory(dir);
 }
 
-void EVBMainFrame::DisplayCMap(const char* file) {
+void EVBMainFrame::DisplayCMap(const char* file) 
+{
 	fCMapField->SetText(file);
 	fBuilder.SetChannelMap(file);
 }
 
-void EVBMainFrame::DisplaySMap(const char* file) {
+void EVBMainFrame::DisplaySMap(const char* file) 
+{
 	fSMapField->SetText(file);
 	fBuilder.SetBoardShiftFile(file);
 }
 
-void EVBMainFrame::DisplayScaler(const char* file) {
+void EVBMainFrame::DisplayScaler(const char* file) 
+{
 	fScalerField->SetText(file);
 	fBuilder.SetScalerFile(file);
 }
 
-void EVBMainFrame::DisplayCut(const char* file) {
+void EVBMainFrame::DisplayCut(const char* file) 
+{
 	fCutField->SetText(file);
 	fBuilder.SetCutList(file);
 }
 
-void EVBMainFrame::SaveConfig(const char* file) {
+void EVBMainFrame::SaveConfig(const char* file) 
+{
 	std::string filename = file;
 	fBuilder.WriteConfigFile(filename);
 }
 
-void EVBMainFrame::LoadConfig(const char* file) {
+void EVBMainFrame::LoadConfig(const char* file) 
+{
 	std::string filename = file;
 	fBuilder.ReadConfigFile(filename);
 
@@ -365,38 +386,45 @@ void EVBMainFrame::LoadConfig(const char* file) {
 
 }
 
-void EVBMainFrame::UpdateWorkdir() {
+void EVBMainFrame::UpdateWorkdir() 
+{
 	const char* dir = fWorkField->GetText();
 	fBuilder.SetWorkDirectory(dir);
 }
 
-void EVBMainFrame::UpdateSMap() {
+void EVBMainFrame::UpdateSMap() 
+{
 	const char* file = fSMapField->GetText();
 	fBuilder.SetBoardShiftFile(file);
 }
 
-void EVBMainFrame::UpdateCMap() {
+void EVBMainFrame::UpdateCMap() 
+{
 	const char* file = fCMapField->GetText();
 	fBuilder.SetChannelMap(file);
 }
 
-void EVBMainFrame::UpdateScaler() {
+void EVBMainFrame::UpdateScaler() 
+{
 	const char* file = fScalerField->GetText();
 	fBuilder.SetScalerFile(file);
 }
 
-void EVBMainFrame::UpdateCut() {
+void EVBMainFrame::UpdateCut() 
+{
 	const char* file = fCutField->GetText();
 	fBuilder.SetCutList(file);
 }
 
-void EVBMainFrame::RunPlot() {
+void EVBMainFrame::RunPlot() 
+{
 	fBuilder.PlotHistograms();
 }
 
 void EVBMainFrame::RunMerge(const char* file, const char* dir) {}
 
-void EVBMainFrame::DisableAllInput() {
+void EVBMainFrame::DisableAllInput() 
+{
 	fRunButton->SetState(kButtonDisabled);
 	fOpenWorkButton->SetState(kButtonDisabled);
 	fOpenCMapButton->SetState(kButtonDisabled);
@@ -431,7 +459,8 @@ void EVBMainFrame::DisableAllInput() {
 	fFastSABREField->SetState(false);
 }
 
-void EVBMainFrame::EnableAllInput() {
+void EVBMainFrame::EnableAllInput() 
+{
 	fRunButton->SetState(kButtonUp);
 	fOpenWorkButton->SetState(kButtonUp);
 	fOpenCMapButton->SetState(kButtonUp);

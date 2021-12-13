@@ -21,7 +21,7 @@ public:
 	void SetFile(const std::string& filename);
 	inline bool IsValid() { return m_validFlag; }
 	inline std::string GetFilename() { return m_filename; }
-	Long64_t GetShift(int gchan);
+	uint64_t GetShift(int gchan);
 
 private:
 	void ParseFile();

@@ -44,7 +44,7 @@ void SFPAnalyzer::GetWeights()
 {
 	w1 = (Wire_Dist()/2.0-zfp)/Wire_Dist();
 	w2 = 1.0-w1;
-	cout<<"w1: "<<w1<<" w2: "<<w2<<endl;
+	std::cout<<"w1: "<<w1<<" w2: "<<w2<<std::endl;
 }
 
 /*2D histogram fill wrapper for use with THashTable (faster)*/
@@ -143,7 +143,7 @@ void SFPAnalyzer::AnalyzeEvent(CoincEvent& event)
 		pevent.fp1_tdiff = (event.focalPlane.delayFL[0].Time-event.focalPlane.delayFR[0].Time)*0.5;
 		pevent.fp1_tsum = (event.focalPlane.delayFL[0].Time+event.focalPlane.delayFR[0].Time);
 		pevent.fp1_tcheck = (pevent.fp1_tsum)/2.0-pevent.anodeFrontTime;
-		pevent.delayFrontMaxTime = max(event.focalPlane.delayFL[0].Time, event.focalPlane.delayFR[0].Time);
+		pevent.delayFrontMaxTime = std::max(event.focalPlane.delayFL[0].Time, event.focalPlane.delayFR[0].Time);
 		pevent.x1 = pevent.fp1_tdiff*1.0/2.10; //position from time, based on total delay
 		MyFill("x1",1200,-300,300,pevent.x1);
 		MyFill("x1 vs anodeBack",600,-300,300,pevent.x1,512,0,4096,pevent.anodeBack);
@@ -153,7 +153,7 @@ void SFPAnalyzer::AnalyzeEvent(CoincEvent& event)
 		pevent.fp2_tdiff = (event.focalPlane.delayBL[0].Time-event.focalPlane.delayBR[0].Time)*0.5;
 		pevent.fp2_tsum = (event.focalPlane.delayBL[0].Time+event.focalPlane.delayBR[0].Time);
 		pevent.fp2_tcheck = (pevent.fp2_tsum)/2.0-pevent.anodeBackTime;
-		pevent.delayBackMaxTime = max(event.focalPlane.delayBL[0].Time, event.focalPlane.delayBR[0].Time);
+		pevent.delayBackMaxTime = std::max(event.focalPlane.delayBL[0].Time, event.focalPlane.delayBR[0].Time);
 		pevent.x2 = pevent.fp2_tdiff*1.0/1.98; //position from time, based on total delay
 		MyFill("x2",1200,-300,300,pevent.x2);
 		MyFill("x2 vs anodeBack",600,-300,300,pevent.x2,512,0,4096,pevent.anodeBack);

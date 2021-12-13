@@ -21,15 +21,16 @@ MassLookup::MassLookup()
 	std::ifstream massfile("./etc/mass.txt");
 	if(massfile.is_open()) 
 	{
-		int Z;
+		int Z,A;
+		std::string junk, element, key;
 		double atomicMassBig, atomicMassSmall, isotopicMass;
-		getline(massfile,junk);
-		getline(massfile,junk);
+		std::getline(massfile,junk);
+		std::getline(massfile,junk);
 		while(massfile>>junk) 
 		{
 			massfile>>Z>>A>>element>>atomicMassBig>>atomicMassSmall;
 			isotopicMass = (atomicMassBig + atomicMassSmall*1e-6 - Z*electron_mass)*u_to_mev;
-			std::string key = "("+std::to_string(Z)+","+A+")";
+			key = "("+std::to_string(Z)+","+A+")";
 			massTable[key] = isotopicMass;
 			elementTable[Z] = element;
 		}

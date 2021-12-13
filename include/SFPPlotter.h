@@ -20,7 +20,7 @@ public:
 	~SFPPlotter();
 	inline void AttachProgressBar(TGProgressBar* pb) { m_pb = pb; }
 	inline void ApplyCutlist(const std::string& listname) { cutter.SetCuts(listname); }
-	void Run(const std::vector<std::string>& files, const string& output);
+	void Run(const std::vector<std::string>& files, const std::string& output);
 
 private:
 	void SetProgressBar(long total);

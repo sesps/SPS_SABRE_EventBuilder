@@ -14,43 +14,40 @@
 #include "DataStructs.h"
 #include "ChannelMap.h"
 #include <TH2.h>
+#include <unordered_map>
 
-using namespace std;
+class SlowSort 
+{
 
-class SlowSort {
+public:
+	SlowSort();
+	SlowSort(double windowSize, const std::string& mapfile);
+	~SlowSort();
+	inline void SetWindowSize(double window) { m_coincWindow = window; }
+	inline bool SetMapFile(const std::string& mapfile) { return cmap.FillMap(mapfile); }
+	bool AddHitToEvent(CompassHit& mhit);
+	const CoincEvent& GetEvent();
+	inline TH2F* GetEventStats() { return event_stats; }
+	void FlushHitsToEvent(); //For use with *last* hit list
+	inline bool IsEventReady() { return m_eventFlag; }
 
-  public:
-    SlowSort();
-    SlowSort(double windowSize, const string& mapfile);
-    ~SlowSort();
-    inline void SetWindowSize(double window) { coincWindow = window; };
-    inline bool SetMapFile(const std::string& mapfile) { return cmap.FillMap(mapfile); };
-    bool AddHitToEvent(CompassHit& mhit);
-    CoincEvent GetEvent();
-    inline TH2F* GetEventStats() { return event_stats; };
-    void FlushHitsToEvent(); //For use with *last* hit list
-    inline bool IsEventReady() { return eventFlag; };
+private:
+	void InitVariableMaps();
+	void Reset();
+	void ProcessEvent();
 
-  private:
-    void InitVariableMaps();
-    void Reset();
-    void StartEvent();
-    void ProcessEvent();
+	double m_coincWindow;
+	std::vector<DPPChannel> m_hitList;
+	bool m_eventFlag;
+	CoincEvent m_event;
+	CoincEvent m_blank;
+	
+	double startTime, previousHitTime;    
+	std::unordered_map<DetAttribute, std::vector<DetectorHit>*> varMap;
 
-    double coincWindow;
-    vector<DPPChannel> hitList;
-    bool eventFlag;
-    DPPChannel hit;
-    CoincEvent event;
-    CoincEvent blank;
-  
-    double startTime, previousHitTime;    
-    unordered_map<int, vector<DetectorHit>*> fpVMap;
-    unordered_map<int, vector<DetectorHit>*> sabreVMap;
+	TH2F* event_stats;
 
-    TH2F* event_stats;
-
-    ChannelMap cmap;
+	ChannelMap cmap;
  
 };
 

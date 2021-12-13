@@ -10,7 +10,7 @@ public:
 	~CutHandler();
 	void SetCuts(const std::string& filename);
 	bool IsValid() { return validFlag; }
-	bool IsInside(ProcessedEvent* eaddress);
+	bool IsInside(const ProcessedEvent* eaddress);
 	std::vector<TCutG*> GetCuts() { return cut_array; }
 
 private:
