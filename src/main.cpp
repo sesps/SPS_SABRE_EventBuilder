@@ -26,7 +26,8 @@ int main(int argc, char** argv)
 	*/
 
 	EVBApp theBuilder;
-		return 1;
+
+	theBuilder.ReadConfigFile(filename);
 
 	Stopwatch timer;
 	timer.Start();
