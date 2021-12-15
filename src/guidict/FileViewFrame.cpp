@@ -9,7 +9,7 @@
 
 */
 
-#include "../evb/EventBuilder.h"
+#include "EventBuilder.h"
 #include "FileViewFrame.h"
 #include <TGTextBuffer.h>
 #include <TGLabel.h>

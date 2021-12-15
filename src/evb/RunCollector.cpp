@@ -157,6 +157,7 @@ namespace EventBuilder {
 	
 	bool RunCollector::Merge_hadd(const std::string& outname) 
 	{
+		int sys_return;
 		if(!m_initFlag) 
 			return false;
 	
@@ -168,7 +169,7 @@ namespace EventBuilder {
 				for(unsigned int i=0; i<m_filelist.size(); i++) 
 					clump += " "+m_filelist[i];
 				std::cout<<"Merging runs into single file..."<<std::endl;
-				std::system(clump.c_str());
+				sys_return = std::system(clump.c_str());
 				std::cout<<"Finished merging"<<std::endl;
 				return true;
 			} 
@@ -183,13 +184,17 @@ namespace EventBuilder {
 				for(unsigned int i=0; i<m_filelist.size(); i++)
 					clump += " "+m_filelist[i];
 				std::cout<<"Merging runs "<<m_minRun<<" to "<<m_maxRun<<" into a single file..."<<std::endl;
-				std::system(clump.c_str());
+				sys_return = std::system(clump.c_str());
 				std::cout<<"Finished merging"<<std::endl;
 				return true;
 			} 
 			else 
 				return false;
 		}
+
+		if(!sys_return)
+			std::cerr<<"How did i even get here?"<<std::endl;
+		return false;
 	}
 	
 	bool RunCollector::Merge_TChain(const std::string& outname) 

@@ -40,9 +40,8 @@ target_sources(EventBuilder
 		evb/ShiftMap.h
 		spsdict/DataStructs.h
 )
-target_include_directories(EventBuilder PUBLIC ${CMAKE_CURRENT_LIST_DIR})
-target_include_directories(EventBuilder PUBLIC ${CMAKE_CURRENT_LIST_DIR}/evb)
-target_include_directories(EventBuilder PUBLIC ${CMAKE_CURRENT_LIST_DIR}/spsdict)
+target_include_directories(EventBuilder PUBLIC ${CMAKE_CURRENT_LIST_DIR} ${CMAKE_CURRENT_LIST_DIR}/evb ${CMAKE_CURRENT_LIST_DIR}/spsdict)
+target_precompile_headers(EventBuilder PUBLIC ${PCH_DIR}/EventBuilder.h)
 target_link_libraries(EventBuilder
 	PUBLIC
 		SPSDict
@@ -110,10 +109,8 @@ target_sources(EventBuilderGui
 		guidict/EVBMainFrame.h
 		guidict/FileViewFrame.h
 )
-target_include_directories(EventBuilderGui PUBLIC ${CMAKE_CURRENT_LIST_DIR})
-target_include_directories(EventBuilderGui PUBLIC ${CMAKE_CURRENT_LIST_DIR}/evb)
-target_include_directories(EventBuilderGui PUBLIC ${CMAKE_CURRENT_LIST_DIR}/spsdict)
-target_include_directories(EventBuilderGui PUBLIC ${CMAKE_CURRENT_LIST_DIR}/guidict)
+target_include_directories(EventBuilderGui PUBLIC ${CMAKE_CURRENT_LIST_DIR} ${CMAKE_CURRENT_LIST_DIR}/evb ${CMAKE_CURRENT_LISTDIR}/spsdict ${CMAKE_CURRENT_LIST_DIR}/guidict)
+target_precompile_headers(EventBuilderGui REUSE_FROM EventBuilder)
 target_link_libraries(EventBuilderGui
 	PUBLIC
 		SPSDict

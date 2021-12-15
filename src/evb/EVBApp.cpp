@@ -151,6 +151,7 @@ namespace EventBuilder {
 	
 	void EVBApp::Convert2RawRoot() 
 	{
+		int sys_return;
 		std::string rawroot_dir = m_workspace+"/raw_root/";
 		std::string unpack_dir = m_workspace+"/temp_binary/";
 		std::string binary_dir = m_workspace+"/raw_binary/";
@@ -189,9 +190,9 @@ namespace EventBuilder {
 			unpack_command = "tar -xzf "+binfile+" --directory "+unpack_dir;
 			wipe_command = "rm -r "+unpack_dir+"*.bin";
 	
-			system(unpack_command.c_str());
+			sys_return = system(unpack_command.c_str());
 			converter.Convert2RawRoot(rawfile);
-			system(wipe_command.c_str());
+			sys_return = system(wipe_command.c_str());
 	
 		}
 		std::cout<<std::endl<<"Conversion complete."<<std::endl;
@@ -223,6 +224,7 @@ namespace EventBuilder {
 	
 	void EVBApp::Convert2SortedRoot() 
 	{
+		int sys_return;
 		std::string sortroot_dir = m_workspace+"/sorted/";
 		std::string unpack_dir = m_workspace+"/temp_binary/";
 		std::string binary_dir = m_workspace+"/raw_binary/";
@@ -262,9 +264,9 @@ namespace EventBuilder {
 			unpack_command = "tar -xzf "+binfile+" --directory "+unpack_dir;
 			wipe_command = "rm -r "+unpack_dir+"*.bin";
 	
-			system(unpack_command.c_str());
+			sys_return = system(unpack_command.c_str());
 			converter.Convert2SortedRoot(sortfile, m_mapfile, m_SlowWindow);
-			system(wipe_command.c_str());
+			sys_return = system(wipe_command.c_str());
 	
 		}
 		std::cout<<std::endl<<"Conversion complete."<<std::endl;
@@ -272,6 +274,7 @@ namespace EventBuilder {
 	}
 	
 	void EVBApp::Convert2FastSortedRoot() {
+		int sys_return;
 		std::string sortroot_dir = m_workspace+"/fast/";
 		std::string unpack_dir = m_workspace+"/temp_binary/";
 		std::string binary_dir = m_workspace+"/raw_binary/";
@@ -311,9 +314,9 @@ namespace EventBuilder {
 			unpack_command = "tar -xzf "+binfile+" --directory "+unpack_dir;
 			wipe_command = "rm -r "+unpack_dir+"*.bin";
 	
-			system(unpack_command.c_str());
+			sys_return = system(unpack_command.c_str());
 			converter.Convert2FastSortedRoot(sortfile, m_mapfile, m_SlowWindow, m_FastWindowSABRE, m_FastWindowIonCh);
-			system(wipe_command.c_str());
+			sys_return = system(wipe_command.c_str());
 	
 		}
 		std::cout<<std::endl<<"Conversion complete."<<std::endl;
@@ -321,6 +324,7 @@ namespace EventBuilder {
 	}
 	
 	void EVBApp::Convert2SlowAnalyzedRoot() {
+		int sys_return;
 		std::string sortroot_dir = m_workspace+"/analyzed/";
 		std::string unpack_dir = m_workspace+"/temp_binary/";
 		std::string binary_dir = m_workspace+"/raw_binary/";
@@ -359,9 +363,9 @@ namespace EventBuilder {
 			unpack_command = "tar -xzf "+binfile+" --directory "+unpack_dir;
 			wipe_command = "rm -r "+unpack_dir+"*.bin";
 	
-			system(unpack_command.c_str());
+			sys_return = system(unpack_command.c_str());
 			converter.Convert2SlowAnalyzedRoot(sortfile, m_mapfile, m_SlowWindow, m_ZT, m_AT, m_ZP, m_AP, m_ZE, m_AE, m_BKE, m_B, m_Theta);
-			system(wipe_command.c_str());
+			sys_return = system(wipe_command.c_str());
 	
 		}
 		std::cout<<std::endl<<"Conversion complete."<<std::endl;
@@ -370,6 +374,7 @@ namespace EventBuilder {
 	
 	void EVBApp::Convert2FastAnalyzedRoot() 
 	{
+		int sys_return;
 		std::string sortroot_dir = m_workspace+"/analyzed/";
 		std::string unpack_dir = m_workspace+"/temp_binary/";
 		std::string binary_dir = m_workspace+"/raw_binary/";
@@ -411,9 +416,9 @@ namespace EventBuilder {
 			unpack_command = "tar -xzf "+binfile+" --directory "+unpack_dir;
 			wipe_command = "rm -r "+unpack_dir+"*.bin";
 	
-			system(unpack_command.c_str());
+			sys_return = system(unpack_command.c_str());
 			converter.Convert2FastAnalyzedRoot(sortfile, m_mapfile, m_SlowWindow, m_FastWindowSABRE, m_FastWindowIonCh, m_ZT, m_AT, m_ZP, m_AP, m_ZE, m_AE, m_BKE, m_B, m_Theta);
-			system(wipe_command.c_str());
+			sys_return = system(wipe_command.c_str());
 	
 		}
 		std::cout<<std::endl<<"Conversion complete."<<std::endl;

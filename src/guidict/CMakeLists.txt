@@ -5,7 +5,8 @@ add_custom_command(TARGET GUIDict
 	POST_BUILD
 	COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/libGUIDict_rdict.pcm ${CMAKE_INSTALL_PREFIX}/lib/
 	VERBATIM)
-target_include_directories(GUIDict PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(GUIDict PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${PCH_DIR})
+target_precompile_headers(GUIDict PUBLIC ${PCH_DIR}/EventBuilder.h)
 set_target_properties(GUIDict PROPERTIES PUBLIC_HEADER "EVBMainFrame.h;FileViewFrame.h")
 target_link_libraries(GUIDict
 	PUBLIC
