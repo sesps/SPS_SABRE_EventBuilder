@@ -1,7 +1,0 @@
-/home/gordon/SPS_SABRE_EventBuilder/bin/EventBuilder
-/home/gordon/SPS_SABRE_EventBuilder/bin/EventBuilderGui
-/home/gordon/SPS_SABRE_EventBuilder/lib/libSPSDict.so
-/home/gordon/SPS_SABRE_EventBuilder/include/DataStructs.h
-/home/gordon/SPS_SABRE_EventBuilder/lib/libGUIDict.so
-/home/gordon/SPS_SABRE_EventBuilder/include/EVBMainFrame.h
-/home/gordon/SPS_SABRE_EventBuilder/include/FileViewFrame.h
