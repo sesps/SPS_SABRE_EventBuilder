@@ -142,11 +142,7 @@ namespace EventBuilder {
 	
 			if(channel_info == cmap.End())
 			{
-				std::cout<<std::endl;
-				std::cout<<"------Data Assignment Error!-------"<<std::endl;
-				std::cout<<"Global channel number "<<gchan<<" found in data stream, but not assigned in ChannelMap!"<<std::endl;
-				std::cout<<"Skipping this hit..."<<std::endl;
-				std::cout<<"-----------------------------------"<<std::endl;
+				EVB_WARN("At SlowSort::ProcessEvent() -- Data Assignment Error! Global channel {0} found but not assigned in ChannelMap! Skipping data.",gchan);
 				continue;
 			}
 			  
@@ -164,12 +160,8 @@ namespace EventBuilder {
 			}
 			else 
 			{
-				std::cout<<std::endl;
-				std::cout<<"------Data Assignment Error!-------"<<std::endl;
-				std::cout<<"Channel is present in channel map, but does not have a variable assigned in variable map!"<<std::endl;
-				std::cout<<"global channel number: "<<gchan<<" channel detector type: "<<channel_info->second.type<<" attribute: "<<channel_info->second.attribute<<std::endl;
-				std::cout<<"Skipping this hit..."<<std::endl;
-				std::cout<<"-----------------------------------"<<std::endl;
+				EVB_WARN("At SlowSort::ProcessEvent() -- Data Assignment Error! Channel ({0}, {1}, {2}) exists in ChannelMap, but does not have an assigned variable! Skipping data.",
+						gchan, channel_info->second.type, channel_info->second.attribute);
 			}
 		}
 		//Organize the SABRE data in descending energy order

@@ -43,7 +43,7 @@ namespace EventBuilder {
 			}
 		} 
 		else
-	    	std::cerr<<"Unable to open mass.txt at MassLookup! Prepare for errors."<<std::endl;
+	    	EVB_ERROR("Mass file could not be loaded ({0}). Crashing inbound.",filepath);
 	}
 	
 	MassLookup::~MassLookup() {}
@@ -55,7 +55,7 @@ namespace EventBuilder {
 		auto data = massTable.find(key);
 		if(data == massTable.end()) 
 		{
-			std::cerr<<"Invaild nucleus at MassLookup! Returning mass of 0"<<std::endl;
+			EVB_WARN("Invalid nucleus (Z,A) ({0},{1}) at MassLookup::FindMass; returning zero.",Z,A);
 			return 0;
 		}
 		return data->second;
@@ -67,7 +67,7 @@ namespace EventBuilder {
 		auto data = elementTable.find(Z);
 		if(data == elementTable.end()) 
 		{
-			std::cerr<<"Invaild nucleus at MassLookup! Returning empty symbol"<<std::endl;
+			EVB_WARN("Invalid nucleus (Z,A) ({0},{1}) at MassLookup::FindSymbol; returning empty string.",Z,A);
 			return "";
 		}
 		std::string fullsymbol = std::to_string(A) + data->second;

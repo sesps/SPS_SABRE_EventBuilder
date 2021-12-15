@@ -30,31 +30,31 @@ namespace EventBuilder {
 		void Convert2SlowAnalyzedRoot();
 		void Convert2FastAnalyzedRoot();
 	
-		inline void SetRunRange(int rmin, int rmax) { m_rmin = rmin; m_rmax = rmax; };
-		inline void SetWorkDirectory(const std::string& fullpath) { m_workspace = fullpath; };
-		inline void SetChannelMap(const std::string& name) { m_mapfile = name; };
-		inline void SetBoardShiftFile(const std::string& name) { m_shiftfile = name; };
-		inline void SetSlowCoincidenceWindow(double window) { m_SlowWindow = window; };
-		inline void SetFastWindowIonChamber(double window) { m_FastWindowIonCh = window; };
-		inline void SetFastWindowSABRE(double window) { m_FastWindowSABRE = window; };
-		inline void SetCutList(const std::string& name) { m_cutList = name; };
-		inline void SetScalerFile(const std::string& fullpath) { m_scalerfile = fullpath; };
+		void SetRunRange(int rmin, int rmax);
+		void SetWorkDirectory(const std::string& fullpath);
+		void SetChannelMap(const std::string& name);
+		void SetBoardShiftFile(const std::string& name);
+		void SetSlowCoincidenceWindow(double window);
+		void SetFastWindowIonChamber(double window);
+		void SetFastWindowSABRE(double window);
+		void SetCutList(const std::string& name);
+		void SetScalerFile(const std::string& fullpath);
 		bool SetKinematicParameters(int zt, int at, int zp, int ap, int ze, int ae, double b, double theta, double bke);
 	
-		inline int GetRunMin() const {return m_rmin;}
-		inline int GetRunMax() const {return m_rmax;}
-		inline std::string GetWorkDirectory() const {return m_workspace;}
-		inline int GetTargetZ() const {return m_ZT;}
-		inline int GetTargetA() const {return m_AT;}
-		inline int GetProjectileZ() const {return m_ZP;}
-		inline int GetProjectileA() const {return m_AP;}
-		inline int GetEjectileZ() const {return m_ZE;}
-		inline int GetEjectileA() const {return m_AE;}
-		inline int GetResidualZ() const {return m_ZR;}
-		inline int GetResidualA() const {return m_AR;}
-		inline double GetBField() const {return m_B;}
-		inline double GetBeamKE() const {return m_BKE;}
-		inline double GetTheta() const {return m_Theta;}
+		inline int GetRunMin() const { return m_rmin; }
+		inline int GetRunMax() const { return m_rmax; }
+		inline std::string GetWorkDirectory() const { return m_workspace; }
+		inline int GetTargetZ() const { return m_ZT; }
+		inline int GetTargetA() const { return m_AT; }
+		inline int GetProjectileZ() const { return m_ZP; }
+		inline int GetProjectileA() const { return m_AP; }
+		inline int GetEjectileZ() const { return m_ZE; }
+		inline int GetEjectileA() const { return m_AE; }
+		inline int GetResidualZ() const { return m_ZR; }
+		inline int GetResidualA() const { return m_AR; }
+		inline double GetBField() const { return m_B; }
+		inline double GetBeamKE() const { return m_BKE; }
+		inline double GetTheta() const { return m_Theta; }
 		inline double GetSlowCoincidenceWindow() const { return m_SlowWindow; }
 		inline double GetFastWindowIonChamber() const { return m_FastWindowIonCh; }
 		inline double GetFastWindowSABRE() const { return m_FastWindowSABRE; }

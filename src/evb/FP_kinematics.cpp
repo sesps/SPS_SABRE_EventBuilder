@@ -70,7 +70,7 @@ namespace EventBuilder {
 		
 		if (MT*MP*ME*MR == 0) 
 		{
-			std::cerr << "***WARNING: error loading one or more masses; returning 0\n";
+			EVB_WARN("Illegal mass at FP_kinematics::Delta_Z! Returning offset of 0.");
 			return 0;
 		}
 	

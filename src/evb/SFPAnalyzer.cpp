@@ -44,7 +44,7 @@ namespace EventBuilder {
 	{
 		w1 = (Wire_Dist()/2.0-zfp)/Wire_Dist();
 		w2 = 1.0-w1;
-		std::cout<<"w1: "<<w1<<" w2: "<<w2<<std::endl;
+		EVB_INFO("Calculated X-Avg weights of w1={0} and w2={1}",w1,w2);
 	}
 	
 	/*2D histogram fill wrapper for use with THashTable (faster)*/

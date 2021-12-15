@@ -45,7 +45,7 @@ namespace EventBuilder {
 	
 		if(!flist)  //Make sure list is real. If not, means no directory
 		{
-			std::cerr<<"Unable to find any files in directory; check name given to the input.txt"<<std::endl;
+			EVB_WARN("RunCollector::GrabAllFiles() unable to find any files in directory {0}",m_directory);
 			return false;
 		}
 	
@@ -70,7 +70,7 @@ namespace EventBuilder {
 			return true;
 		else 
 		{
-			std::cerr<<"Unable to find files with matching run name in directory; check input.txt"<<std::endl;
+			EVB_WARN("RunCollector::GrabAllFiles() unable to find any files in directory {0} which match run pattern",m_directory);
 			return false;
 		}
 	}
@@ -117,7 +117,7 @@ namespace EventBuilder {
 	
 		if(!flist) 
 		{
-			std::cerr<<"Unable to find any files in directory; check name given to input.txt"<<std::endl;
+			EVB_WARN("RunCollector::GrabFilesInRange() unable to find any files in directory {0}",m_directory);
 			return false;
 		}
 	
@@ -148,7 +148,7 @@ namespace EventBuilder {
 			return true;
 		else 
 		{
-			std::cerr<<"Unable to find files with matching run name in directory; check input.txt"<<std::endl;
+			EVB_WARN("RunCollector::GrabAllFiles() unable to find any files in directory {0} which match run pattern and were in run range",m_directory);
 			return false;
 		}
 	
@@ -167,9 +167,7 @@ namespace EventBuilder {
 				std::string clump = "hadd "+outname;
 				for(unsigned int i=0; i<m_filelist.size(); i++) 
 					clump += " "+m_filelist[i];
-				std::cout<<"Merging runs into single file..."<<std::endl;
 				sys_return = std::system(clump.c_str());
-				std::cout<<"Finished merging"<<std::endl;
 				return true;
 			} 
 			else
@@ -182,9 +180,7 @@ namespace EventBuilder {
 				std::string clump = "hadd "+outname;
 				for(unsigned int i=0; i<m_filelist.size(); i++)
 					clump += " "+m_filelist[i];
-				std::cout<<"Merging runs "<<m_minRun<<" to "<<m_maxRun<<" into a single file..."<<std::endl;
 				sys_return = std::system(clump.c_str());
-				std::cout<<"Finished merging"<<std::endl;
 				return true;
 			} 
 			else 
@@ -192,7 +188,7 @@ namespace EventBuilder {
 		}
 
 		if(!sys_return)
-			std::cerr<<"How did i even get here?"<<std::endl;
+			EVB_ERROR("How did i even get here?");
 		return false;
 	}
 	
@@ -209,9 +205,7 @@ namespace EventBuilder {
 			{ 
 				for(unsigned int i=0; i<m_filelist.size(); i++)
 					chain->Add(m_filelist[i].c_str());
-				std::cout<<"Merging runs into single file..."<<std::endl;
 				chain->Merge(output,0,"fast");
-				std::cout<<"Finished merging"<<std::endl;
 				return true;
 			} 
 			else
@@ -223,9 +217,7 @@ namespace EventBuilder {
 			{
 				for(unsigned int i=0; i<m_filelist.size(); i++)
 					chain->Add(m_filelist[i].c_str());
-				std::cout<<"Merging runs "<<m_minRun<<" to "<<m_maxRun<<" into a single file..."<<std::endl;
 				chain->Merge(output,0,"fast");
-				std::cout<<"Finished merging"<<std::endl;
 				return true;
 			} else
 				return false;

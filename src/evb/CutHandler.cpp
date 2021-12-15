@@ -53,9 +53,7 @@ namespace EventBuilder {
 			else 
 			{
 				validFlag = false;
-				std::cerr<<"CutHandler has encountered a bad cut at file: "<<file<<"."<<std::endl;
-				std::cerr<<"The file either does not exist or does not contain a TCutG named CUTG"<<std::endl;
-				std::cerr<<"Cuts will not be used."<<std::endl;
+				EVB_WARN("CutHandler::SetCuts has encountered a bad file ({0}). The file either does not exist or doesn't contain a TCutG CUTG. Cuts ignored.", fname);
 				return;
 			}
 		}
@@ -92,7 +90,7 @@ namespace EventBuilder {
 			auto yentry = varmap.find(y);
 			if(xentry == varmap.end() || yentry == varmap.end()) 
 			{
-				std::cerr<<"Unmapped variable called in CutHandler::IsInside()! Var names: "<<xentry->first<<" , "<<yentry->first<<std::endl;
+				EVB_WARN("Unmapped variable names at CutHandler::IsInside() (x:{0}, y:{1})! Cut not applied.", xentry->first, yentry->first);
 				return false;
 			}
 	

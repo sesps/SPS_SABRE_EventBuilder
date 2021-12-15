@@ -4,6 +4,7 @@
 
 int main(int argc, char** argv) 
 {
+	EventBuilder::Logger::Init();
 	EnforceDictionaryLinked();
 	TApplication app("app", &argc, argv);
 	UInt_t h = 400;

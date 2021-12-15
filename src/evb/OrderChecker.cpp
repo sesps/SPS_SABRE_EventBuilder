@@ -31,7 +31,7 @@ namespace EventBuilder {
 			tree->GetEntry();
 			if(prevStamp >= ts) 
 			{
-				std::cerr<<"Bad order at entry "<<i<<" out of "<<tree->GetEntries()<<std::endl;
+				EVB_WARN("Bad order at entry {0} out of {1}",i,tree->GetEntries());
 				return false;
 			}
 		}

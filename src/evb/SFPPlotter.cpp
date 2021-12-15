@@ -248,11 +248,13 @@ namespace EventBuilder {
 		THashTable* table = new THashTable();
 	
 		long blentries = chain->GetEntries();
-		if(m_pb) 
+		long count=0, flush_val=blentries*0.1, flush_count=0;
+		if(m_pb)
+		{
+			flush_val = blentries*0.01;
 			SetProgressBar(blentries);
-		std::cout<<"Total number of events: "<<blentries<<std::endl;
+		}
 	
-		long count=0, flush_val=blentries*0.01, flush_count=0;
 	
 		for(long i=0; i<chain->GetEntries(); i++) 
 		{
@@ -266,14 +268,13 @@ namespace EventBuilder {
 				} else {
 					flush_count++;
 					count=0;
-					std::cout<<"\rPercent of data processed: "<<flush_count*10<<"%"<<std::flush;
+					EVB_INFO("Percent of data processed: {0} %",flush_count*10);
 				}
 			}
 			chain->GetEntry(i);
 			MakeUncutHistograms(*event_address, table);
 			if(cutter.IsValid()) MakeCutHistograms(*event_address, table);
 		}
-		std::cout<<std::endl;
 		outfile->cd();
 		table->Write();
 		if(cutter.IsValid()) 

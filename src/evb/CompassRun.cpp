@@ -175,23 +175,25 @@ namespace EventBuilder {
 	
 		if(!m_smap.IsValid()) 
 		{
-			std::cerr<<"Bad shift map at CompassRun::Convert()."<<std::endl;
-			std::cerr<<"Shifts will be locked to 0"<<std::endl;
+			EVB_WARN("Bad shift map ({0}) at CompassRun::Convert(), shifts all set to 0.", m_smap.GetFilename());
 		}
 	
 		SetScalers();
 	
 		if(!GetBinaryFiles()) 
 		{
-			std::cerr<<"Unable to open a file!"<<std::endl;
+			EVB_ERROR("Unable to find binary files at CompassRun::Convert(), exiting!");
 			return;
 		}
 	
+		unsigned int count = 0, flush = m_totalHits*0.1, flush_count = 0;
 		if(m_pb) 
+		{
+			flush = m_totalHits*0.01;
 			SetProgressBar();
+		}
 	
 		startIndex = 0; //Reset the startIndex
-		unsigned int count = 0, flush = m_totalHits*0.01, flush_count = 0;
 		if(flush == 0) 
 			flush = 1;
 		while(true) 
@@ -209,7 +211,7 @@ namespace EventBuilder {
 				{
 					count = 0;
 					flush_count++;
-					std::cout<<"\rPercent of run built: "<<flush_count*10<<"%"<<std::flush;
+					EVB_INFO("Percent of run built: {0} %",flush_count*10);
 				}	
 			}
 	
@@ -235,25 +237,27 @@ namespace EventBuilder {
 	
 		if(!m_smap.IsValid()) 
 		{
-			std::cerr<<"Bad shift map at CompassRun::Convert()."<<std::endl;
-			std::cerr<<"Shifts will be locked to 0"<<std::endl;
+			EVB_WARN("Bad shift map ({0}) at CompassRun::Convert2SortedRoot(), shifts all set to 0.", m_smap.GetFilename());
 		}
 	
 		SetScalers();
 	
 		if(!GetBinaryFiles()) 
 		{
-			std::cerr<<"Unable to open a file!"<<std::endl;
+			EVB_ERROR("Unable to find binary files at CompassRun::Convert2SortedRoot(), exiting!");
 			return;
 		}
 	
+		unsigned int count = 0, flush = m_totalHits*0.1, flush_count = 0;
 		if(m_pb) 
+		{
+			flush = m_totalHits*0.01;
 			SetProgressBar();
+		}
 	
 		startIndex = 0;
 		SlowSort coincidizer(window, mapfile);
 		bool killFlag = false;
-		unsigned int count = 0, flush = m_totalHits*0.01, flush_count = 0;
 		if(flush == 0) 
 			flush = 1;
 		while(true) 
@@ -271,7 +275,7 @@ namespace EventBuilder {
 				{
 					count = 0;
 					flush_count++;
-					std::cout<<"\rPercent of run built: "<<flush_count*10<<"%"<<std::flush;
+					EVB_INFO("Percent of run built: {0} %",flush_count*10);
 				}
 			}
 	
@@ -309,20 +313,23 @@ namespace EventBuilder {
 	
 		if(!m_smap.IsValid()) 
 		{
-			std::cerr<<"Bad shift map at CompassRun::Convert()."<<std::endl;
-			std::cerr<<"Shifts will be locked to 0"<<std::endl;
+			EVB_WARN("Bad shift map ({0}) at CompassRun::Convert2FastSortedRoot(), shifts all set to 0.", m_smap.GetFilename());
 		}
 	
 		SetScalers();
 	
 		if(!GetBinaryFiles()) 
 		{
-			std::cerr<<"Unable to open a file!"<<std::endl;
+			EVB_ERROR("Unable to find binary files at CompassRun::Convert2FastSortedRoot(), exiting!");
 			return;
 		}
 	
+		unsigned int count = 0, flush = m_totalHits*0.1, flush_count = 0;
 		if(m_pb) 
+		{
+			flush = m_totalHits*0.01;
 			SetProgressBar();
+		}
 	
 		startIndex = 0;
 		CoincEvent this_event;
@@ -333,7 +340,6 @@ namespace EventBuilder {
 		FlagHandler flagger;
 	
 		bool killFlag = false;
-		unsigned int count = 0, flush = m_totalHits*0.01, flush_count = 0;
 		if(flush == 0) 
 			flush = 1;
 		while(true) 
@@ -351,7 +357,7 @@ namespace EventBuilder {
 				{
 					count = 0;
 					flush_count++;
-					std::cout<<"\rPercent of run built: "<<flush_count*10<<"%"<<std::flush;
+					EVB_INFO("Percent of run built: {0} %",flush_count*10);
 				}
 			}
 			
@@ -402,20 +408,23 @@ namespace EventBuilder {
 	
 		if(!m_smap.IsValid()) 
 		{
-			std::cerr<<"Bad shift map at CompassRun::Convert()."<<std::endl;
-			std::cerr<<"Shifts will be locked to 0"<<std::endl;
+			EVB_WARN("Bad shift map ({0}) at CompassRun::Convert2SlowAnalyzedRoot(), shifts all set to 0.", m_smap.GetFilename());
 		}
 	
 		SetScalers();
 	
 		if(!GetBinaryFiles()) 
 		{
-			std::cerr<<"Unable to open a file!"<<std::endl;
+			EVB_ERROR("Unable to find binary files at CompassRun::Convert2SlowAnalyzedRoot(), exiting!");
 			return;
 		}
 	
+		unsigned int count = 0, flush = m_totalHits*0.1, flush_count = 0;
 		if(m_pb) 
+		{
+			flush = m_totalHits*0.01;
 			SetProgressBar();
+		}
 	
 		startIndex = 0;
 		CoincEvent this_event;
@@ -435,7 +444,6 @@ namespace EventBuilder {
 		parvec.emplace_back("Theta", theta);
 	
 		bool killFlag = false;
-		unsigned int count = 0, flush = m_totalHits*0.01, flush_count = 0;
 		if(flush == 0) 
 			flush = 1;
 		while(true) 
@@ -453,7 +461,7 @@ namespace EventBuilder {
 				{
 					count = 0;
 					flush_count++;
-					std::cout<<"\rPercent of run built: "<<flush_count*10<<"%"<<std::flush;
+					EVB_INFO("Percent of run built: {0} %",flush_count*10);
 				}
 			}
 	
@@ -502,20 +510,23 @@ namespace EventBuilder {
 	
 		if(!m_smap.IsValid()) 
 		{
-			std::cerr<<"Bad shift map at CompassRun::Convert()."<<std::endl;
-			std::cerr<<"Shifts will be locked to 0"<<std::endl;
+			EVB_WARN("Bad shift map ({0}) at CompassRun::Convert2FastAnalyzedRoot(), shifts all set to 0.", m_smap.GetFilename());
 		}
 	
 		SetScalers();
 	
 		if(!GetBinaryFiles()) 
 		{
-			std::cerr<<"Unable to open a file!"<<std::endl;
+			EVB_ERROR("Unable to find binary files at CompassRun::Convert2FastAnalyzedRoot(), exiting!");
 			return;
 		}
 	
+		unsigned int count = 0, flush = m_totalHits*0.1, flush_count = 0;
 		if(m_pb) 
+		{
+			flush = m_totalHits*0.01;
 			SetProgressBar();
+		}
 	
 		startIndex = 0;
 		CoincEvent this_event;
@@ -539,7 +550,6 @@ namespace EventBuilder {
 		FlagHandler flagger;
 	
 		bool killFlag = false;
-		unsigned int count = 0, flush = m_totalHits*0.01, flush_count = 0;
 		if(flush == 0) 
 			flush = 1;
 		while(true) 
@@ -557,7 +567,7 @@ namespace EventBuilder {
 				{
 					count = 0;
 					flush_count++;
-					std::cout<<"\rPercent of run built: "<<flush_count*10<<"%"<<std::flush;
+					EVB_INFO("Percent of run built: {0} %",flush_count*10);
 				}
 			}
 	
