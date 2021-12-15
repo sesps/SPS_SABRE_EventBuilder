@@ -8,33 +8,37 @@
 #include "EventBuilder.h"
 #include "OrderChecker.h"
 
-OrderChecker::OrderChecker() 
-{
-}
-
-OrderChecker::~OrderChecker() 
-{
-}
-
-bool OrderChecker::IsOrdered(const std::string& filename)  
-{
-	TFile* file = TFile::Open(filename.c_str(), "READ");
-	TTree* tree = (TTree*) file->Get("Data");
-
-	uint64_t ts;
-	tree->SetBranchAddress("Timestamp", &ts);
-	uint64_t prevStamp = 0;
-
-	for(Long64_t i=0; i<tree->GetEntries(); i++) 
+namespace EventBuilder {
+	
+	OrderChecker::OrderChecker() 
 	{
-		tree->GetEntry();
-		if(prevStamp >= ts) 
+	}
+	
+	OrderChecker::~OrderChecker() 
+	{
+	}
+	
+	bool OrderChecker::IsOrdered(const std::string& filename)  
+	{
+		TFile* file = TFile::Open(filename.c_str(), "READ");
+		TTree* tree = (TTree*) file->Get("Data");
+	
+		uint64_t ts;
+		tree->SetBranchAddress("Timestamp", &ts);
+		uint64_t prevStamp = 0;
+	
+		for(Long64_t i=0; i<tree->GetEntries(); i++) 
 		{
-			std::cerr<<"Bad order at entry "<<i<<" out of "<<tree->GetEntries()<<std::endl;
-			return false;
+			tree->GetEntry();
+			if(prevStamp >= ts) 
+			{
+				std::cerr<<"Bad order at entry "<<i<<" out of "<<tree->GetEntries()<<std::endl;
+				return false;
+			}
 		}
+	
+		file->Close();
+		return true;
 	}
 
-	file->Close();
-	return true;
 }

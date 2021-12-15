@@ -142,13 +142,13 @@ EVBMainFrame::EVBMainFrame(const TGWindow* p, UInt_t w, UInt_t h) :
 	TGLabel *typelabel = new TGLabel(RunFrame, "Operation Type:");
 	fTypeBox = new TGComboBox(RunFrame, TypeBox);
 	//Needs modification for new conversion based sorting GWM -- Dec 2020
-	fTypeBox->AddEntry("Convert Slow", EVBApp::Operation::ConvertSlow);
-	fTypeBox->AddEntry("Convert Fast", EVBApp::Operation::ConvertFast);
-	fTypeBox->AddEntry("Convert SlowA", EVBApp::Operation::ConvertSlowA);
-	fTypeBox->AddEntry("Convert FastA", EVBApp::Operation::ConvertFastA);
-	fTypeBox->AddEntry("Convert", EVBApp::Operation::Convert);
-	fTypeBox->AddEntry("Merge ROOT", EVBApp::Operation::Merge);
-	fTypeBox->AddEntry("Plot", EVBApp::Operation::Plot);
+	fTypeBox->AddEntry("Convert Slow", EventBuilder::EVBApp::Operation::ConvertSlow);
+	fTypeBox->AddEntry("Convert Fast", EventBuilder::EVBApp::Operation::ConvertFast);
+	fTypeBox->AddEntry("Convert SlowA", EventBuilder::EVBApp::Operation::ConvertSlowA);
+	fTypeBox->AddEntry("Convert FastA", EventBuilder::EVBApp::Operation::ConvertFastA);
+	fTypeBox->AddEntry("Convert", EventBuilder::EVBApp::Operation::Convert);
+	fTypeBox->AddEntry("Merge ROOT", EventBuilder::EVBApp::Operation::Merge);
+	fTypeBox->AddEntry("Plot", EventBuilder::EVBApp::Operation::Plot);
 	fTypeBox->Resize(200,20);
 	fTypeBox->Connect("Selected(Int_t, Int_t)","EVBMainFrame",this,"HandleTypeSelection(Int_t,Int_t)");
 	TGLabel *rminlabel = new TGLabel(RunFrame, "Min Run:");
@@ -256,37 +256,37 @@ void EVBMainFrame::DoRun()
 
 	switch(type)
 	{
-		case EVBApp::Operation::Plot :
+		case EventBuilder::EVBApp::Operation::Plot :
 		{
 			RunPlot();
 			break;
 		}
-		case EVBApp::Operation::Convert :
+		case EventBuilder::EVBApp::Operation::Convert :
 		{
 			fBuilder.Convert2RawRoot();
 			break;
 		}
-		case EVBApp::Operation::Merge :
+		case EventBuilder::EVBApp::Operation::Merge :
 		{
 			fBuilder.MergeROOTFiles();
 			break;
 		}
-		case EVBApp::Operation::ConvertSlow :
+		case EventBuilder::EVBApp::Operation::ConvertSlow :
 		{
 			fBuilder.Convert2SortedRoot();
 			break;
 		}
-		case EVBApp::Operation::ConvertFast :
+		case EventBuilder::EVBApp::Operation::ConvertFast :
 		{
 			fBuilder.Convert2FastSortedRoot();
 			break;
 		}
-		case EVBApp::Operation::ConvertSlowA :
+		case EventBuilder::EVBApp::Operation::ConvertSlowA :
 		{
 			fBuilder.Convert2SlowAnalyzedRoot();
 			break;
 		}
-		case EVBApp::Operation::ConvertFastA :
+		case EventBuilder::EVBApp::Operation::ConvertFastA :
 		{
 			fBuilder.Convert2FastAnalyzedRoot();
 			break;

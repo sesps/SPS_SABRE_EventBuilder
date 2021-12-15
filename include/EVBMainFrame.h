@@ -94,7 +94,7 @@ private:
 
 	TGPopupMenu *fFileMenu;
 
-	EVBApp fBuilder;
+	EventBuilder::EVBApp fBuilder;
 
 	int counter;
 	UInt_t MAIN_W, MAIN_H;

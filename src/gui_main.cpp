@@ -1,7 +1,7 @@
-#include "EventBuilder.h"
+#include "evb/EventBuilder.h"
 #include "spsdict/DataStructs.h"
 #include <TApplication.h>
-#include "EVBMainFrame.h"
+#include "guidict/EVBMainFrame.h"
 
 int main(int argc, char** argv) 
 {

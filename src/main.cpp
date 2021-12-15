@@ -1,7 +1,7 @@
-#include "EventBuilder.h"
+#include "evb/EventBuilder.h"
 #include "spsdict/DataStructs.h"
-#include "EVBApp.h"
-#include "Stopwatch.h"
+#include "evb/EVBApp.h"
+#include "evb/Stopwatch.h"
 
 int main(int argc, char** argv) 
 {
@@ -27,11 +27,11 @@ int main(int argc, char** argv)
 		Plot (generate a default histogram file from analyzed data)
 	*/
 
-	EVBApp theBuilder;
+	EventBuilder::EVBApp theBuilder;
 
 	theBuilder.ReadConfigFile(filename);
 
-	Stopwatch timer;
+	EventBuilder::Stopwatch timer;
 	timer.Start();
 	if(operation == "Convert")
 		theBuilder.Convert2RawRoot();

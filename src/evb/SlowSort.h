@@ -16,39 +16,43 @@
 #include <TH2.h>
 #include <unordered_map>
 
-class SlowSort 
-{
+namespace EventBuilder {
 
-public:
-	SlowSort();
-	SlowSort(double windowSize, const std::string& mapfile);
-	~SlowSort();
-	inline void SetWindowSize(double window) { m_coincWindow = window; }
-	inline bool SetMapFile(const std::string& mapfile) { return cmap.FillMap(mapfile); }
-	bool AddHitToEvent(CompassHit& mhit);
-	const CoincEvent& GetEvent();
-	inline TH2F* GetEventStats() { return event_stats; }
-	void FlushHitsToEvent(); //For use with *last* hit list
-	inline bool IsEventReady() { return m_eventFlag; }
-
-private:
-	void InitVariableMaps();
-	void Reset();
-	void ProcessEvent();
-
-	double m_coincWindow;
-	std::vector<DPPChannel> m_hitList;
-	bool m_eventFlag;
-	CoincEvent m_event;
-	CoincEvent m_blank;
+	class SlowSort 
+	{
 	
-	double startTime, previousHitTime;    
-	std::unordered_map<DetAttribute, std::vector<DetectorHit>*> varMap;
+	public:
+		SlowSort();
+		SlowSort(double windowSize, const std::string& mapfile);
+		~SlowSort();
+		inline void SetWindowSize(double window) { m_coincWindow = window; }
+		inline bool SetMapFile(const std::string& mapfile) { return cmap.FillMap(mapfile); }
+		bool AddHitToEvent(CompassHit& mhit);
+		const CoincEvent& GetEvent();
+		inline TH2F* GetEventStats() { return event_stats; }
+		void FlushHitsToEvent(); //For use with *last* hit list
+		inline bool IsEventReady() { return m_eventFlag; }
+	
+	private:
+		void InitVariableMaps();
+		void Reset();
+		void ProcessEvent();
+	
+		double m_coincWindow;
+		std::vector<DPPChannel> m_hitList;
+		bool m_eventFlag;
+		CoincEvent m_event;
+		CoincEvent m_blank;
+		
+		double startTime, previousHitTime;    
+		std::unordered_map<DetAttribute, std::vector<DetectorHit>*> varMap;
+	
+		TH2F* event_stats;
+	
+		ChannelMap cmap;
+	 
+	};
 
-	TH2F* event_stats;
-
-	ChannelMap cmap;
- 
-};
+}
 
 #endif

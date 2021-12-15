@@ -13,33 +13,36 @@
 #include "DataStructs.h"
 #include "FP_kinematics.h"
 
+namespace EventBuilder {
 
-class SFPAnalyzer
-{
-public:
-	SFPAnalyzer(int zt, int at, int zp, int ap, int ze, int ae, double ep, double angle,
-	            double b);
-	~SFPAnalyzer();
-	ProcessedEvent GetProcessedEvent(CoincEvent& event);
-	inline void ClearHashTable() { rootObj->Clear(); }
-	inline THashTable* GetHashTable() { return rootObj; }
+	class SFPAnalyzer
+	{
+	public:
+		SFPAnalyzer(int zt, int at, int zp, int ap, int ze, int ae, double ep, double angle,
+		            double b);
+		~SFPAnalyzer();
+		ProcessedEvent GetProcessedEvent(CoincEvent& event);
+		inline void ClearHashTable() { rootObj->Clear(); }
+		inline THashTable* GetHashTable() { return rootObj; }
+	
+	private:
+		void Reset(); //Sets ouput structure back to "zero"
+		void GetWeights(); //weights for xavg
+		void AnalyzeEvent(CoincEvent& event);
+	
+		/*Fill wrappers for use with THashTable*/
+		void MyFill(const std::string& name, int binsx, double minx, double maxx, double valuex,
+					int binsy, double miny, double maxy, double valuey);
+		void MyFill(const std::string& name, int binsx, double minx, double maxx, double valuex);
+	
+		CoincEvent *event_address; //Input branch address
+		ProcessedEvent pevent, blank; //output branch and reset
+	
+		double w1, w2, zfp;
+	
+		THashTable *rootObj; //root storage
+	};
 
-private:
-	void Reset(); //Sets ouput structure back to "zero"
-	void GetWeights(); //weights for xavg
-	void AnalyzeEvent(CoincEvent& event);
-
-	/*Fill wrappers for use with THashTable*/
-	void MyFill(const std::string& name, int binsx, double minx, double maxx, double valuex,
-				int binsy, double miny, double maxy, double valuey);
-	void MyFill(const std::string& name, int binsx, double minx, double maxx, double valuex);
-
-	CoincEvent *event_address; //Input branch address
-	ProcessedEvent pevent, blank; //output branch and reset
-
-	double w1, w2, zfp;
-
-	THashTable *rootObj; //root storage
-};
+}
 
 #endif

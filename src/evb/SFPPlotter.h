@@ -13,33 +13,37 @@
 #include "CutHandler.h"
 #include <TGProgressBar.h>
 
-class SFPPlotter 
-{
-public:
-	SFPPlotter();
-	~SFPPlotter();
-	inline void AttachProgressBar(TGProgressBar* pb) { m_pb = pb; }
-	inline void ApplyCutlist(const std::string& listname) { cutter.SetCuts(listname); }
-	void Run(const std::vector<std::string>& files, const std::string& output);
+namespace EventBuilder {
 
-private:
-	void SetProgressBar(long total);
-	void Chain(const std::vector<std::string>& files); //Form TChain
-	void MakeUncutHistograms(const ProcessedEvent& ev, THashTable* table);
-	void MakeCutHistograms(const ProcessedEvent& ev, THashTable* table);
-
-	/*Histogram fill wrapper functions*/
-	void MyFill(THashTable* table, const std::string& name, int binsx, double minx, double maxx, double valuex,
-				int binsy, double miny, double maxy, double valuey);
-	void MyFill(THashTable* table, const std::string& name, int binsx, double minx, double maxx, double valuex);
-
-	ProcessedEvent *event_address;
-
-	/*Cuts*/
-	CutHandler cutter;
+	class SFPPlotter 
+	{
+	public:
+		SFPPlotter();
+		~SFPPlotter();
+		inline void AttachProgressBar(TGProgressBar* pb) { m_pb = pb; }
+		inline void ApplyCutlist(const std::string& listname) { cutter.SetCuts(listname); }
+		void Run(const std::vector<std::string>& files, const std::string& output);
 	
-	TGProgressBar* m_pb; //GUI progress
+	private:
+		void SetProgressBar(long total);
+		void Chain(const std::vector<std::string>& files); //Form TChain
+		void MakeUncutHistograms(const ProcessedEvent& ev, THashTable* table);
+		void MakeCutHistograms(const ProcessedEvent& ev, THashTable* table);
+	
+		/*Histogram fill wrapper functions*/
+		void MyFill(THashTable* table, const std::string& name, int binsx, double minx, double maxx, double valuex,
+					int binsy, double miny, double maxy, double valuey);
+		void MyFill(THashTable* table, const std::string& name, int binsx, double minx, double maxx, double valuex);
+	
+		ProcessedEvent *event_address;
+	
+		/*Cuts*/
+		CutHandler cutter;
+		
+		TGProgressBar* m_pb; //GUI progress
+	
+	};
 
-};
+}
 
 #endif

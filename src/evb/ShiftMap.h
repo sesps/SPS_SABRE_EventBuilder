@@ -12,25 +12,29 @@
 #ifndef SHIFTMAP_H
 #define SHIFTMAP_H
 
-class ShiftMap 
-{
-public:
-	ShiftMap();
-	ShiftMap(const std::string& filename);
-	~ShiftMap();
-	void SetFile(const std::string& filename);
-	inline bool IsValid() { return m_validFlag; }
-	inline std::string GetFilename() { return m_filename; }
-	uint64_t GetShift(int gchan);
+namespace EventBuilder {
 
-private:
-	void ParseFile();
+	class ShiftMap 
+	{
+	public:
+		ShiftMap();
+		ShiftMap(const std::string& filename);
+		~ShiftMap();
+		void SetFile(const std::string& filename);
+		inline bool IsValid() { return m_validFlag; }
+		inline std::string GetFilename() { return m_filename; }
+		uint64_t GetShift(int gchan);
+	
+	private:
+		void ParseFile();
+	
+		std::string m_filename;
+		bool m_validFlag;
+	
+		std::unordered_map<int, uint64_t> m_map;
+	
+	};
 
-	std::string m_filename;
-	bool m_validFlag;
-
-	std::unordered_map<int, uint64_t> m_map;
-
-};
+}
 
 #endif

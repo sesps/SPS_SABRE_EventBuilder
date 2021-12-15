@@ -14,7 +14,9 @@ Then, in the `build` directory, run the following command to build and install t
 
 `cmake -DCMAKE_BUILD_TYPE=Release .. && make install`
 
-This will compile and link all event builder programs and dependencies. The executables will be installed to the `bin` directory of the SPS_SABRE_EventBuilder directory, shared libraries for ROOT dictionaries will be in the `lib` directory (with necessary .pcm files), and the header files for the shared libraries will be installed to the `include` directory. 
+This will compile and link all event builder programs and dependencies. The executables will be installed to the `bin` directory of the SPS_SABRE_EventBuilder directory, shared libraries for ROOT dictionaries will be in the `lib` directory (with necessary .pcm files), and the header files for the shared libraries will be installed to the `include` directory. To rebuild the program after a change to the code (assuming no files were added), simply run 
+
+`make clean && make install`
 
 ## GWMEVB vs. GWMEVB_CL
 There are two programs provided. They are `EventBuilderGui` and `EventBuilder`. The first is a full GUI version of the event builder. The GUI supports all conversion methods and the plotting tool.

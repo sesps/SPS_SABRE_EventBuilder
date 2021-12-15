@@ -32,11 +32,15 @@
 #ifndef FP_KINEMATICS
 #define FP_KINEMATICS
 
-//requires (Z,A) for T, P, and E, as well as energy of P,
-// spectrograph angle of interest, and field value
-double Delta_Z(int ZT, int AT, int ZP, int AP, int ZE, int AE,
-	       double EP, double angle, double B); 
+namespace EventBuilder {
 
-double Wire_Dist();
+     //requires (Z,A) for T, P, and E, as well as energy of P,
+     // spectrograph angle of interest, and field value
+     double Delta_Z(int ZT, int AT, int ZP, int AP, int ZE, int AE,
+     	       double EP, double angle, double B); 
+     
+     double Wire_Dist();
+
+}
 
 #endif
