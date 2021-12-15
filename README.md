@@ -1,12 +1,23 @@
 # SPS-SABRE Data Analysis Package
-Version 3
+Version 4
 This is a software package designed to help experimenters analyze data from SPS-SABRE at FSU. 
 It can convert CoMPASS data to ROOT, sort the data in time, build events, perform preliminary analysis and provide basic plots. Programs are built using make, and a make file is included. Simply using the command make will build all programs.
 
 WHEN TESTING, RUN WITH WIDE WINDOWS
 
+## Installation
+To install the event builder, the CMake build system is used. From the SPS_SABRE_EventBuilder directory first make a build directory:
+
+`mkdir build`
+
+Then, in the `build` directory, run the following command to build and install the release version of the event builder:
+
+`cmake -DCMAKE_BUILD_TYPE=Release .. && make install`
+
+This will compile and link all event builder programs and dependencies. The executables will be installed to the `bin` directory of the SPS_SABRE_EventBuilder directory, shared libraries for ROOT dictionaries will be in the `lib` directory (with necessary .pcm files), and the header files for the shared libraries will be installed to the `include` directory. 
+
 ## GWMEVB vs. GWMEVB_CL
-There are two programs provided. They are `GWMEVB` and `GWMEVB_CL`. The first is a full GUI version of the event builder. The GUI supports all conversion methods and the plotting tool.
+There are two programs provided. They are `EventBuilderGui` and `EventBuilder`. The first is a full GUI version of the event builder. The GUI supports all conversion methods and the plotting tool.
 
 ### Building Events
 The event building operation is the bulk of the analysis process. As files are being converted to ROOT from the raw CoMPASS binary, events are built using information given by the user. 
@@ -80,8 +91,3 @@ Currently the pipeline supports declaring individual digitizer channels as scale
 Only tested with `ROOT` 6.14, mileage may vary
 Uses C++11 standards
 Only compatible with MacOSX and Linux
-
-## Compliling and Running
-To compile use the command `make`
-To clean run `make clean` and then run `make`
-For a complete rebuild use `make clean_header` as well as `make clean`.
