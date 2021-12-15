@@ -1,9 +1,7 @@
 ###directories to ignore###
-./rootfiles/
-./pics/
-./images/
-./hotfixes/
-./build/
+pics/
+images/
+build/
 
 ###file types to ignore###
 *.swp
