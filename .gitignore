@@ -3,6 +3,7 @@
 ./pics/
 ./images/
 ./hotfixes/
+./build/
 
 ###file types to ignore###
 *.swp

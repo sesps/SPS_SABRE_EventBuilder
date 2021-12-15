@@ -18,7 +18,14 @@ Written by G.W. McCann Aug. 2020
 */
 MassLookup::MassLookup() 
 {
-	std::ifstream massfile("./etc/mass.txt");
+	std::string filepath;
+	#ifdef ETC_DIR_PATH
+		filepath = ETC_DIR_PATH;
+		filepath += "mass.txt";
+	#else
+		filepath = "./etc/mass.txt";
+	#endif
+	std::ifstream massfile(filepath);
 	if(massfile.is_open()) 
 	{
 		int Z,A;

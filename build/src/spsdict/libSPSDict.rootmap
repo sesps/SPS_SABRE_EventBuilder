@@ -1,0 +1,13 @@
+{ decls }
+namespace std {  }
+
+[ libSPSDict.so ]
+# List of selected classes
+class CoincEvent
+class DPPChannel
+class DetectorHit
+class FPDetector
+class ProcessedEvent
+class SabreDetector
+class vector<DetectorHit>
+header DataStructs.h

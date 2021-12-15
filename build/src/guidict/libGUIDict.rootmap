@@ -1,0 +1,6 @@
+[ libGUIDict.so ]
+# List of selected classes
+class EVBMainFrame
+class FileViewFrame
+header EVBMainFrame.h
+header FileViewFrame.h

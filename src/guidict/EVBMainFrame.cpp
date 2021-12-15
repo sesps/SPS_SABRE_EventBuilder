@@ -1,4 +1,4 @@
-#include "EventBuilder.h"
+#include "../evb/EventBuilder.h"
 #include "EVBMainFrame.h"
 #include "FileViewFrame.h"
 #include <TGLabel.h>

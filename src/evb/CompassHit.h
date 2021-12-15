@@ -1,8 +1,6 @@
 #ifndef COMPASS_HIT_H
 #define COMPASS_HIT_H
 
-#include <cstdint>
-
 struct CompassHit 
 {
   uint16_t board = 400;

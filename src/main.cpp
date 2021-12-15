@@ -1,9 +1,11 @@
 #include "EventBuilder.h"
+#include "spsdict/DataStructs.h"
 #include "EVBApp.h"
 #include "Stopwatch.h"
 
 int main(int argc, char** argv) 
 {
+	EnforceDictionaryLinked();
 	if(argc != 3) 
 	{
 		std::cerr<<"Incorrect number of command line arguments!"<<std::endl;
