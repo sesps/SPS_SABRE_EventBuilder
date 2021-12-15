@@ -9,7 +9,6 @@
 
 	Updated to also handle scaler data. -- GWM Oct. 2020
 */
-#include "EventBuilder.h"
 #include "CompassRun.h"
 #include "RunCollector.h"
 #include "SlowSort.h"

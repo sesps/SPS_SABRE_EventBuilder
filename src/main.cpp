@@ -1,4 +1,3 @@
-#include "EventBuilder.h"
 #include "spsdict/DataStructs.h"
 #include "evb/EVBApp.h"
 #include "evb/Stopwatch.h"
@@ -6,10 +5,10 @@
 int main(int argc, char** argv) 
 {
 	EnforceDictionaryLinked();
+	EventBuilder::Logger::Init();
 	if(argc != 3) 
 	{
-		std::cerr<<"Incorrect number of command line arguments!"<<std::endl;
-		std::cerr<<"Need to specify type of operation (buildSlow, buildFast, etc.) and input file."<<std::endl;
+		EVB_ERROR("Incorrcect number of commandline arguments! Need to specify type of operation and input file.");
 		return 1;
 	}
 
@@ -49,12 +48,12 @@ int main(int argc, char** argv)
 		theBuilder.Convert2FastAnalyzedRoot();
 	else 
 	{
-		std::cerr<<"Unidentified type of operation! Check your first argument."<<std::endl;
+		EVB_ERROR("Invalid operation {0} given to EventBuilder! Exiting.", operation);
 		return 1;
 	}
 	
 	timer.Stop();
-	std::cout<<"Elapsed time (ms): "<<timer.GetElapsedMilliseconds()<<std::endl;
+	EVB_INFO("Elapsed time (ms): {0}", timer.GetElapsedMilliseconds());
 
 	return 0;
 }

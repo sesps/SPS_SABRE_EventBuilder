@@ -1,4 +1,3 @@
-#include <EventBuilder.h>
 #include "EVBMainFrame.h"
 #include "FileViewFrame.h"
 #include <TGLabel.h>

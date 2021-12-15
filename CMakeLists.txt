@@ -19,6 +19,7 @@ endif(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 
-set(PCH_DIR ${CMAKE_CURRENT_LIST_DIR}/src/)
+set(PCH_DIR ${CMAKE_CURRENT_LIST_DIR}/src)
 
+add_subdirectory(vendor/spdlog)
 add_subdirectory(src)

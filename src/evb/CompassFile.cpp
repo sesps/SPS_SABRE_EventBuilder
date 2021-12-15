@@ -8,7 +8,6 @@
 
 	Written by G.W. McCann Oct. 2020
 */
-#include "EventBuilder.h"
 #include "CompassFile.h"
 
 namespace EventBuilder {
@@ -74,7 +73,7 @@ namespace EventBuilder {
 	{
 		if(!IsOpen()) 
 		{
-			std::cerr<<"Unable to get hit size due to file not being open!"<<std::endl;
+			EVB_WARN("Unable to get hit size from file {0}, sending invalid value.", m_filename);
 			return 0;
 		}
 	

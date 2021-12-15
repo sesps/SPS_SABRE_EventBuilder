@@ -7,7 +7,6 @@
  *
  *Refurbished and updated Jan 2020 GWM
  */
-#include "EventBuilder.h"
 #include "SlowSort.h"
 
 namespace EventBuilder {

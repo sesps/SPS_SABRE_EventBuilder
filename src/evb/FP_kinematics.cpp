@@ -31,7 +31,6 @@
 
 */
 
-#include "EventBuilder.h"
 #include <cmath>
 #include "MassLookup.h"
 #include "FP_kinematics.h"

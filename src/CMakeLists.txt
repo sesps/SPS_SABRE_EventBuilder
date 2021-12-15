@@ -38,9 +38,11 @@ target_sources(EventBuilder
 		evb/Stopwatch.h
 		evb/ShiftMap.cpp
 		evb/ShiftMap.h
+		evb/Logger.h
+		evb/Logger.cpp
 		spsdict/DataStructs.h
 )
-target_include_directories(EventBuilder PUBLIC ${CMAKE_CURRENT_LIST_DIR} ${CMAKE_CURRENT_LIST_DIR}/evb ${CMAKE_CURRENT_LIST_DIR}/spsdict)
+target_include_directories(EventBuilder PUBLIC ${CMAKE_CURRENT_LIST_DIR} ${CMAKE_CURRENT_LIST_DIR}/evb ${CMAKE_CURRENT_LIST_DIR}/spsdict ${SPDLOG_INCLUDE})
 target_precompile_headers(EventBuilder PUBLIC ${PCH_DIR}/EventBuilder.h)
 target_link_libraries(EventBuilder
 	PUBLIC
@@ -65,6 +67,7 @@ target_link_libraries(EventBuilder
 		ROOT::Thread
 		ROOT::TreePlayer
 		ROOT::Tree
+		spdlog::spdlog
 )
 
 
@@ -105,11 +108,13 @@ target_sources(EventBuilderGui
 		evb/Stopwatch.h
 		evb/ShiftMap.cpp
 		evb/ShiftMap.h
+		evb/Logger.h
+		evb/Logger.cpp
 		spsdict/DataStructs.h
 		guidict/EVBMainFrame.h
 		guidict/FileViewFrame.h
 )
-target_include_directories(EventBuilderGui PUBLIC ${CMAKE_CURRENT_LIST_DIR} ${CMAKE_CURRENT_LIST_DIR}/evb ${CMAKE_CURRENT_LISTDIR}/spsdict ${CMAKE_CURRENT_LIST_DIR}/guidict)
+target_include_directories(EventBuilderGui PUBLIC ${CMAKE_CURRENT_LIST_DIR} ${CMAKE_CURRENT_LIST_DIR}/evb ${CMAKE_CURRENT_LISTDIR}/spsdict ${CMAKE_CURRENT_LIST_DIR}/guidict ${SPDLOG_INCLUDE})
 target_precompile_headers(EventBuilderGui REUSE_FROM EventBuilder)
 target_link_libraries(EventBuilderGui
 	PUBLIC
@@ -135,6 +140,7 @@ target_link_libraries(EventBuilderGui
 		ROOT::Thread
 		ROOT::TreePlayer
 		ROOT::Tree
+		spdlog::spdlog
 )
 
 install(TARGETS EventBuilder EventBuilderGui RUNTIME DESTINATION bin)
