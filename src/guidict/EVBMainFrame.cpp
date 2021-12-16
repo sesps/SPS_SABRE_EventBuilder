@@ -11,6 +11,7 @@ EVBMainFrame::EVBMainFrame(const TGWindow* p, UInt_t w, UInt_t h) :
 	SetCleanup(kDeepCleanup);
 	MAIN_W = w; MAIN_H = h;
 
+	fInfo = new TGFileInfo();
 	//Organization hints
 	TGLayoutHints *fchints = new TGLayoutHints(kLHintsExpandX|kLHintsExpandY,5,5,5,5);
 	TGLayoutHints *fhints = new TGLayoutHints(kLHintsExpandX|kLHintsCenterY,5,5,5,5);
@@ -21,11 +22,10 @@ EVBMainFrame::EVBMainFrame(const TGWindow* p, UInt_t w, UInt_t h) :
 
 	//Make the containers and link up all signals/slots
 
-	TGVerticalFrame *InputFrame = new TGVerticalFrame(this, w, h*0.9);
+	TGGroupFrame* pathGroup = new TGGroupFrame(this, "Working Paths");
+	TGVerticalFrame *NameFrame = new TGVerticalFrame(pathGroup, w, h*0.3);
 
-	TGVerticalFrame *NameFrame = new TGVerticalFrame(InputFrame, w, h*0.4);
-
-	TGHorizontalFrame *WorkFrame = new TGHorizontalFrame(NameFrame, w, h*0.1);
+	TGHorizontalFrame *WorkFrame = new TGHorizontalFrame(NameFrame, w, h*0.06);
 	TGLabel* workLabel = new TGLabel(WorkFrame, "Workspace Directory:");
 	fWorkField = new TGTextEntry(WorkFrame, new TGTextBuffer(120), WorkDir);
 	fWorkField->Resize(w*0.25, fWorkField->GetDefaultHeight());
@@ -36,7 +36,7 @@ EVBMainFrame::EVBMainFrame(const TGWindow* p, UInt_t w, UInt_t h) :
 	WorkFrame->AddFrame(fWorkField, fhints);
 	WorkFrame->AddFrame(fOpenWorkButton, bhints);
 
-	TGHorizontalFrame *CMapFrame = new TGHorizontalFrame(NameFrame, w, h*0.1);
+	TGHorizontalFrame *CMapFrame = new TGHorizontalFrame(NameFrame, w, h*0.06);
 	TGLabel* cmaplabel = new TGLabel(CMapFrame, "Channel Map File:");
 	fCMapField = new TGTextEntry(CMapFrame, new TGTextBuffer(120), Cmap);
 	fCMapField->Resize(w*0.25, fCMapField->GetDefaultHeight());
@@ -47,7 +47,7 @@ EVBMainFrame::EVBMainFrame(const TGWindow* p, UInt_t w, UInt_t h) :
 	CMapFrame->AddFrame(fCMapField, fhints);
 	CMapFrame->AddFrame(fOpenCMapButton, bhints);
 
-	TGHorizontalFrame *SMapFrame = new TGHorizontalFrame(NameFrame, w, h*0.1);
+	TGHorizontalFrame *SMapFrame = new TGHorizontalFrame(NameFrame, w, h*0.06);
 	TGLabel* smaplabel = new TGLabel(SMapFrame, "Board Shift File:");
 	fSMapField = new TGTextEntry(SMapFrame, new TGTextBuffer(120), Smap);
 	fSMapField->Resize(w*0.25, fSMapField->GetDefaultHeight());
@@ -58,7 +58,7 @@ EVBMainFrame::EVBMainFrame(const TGWindow* p, UInt_t w, UInt_t h) :
 	SMapFrame->AddFrame(fSMapField, fhints);
 	SMapFrame->AddFrame(fOpenSMapButton, bhints);
 
-	TGHorizontalFrame *ScalerFrame = new TGHorizontalFrame(NameFrame, w, h*0.1);
+	TGHorizontalFrame *ScalerFrame = new TGHorizontalFrame(NameFrame, w, h*0.06);
 	TGLabel* sclabel = new TGLabel(ScalerFrame, "Scaler File: ");
 	fScalerField = new TGTextEntry(ScalerFrame, new TGTextBuffer(120), Scaler);
 	fScalerField->Connect("ReturnPressed()","EVBMainFrame",this,"UpdateScaler()");
@@ -68,7 +68,7 @@ EVBMainFrame::EVBMainFrame(const TGWindow* p, UInt_t w, UInt_t h) :
 	ScalerFrame->AddFrame(fScalerField, fhints);
 	ScalerFrame->AddFrame(fOpenScalerButton, bhints);
 
-	TGHorizontalFrame *CutFrame = new TGHorizontalFrame(NameFrame, w, h*0.1);
+	TGHorizontalFrame *CutFrame = new TGHorizontalFrame(NameFrame, w, h*0.06);
 	TGLabel* clabel = new TGLabel(CutFrame, "Cut List: ");
 	fCutField = new TGTextEntry(CutFrame, new TGTextBuffer(120), Cut);
 	fCutField->Connect("ReturnPressed()","EVBMainFrame",this,"UpdateCut()");
@@ -84,62 +84,108 @@ EVBMainFrame::EVBMainFrame(const TGWindow* p, UInt_t w, UInt_t h) :
 	NameFrame->AddFrame(ScalerFrame, fhints);
 	NameFrame->AddFrame(CutFrame, fhints);
 
+	pathGroup->AddFrame(NameFrame, fhints);
 
-	TGHorizontalFrame *ParamFrame = new TGHorizontalFrame(InputFrame, w, h*0.1);
-	TGLabel *bkelabel = new TGLabel(ParamFrame, "Beam KE (MeV):");
-	fBKEField = new TGNumberEntryField(ParamFrame, Bke, 0, TGNumberEntry::kNESRealFour, TGNumberEntry::kNEANonNegative);
-	TGLabel *bfieldlabel = new TGLabel(ParamFrame, "B-Field (G):");
-	fBField = new TGNumberEntryField(ParamFrame, BField, 0, TGNumberEntry::kNESRealFour, TGNumberEntry::kNEANonNegative);
-	TGLabel *thetalabel = new TGLabel(ParamFrame, "Angle (deg):");
-	fThetaField = new TGNumberEntryField(ParamFrame, Theta, 0, TGNumberEntry::kNESRealFour, TGNumberEntry::kNEANonNegative);
-	TGLabel *ztlabel = new TGLabel(ParamFrame, "ZT:");
-	fZTField = new TGNumberEntryField(ParamFrame, ZT, 0, TGNumberEntry::kNESInteger, TGNumberEntry::kNEANonNegative);
-	TGLabel *atlabel = new TGLabel(ParamFrame, "AT:");
-	fATField = new TGNumberEntryField(ParamFrame, AT, 0, TGNumberEntry::kNESInteger, TGNumberEntry::kNEANonNegative);
-	TGLabel *zplabel = new TGLabel(ParamFrame, "ZP:");
-	fZPField = new TGNumberEntryField(ParamFrame, ZP, 0, TGNumberEntry::kNESInteger, TGNumberEntry::kNEANonNegative);
-	TGLabel *aplabel = new TGLabel(ParamFrame, "AP:");
-	fAPField = new TGNumberEntryField(ParamFrame, AP, 0, TGNumberEntry::kNESInteger, TGNumberEntry::kNEANonNegative);
-	TGLabel *zelabel = new TGLabel(ParamFrame, "ZE:");
-	fZEField = new TGNumberEntryField(ParamFrame, ZE, 0, TGNumberEntry::kNESInteger, TGNumberEntry::kNEANonNegative);
-	TGLabel *aelabel = new TGLabel(ParamFrame, "AE:");
-	fAEField = new TGNumberEntryField(ParamFrame, AE, 0, TGNumberEntry::kNESInteger, TGNumberEntry::kNEANonNegative);
-	ParamFrame->AddFrame(bkelabel, lhints);
-	ParamFrame->AddFrame(fBKEField, fhints);
-	ParamFrame->AddFrame(bfieldlabel, lhints);
-	ParamFrame->AddFrame(fBField, fhints);
-	ParamFrame->AddFrame(thetalabel, lhints);
-	ParamFrame->AddFrame(fThetaField, fhints);
-	ParamFrame->AddFrame(ztlabel, lhints);
-	ParamFrame->AddFrame(fZTField, fhints);
-	ParamFrame->AddFrame(atlabel, lhints);
-	ParamFrame->AddFrame(fATField, fhints);
-	ParamFrame->AddFrame(zplabel, lhints);
-	ParamFrame->AddFrame(fZPField, fhints);
-	ParamFrame->AddFrame(aplabel, lhints);
-	ParamFrame->AddFrame(fAPField, fhints);
-	ParamFrame->AddFrame(zelabel, lhints);
-	ParamFrame->AddFrame(fZEField, fhints);
-	ParamFrame->AddFrame(aelabel, lhints);
-	ParamFrame->AddFrame(fAEField, fhints);
 
-	TGHorizontalFrame *WindowFrame = new TGHorizontalFrame(InputFrame, w, h*0.1);
-	TGLabel *slowlabel = new TGLabel(WindowFrame, "Slow Coincidence Window (ps):");
-	fSlowWindowField = new TGNumberEntryField(WindowFrame, SlowWind, 0, TGNumberEntry::kNESReal, TGNumberEntry::kNEANonNegative);
-	TGLabel *fasticlabel = new TGLabel(WindowFrame, "Fast Coincidence Window IC (ps):");
-	fFastICField = new TGNumberEntryField(WindowFrame, FastWind_IC, 0, TGNumberEntry::kNESReal, TGNumberEntry::kNEANonNegative);
-	TGLabel *fastsabrelabel = new TGLabel(WindowFrame, "Fast Coincidence Window SABRE (ps):");
-	fFastSABREField = new TGNumberEntryField(WindowFrame, FastWind_Sabre, 0, TGNumberEntry::kNESReal, TGNumberEntry::kNEANonNegative);
-	WindowFrame->AddFrame(slowlabel, lhints);
-	WindowFrame->AddFrame(fSlowWindowField, fhints);
-	WindowFrame->AddFrame(fasticlabel, lhints);
-	WindowFrame->AddFrame(fFastICField, fhints);
-	WindowFrame->AddFrame(fastsabrelabel, lhints);
-	WindowFrame->AddFrame(fFastSABREField, fhints);
+	TGHorizontalFrame *ParamFrame = new TGHorizontalFrame(this, w, h*0.4);
 
-	TGHorizontalFrame *RunFrame = new TGHorizontalFrame(InputFrame, w, h*0.1);
-	TGLabel *typelabel = new TGLabel(RunFrame, "Operation Type:");
-	fTypeBox = new TGComboBox(RunFrame, TypeBox);
+	TGGroupFrame* reactionGroup = new TGGroupFrame(ParamFrame, "Reaction Inputs");
+	TGHorizontalFrame* reactionFrame = new TGHorizontalFrame(reactionGroup, w*0.7, h*0.5);
+
+	TGVerticalFrame* targFrame = new TGVerticalFrame(reactionFrame, w*0.175, h*0.5);
+	TGHorizontalFrame* zTargFrame = new TGHorizontalFrame(targFrame, w*0.3, h*0.2);
+	TGLabel *ztlabel = new TGLabel(zTargFrame, "ZT:");
+	fZTField = new TGNumberEntryField(zTargFrame, ZT, 0, TGNumberEntry::kNESInteger, TGNumberEntry::kNEANonNegative);
+	zTargFrame->AddFrame(ztlabel, lhints);
+	zTargFrame->AddFrame(fZTField, fhints);
+	TGHorizontalFrame* aTargFrame = new TGHorizontalFrame(targFrame, w*0.175, h*0.2);
+	TGLabel *atlabel = new TGLabel(aTargFrame, "AT:");
+	fATField = new TGNumberEntryField(aTargFrame, AT, 0, TGNumberEntry::kNESInteger, TGNumberEntry::kNEANonNegative);
+	aTargFrame->AddFrame(atlabel, lhints);
+	aTargFrame->AddFrame(fATField, fhints);
+	targFrame->AddFrame(zTargFrame, fhints);
+	targFrame->AddFrame(aTargFrame, fhints);
+
+	TGVerticalFrame* projFrame = new TGVerticalFrame(reactionFrame, w*0.175, h*0.4);
+	TGHorizontalFrame* zProjFrame = new TGHorizontalFrame(projFrame, w*0.175, h*0.2);
+	TGLabel *zplabel = new TGLabel(zProjFrame, "ZP:");
+	fZPField = new TGNumberEntryField(zProjFrame, ZP, 0, TGNumberEntry::kNESInteger, TGNumberEntry::kNEANonNegative);
+	zProjFrame->AddFrame(zplabel, lhints);
+	zProjFrame->AddFrame(fZPField, fhints);
+	TGHorizontalFrame* aProjFrame = new TGHorizontalFrame(projFrame, w*0.175, h*0.2);
+	TGLabel *aplabel = new TGLabel(aProjFrame, "AP:");
+	fAPField = new TGNumberEntryField(aProjFrame, AP, 0, TGNumberEntry::kNESInteger, TGNumberEntry::kNEANonNegative);
+	aProjFrame->AddFrame(aplabel, lhints);
+	aProjFrame->AddFrame(fAPField, fhints);
+	projFrame->AddFrame(zProjFrame, fhints);
+	projFrame->AddFrame(aProjFrame, fhints);
+
+	TGVerticalFrame* ejectFrame = new TGVerticalFrame(reactionFrame, w*0.175, h*0.4);
+	TGHorizontalFrame* zEjectFrame = new TGHorizontalFrame(ejectFrame, w*0.175, h*0.2);
+	TGLabel *zelabel = new TGLabel(zEjectFrame, "ZE:");
+	fZEField = new TGNumberEntryField(zEjectFrame, ZE, 0, TGNumberEntry::kNESInteger, TGNumberEntry::kNEANonNegative);
+	zEjectFrame->AddFrame(zelabel, lhints);
+	zEjectFrame->AddFrame(fZEField, fhints);
+	TGHorizontalFrame* aEjectFrame = new TGHorizontalFrame(ejectFrame, w*0.175, h*0.2);
+	TGLabel *aelabel = new TGLabel(aEjectFrame, "AE:");
+	fAEField = new TGNumberEntryField(aEjectFrame, AE, 0, TGNumberEntry::kNESInteger, TGNumberEntry::kNEANonNegative);
+	aEjectFrame->AddFrame(aelabel, lhints);
+	aEjectFrame->AddFrame(fAEField, fhints);
+	ejectFrame->AddFrame(zEjectFrame, fhints);
+	ejectFrame->AddFrame(aEjectFrame, fhints);
+
+	TGVerticalFrame* extraFrame = new TGVerticalFrame(reactionFrame, w*0.175, h*0.4);
+	TGHorizontalFrame* beamFrame = new TGHorizontalFrame(extraFrame, w*0.175, h*0.15);
+	TGLabel *bkelabel = new TGLabel(beamFrame, "Beam KE (MeV):");
+	fBKEField = new TGNumberEntryField(beamFrame, Bke, 0, TGNumberEntry::kNESRealFour, TGNumberEntry::kNEANonNegative);
+	beamFrame->AddFrame(bkelabel, lhints);
+	beamFrame->AddFrame(fBKEField, fhints);
+	TGHorizontalFrame* bfFrame = new TGHorizontalFrame(extraFrame, w*0.175, h*0.15);
+	TGLabel *bfieldlabel = new TGLabel(bfFrame, "B-Field (G):");
+	fBField = new TGNumberEntryField(bfFrame, BField, 0, TGNumberEntry::kNESRealFour, TGNumberEntry::kNEANonNegative);
+	bfFrame->AddFrame(bfieldlabel, lhints);
+	bfFrame->AddFrame(fBField, fhints);
+	TGHorizontalFrame* thetaFrame = new TGHorizontalFrame(extraFrame, w*0.175, h*0.15);
+	TGLabel *thetalabel = new TGLabel(thetaFrame, "Angle (deg):");
+	fThetaField = new TGNumberEntryField(thetaFrame, Theta, 0, TGNumberEntry::kNESRealFour, TGNumberEntry::kNEANonNegative);
+	thetaFrame->AddFrame(thetalabel, lhints);
+	thetaFrame->AddFrame(fThetaField, fhints);
+	extraFrame->AddFrame(beamFrame, fhints);
+	extraFrame->AddFrame(bfFrame, fhints);
+	extraFrame->AddFrame(thetaFrame, fhints);
+
+	reactionFrame->AddFrame(targFrame, fhints);
+	reactionFrame->AddFrame(projFrame, fhints);
+	reactionFrame->AddFrame(ejectFrame, fhints);
+	reactionFrame->AddFrame(extraFrame, fhints);
+
+	reactionGroup->AddFrame(reactionFrame, fhints);
+
+
+	TGGroupFrame* eventGroup = new TGGroupFrame(ParamFrame, "Event Inputs");
+	TGVerticalFrame* eventFrame = new TGVerticalFrame(eventGroup, w*0.3, h*0.5);
+
+	TGHorizontalFrame *slowFrame = new TGHorizontalFrame(eventFrame, w*0.4, h*0.1);
+	TGLabel *slowlabel = new TGLabel(slowFrame, "Slow Coincidence Window (ps):");
+	fSlowWindowField = new TGNumberEntryField(slowFrame, SlowWind, 0, TGNumberEntry::kNESReal, TGNumberEntry::kNEANonNegative);
+	slowFrame->AddFrame(slowlabel, lhints);
+	slowFrame->AddFrame(fSlowWindowField, fhints);
+
+	TGHorizontalFrame* fastICFrame = new TGHorizontalFrame(eventFrame, w*0.3, h*0.1);
+	TGLabel *fasticlabel = new TGLabel(fastICFrame, "Fast Coincidence Window IC (ps):");
+	fFastICField = new TGNumberEntryField(fastICFrame, FastWind_IC, 0, TGNumberEntry::kNESReal, TGNumberEntry::kNEANonNegative);
+	fastICFrame->AddFrame(fasticlabel, lhints);
+	fastICFrame->AddFrame(fFastICField, fhints);
+
+	TGHorizontalFrame* fastSABREFrame = new TGHorizontalFrame(eventFrame, w*0.3, h*0.1);
+	TGLabel *fastsabrelabel = new TGLabel(fastSABREFrame, "Fast Coincidence Window SABRE (ps):");
+	fFastSABREField = new TGNumberEntryField(fastSABREFrame, FastWind_Sabre, 0, TGNumberEntry::kNESReal, TGNumberEntry::kNEANonNegative);
+	fastSABREFrame->AddFrame(fastsabrelabel, lhints);
+	fastSABREFrame->AddFrame(fFastSABREField, fhints);
+
+	TGHorizontalFrame *opFrame = new TGHorizontalFrame(eventFrame, w*0.3, h*0.1);
+	TGLabel *typelabel = new TGLabel(opFrame, "Operation Type:");
+	fTypeBox = new TGComboBox(opFrame, TypeBox);
 	//Needs modification for new conversion based sorting GWM -- Dec 2020
 	fTypeBox->AddEntry("Convert Slow", EventBuilder::EVBApp::Operation::ConvertSlow);
 	fTypeBox->AddEntry("Convert Fast", EventBuilder::EVBApp::Operation::ConvertFast);
@@ -150,32 +196,44 @@ EVBMainFrame::EVBMainFrame(const TGWindow* p, UInt_t w, UInt_t h) :
 	fTypeBox->AddEntry("Plot", EventBuilder::EVBApp::Operation::Plot);
 	fTypeBox->Resize(200,20);
 	fTypeBox->Connect("Selected(Int_t, Int_t)","EVBMainFrame",this,"HandleTypeSelection(Int_t,Int_t)");
-	TGLabel *rminlabel = new TGLabel(RunFrame, "Min Run:");
-	fRMinField = new TGNumberEntryField(RunFrame, RMin, 0, TGNumberEntry::kNESInteger, TGNumberEntry::kNEANonNegative);
-	TGLabel *rmaxlabel = new TGLabel(RunFrame, "Max Run:");
-	fRMaxField = new TGNumberEntryField(RunFrame, RMax, 0, TGNumberEntry::kNESInteger, TGNumberEntry::kNEANonNegative);
-	fRunButton = new TGTextButton(RunFrame, "Run!");
+	opFrame->AddFrame(typelabel, lhints);
+	opFrame->AddFrame(fTypeBox, fhints);
+
+	TGHorizontalFrame* rminFrame = new TGHorizontalFrame(eventFrame, w*0.3, h*0.1);
+	TGLabel *rminlabel = new TGLabel(rminFrame, "Min Run:");
+	fRMinField = new TGNumberEntryField(rminFrame, RMin, 0, TGNumberEntry::kNESInteger, TGNumberEntry::kNEANonNegative);
+	rminFrame->AddFrame(rminlabel, lhints);
+	rminFrame->AddFrame(fRMinField, fhints);
+
+	TGHorizontalFrame* rmaxFrame = new TGHorizontalFrame(eventFrame, w*0.3, h*0.1);
+	TGLabel *rmaxlabel = new TGLabel(rmaxFrame, "Max Run:");
+	fRMaxField = new TGNumberEntryField(rmaxFrame, RMax, 0, TGNumberEntry::kNESInteger, TGNumberEntry::kNEANonNegative);
+	rmaxFrame->AddFrame(rmaxlabel, lhints);
+	rmaxFrame->AddFrame(fRMaxField, fhints);
+
+	fRunButton = new TGTextButton(eventFrame, "Run!");
 	fRunButton->SetState(kButtonDisabled);
 	fRunButton->Connect("Clicked()","EVBMainFrame",this,"DoRun()");
-	RunFrame->AddFrame(typelabel, lhints);
-	RunFrame->AddFrame(fTypeBox, fhints);
-	RunFrame->AddFrame(rminlabel, lhints);
-	RunFrame->AddFrame(fRMinField, fhints);
-	RunFrame->AddFrame(rmaxlabel, lhints);
-	RunFrame->AddFrame(fRMaxField, fhints);
-	RunFrame->AddFrame(fRunButton, bhints);
+	
+	eventFrame->AddFrame(slowFrame, fhints);
+	eventFrame->AddFrame(fastICFrame, fhints);
+	eventFrame->AddFrame(fastSABREFrame, fhints);
+	eventFrame->AddFrame(opFrame, fhints);
+	eventFrame->AddFrame(rminFrame, fhints);
+	eventFrame->AddFrame(rmaxFrame, fhints);
+	eventFrame->AddFrame(fRunButton, bhints);
 
-	InputFrame->AddFrame(NameFrame, fhints);
-	InputFrame->AddFrame(ParamFrame, fhints);
-	InputFrame->AddFrame(WindowFrame, fhints);
-	InputFrame->AddFrame(RunFrame, fhints);
+	eventGroup->AddFrame(eventFrame,fhints);
+
+	ParamFrame->AddFrame(reactionGroup, fhints);
+	ParamFrame->AddFrame(eventGroup, new TGLayoutHints(kLHintsExpandY|kLHintsLeft,5,5,5,5));
 
 	TGVerticalFrame *PBFrame = new TGVerticalFrame(this, w, h*0.1);
 	TGLabel *pbLabel = new TGLabel(PBFrame, "Build Progress");
 	fProgressBar = new TGHProgressBar(PBFrame, TGProgressBar::kFancy, w);
 	fProgressBar->ShowPosition();
 	fProgressBar->SetBarColor("lightblue");
-	fBuilder.AttachProgressBar(fProgressBar);
+	//fBuilder.AttachProgressBar(fProgressBar);
 	PBFrame->AddFrame(pbLabel, lhints);
 	PBFrame->AddFrame(fProgressBar, fhints);
 
@@ -188,9 +246,12 @@ EVBMainFrame::EVBMainFrame(const TGWindow* p, UInt_t w, UInt_t h) :
 	menuBar->AddPopup("File", fFileMenu, mhints);
 
 	AddFrame(menuBar, new TGLayoutHints(kLHintsTop|kLHintsLeft,0,0,0,0));
-	AddFrame(InputFrame, fchints);
+	AddFrame(pathGroup, new TGLayoutHints(kLHintsTop|kLHintsExpandX,5,5,5,5));
+	AddFrame(ParamFrame, new TGLayoutHints(kLHintsCenterX|kLHintsExpandY,5,5,5,5));
 	AddFrame(PBFrame, fpbhints);
 
+	fBuilder.SetProgressCallbackFunc(BIND_PROGRESS_CALLBACK_FUNCTION(EVBMainFrame::SetProgressBarPosition));
+	fBuilder.SetProgressFraction(0.01);
 	SetWindowName("GWM Event Builder");
 	MapSubwindows();
 	Resize();
@@ -201,6 +262,7 @@ EVBMainFrame::EVBMainFrame(const TGWindow* p, UInt_t w, UInt_t h) :
 EVBMainFrame::~EVBMainFrame() 
 {
 	Cleanup();
+	delete fInfo;
 	delete this;
 }
 
@@ -212,36 +274,46 @@ void EVBMainFrame::CloseWindow()
 void EVBMainFrame::HandleMenuSelection(int id) 
 {
 	if(id == M_Save_Config)
-		new FileViewFrame(gClient->GetRoot(), this, MAIN_W*0.5, MAIN_H*0.25, this, M_Save_Config);
+	{
+		new TGFileDialog(gClient->GetRoot(), this, kFDOpen, fInfo);
+		SaveConfig(fInfo->fFilename);
+	}
 	else if(id == M_Load_Config)
-		new FileViewFrame(gClient->GetRoot(), this, MAIN_W*0.5, MAIN_H*0.25, this, M_Load_Config);
+	{
+		new TGFileDialog(gClient->GetRoot(), this, kFDOpen, fInfo);
+		LoadConfig(fInfo->fFilename);
+	}
 	else if(id == M_Exit)
 		CloseWindow();
 }
 
 void EVBMainFrame::DoOpenWorkdir() 
 {
-	new FileViewFrame(gClient->GetRoot(), this, MAIN_W*0.5, MAIN_H*0.25, this, WorkDir);
+	new FileViewFrame(gClient->GetRoot(), this, MAIN_W*0.5, MAIN_H, this, WorkDir);
 }
 
 void EVBMainFrame::DoOpenCMapfile() 
 {
-	new FileViewFrame(gClient->GetRoot(), this, MAIN_W*0.5, MAIN_H*0.25, this, Cmap);	
+	new TGFileDialog(gClient->GetRoot(), this, kFDOpen, fInfo);
+	DisplayCMap(fInfo->fFilename);
 }
 
 void EVBMainFrame::DoOpenSMapfile() 
 {
-	new FileViewFrame(gClient->GetRoot(), this, MAIN_W*0.5, MAIN_H*0.25, this, Smap);	
+	new TGFileDialog(gClient->GetRoot(), this, kFDOpen, fInfo);
+	DisplaySMap(fInfo->fFilename);
 }
 
 void EVBMainFrame::DoOpenScalerfile() 
 {
-	new FileViewFrame(gClient->GetRoot(), this, MAIN_W*0.5, MAIN_H*0.25, this, Scaler);
+	new TGFileDialog(gClient->GetRoot(), this, kFDOpen, fInfo);
+	DisplayScaler(fInfo->fFilename);
 }
 
 void EVBMainFrame::DoOpenCutfile() 
 {
-	new FileViewFrame(gClient->GetRoot(), this, MAIN_W*0.5, MAIN_H*0.25, this, Cut);
+	new TGFileDialog(gClient->GetRoot(), this, kFDOpen, fInfo);
+	DisplayCut(fInfo->fFilename);
 }
 
 void EVBMainFrame::DoRun() 
@@ -493,4 +565,12 @@ void EVBMainFrame::EnableAllInput()
 	fFastICField->SetState(true);
 	fFastSABREField->SetState(true);
 
+}
+
+void EVBMainFrame::SetProgressBarPosition(long val, long total)
+{
+	fProgressBar->SetMin(0);
+	fProgressBar->SetMax(total);
+	fProgressBar->SetPosition(val);
+	gSystem->ProcessEvents();
 }

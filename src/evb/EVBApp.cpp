@@ -19,15 +19,21 @@ namespace EventBuilder {
 	
 	EVBApp::EVBApp() :
 		m_rmin(0), m_rmax(0), m_ZT(0), m_AT(0), m_ZP(0), m_AP(0), m_ZE(0), m_AE(0), m_ZR(0), m_AR(0),
-		m_B(0), m_Theta(0), m_BKE(0), m_workspace("none"), m_mapfile("none"), m_shiftfile("none"),
-		m_cutList("none"), m_SlowWindow(0), m_FastWindowIonCh(0), m_FastWindowSABRE(0), m_pb(nullptr)
-	{
+		m_B(0), m_Theta(0), m_BKE(0), m_progressFraction(0.1), m_workspace("none"), m_mapfile("none"), m_shiftfile("none"),
+		m_cutList("none"), m_SlowWindow(0), m_FastWindowIonCh(0), m_FastWindowSABRE(0)	{
+		SetProgressCallbackFunc(BIND_PROGRESS_CALLBACK_FUNCTION(EVBApp::DefaultProgressCallback));
 	}
 	
 	EVBApp::~EVBApp() 
 	{
 	}
 	
+	void EVBApp::DefaultProgressCallback(long curVal, long totalVal)
+	{
+		double fraction = curVal/totalVal;
+		EVB_INFO("Percent of run built: {0}", fraction*100);
+	}
+
 	bool EVBApp::ReadConfigFile(const std::string& fullpath) 
 	{
 		EVB_INFO("Reading in EVB configuration from file {0}...", fullpath);
@@ -123,12 +129,12 @@ namespace EventBuilder {
 		std::string analyze_dir = m_workspace+"/analyzed/";
 		std::string plot_file = m_workspace+"/histograms/run_"+std::to_string(m_rmin)+"_"+std::to_string(m_rmax)+".root";
 		SFPPlotter grammer;
+		grammer.SetProgressCallbackFunc(m_progressCallback);
+		grammer.SetProgressFraction(m_progressFraction);
 		grammer.ApplyCutlist(m_cutList);
 		EVB_INFO("Generating histograms from analyzed runs [{0}, {1}] with Cut List {2}...", m_rmin, m_rmax, m_cutList);
 		EVB_INFO("Output file will be named {0}",plot_file);
 	
-		if(m_pb) 
-			grammer.AttachProgressBar(m_pb);
 		grabber.SetSearchParams(analyze_dir, "", ".root", m_rmin, m_rmax);
 		if(grabber.GrabFilesInRange()) 
 		{
@@ -157,8 +163,8 @@ namespace EventBuilder {
 		CompassRun converter(unpack_dir);
 		converter.SetShiftMap(m_shiftfile);
 		converter.SetScalerInput(m_scalerfile);
-		if(m_pb)
-			converter.AttachProgressBar(m_pb);
+		converter.SetProgressCallbackFunc(m_progressCallback);
+		converter.SetProgressFraction(m_progressFraction);
 	
 		EVB_INFO("Beginning conversion...");
 		for(int i=m_rmin; i<=m_rmax; i++) 
@@ -214,8 +220,8 @@ namespace EventBuilder {
 		CompassRun converter(unpack_dir);
 		converter.SetShiftMap(m_shiftfile);
 		converter.SetScalerInput(m_scalerfile);
-		if(m_pb) 
-			converter.AttachProgressBar(m_pb);
+		converter.SetProgressCallbackFunc(m_progressCallback);
+		converter.SetProgressFraction(m_progressFraction);
 	
 		EVB_INFO("Beginning conversion...");
 	
@@ -258,8 +264,8 @@ namespace EventBuilder {
 		CompassRun converter(unpack_dir);
 		converter.SetShiftMap(m_shiftfile);
 		converter.SetScalerInput(m_scalerfile);
-		if(m_pb) 
-			converter.AttachProgressBar(m_pb);
+		converter.SetProgressCallbackFunc(m_progressCallback);
+		converter.SetProgressFraction(m_progressFraction);
 	
 		EVB_INFO("Beginning conversion...");
 		int count=0;
@@ -301,8 +307,8 @@ namespace EventBuilder {
 		CompassRun converter(unpack_dir);
 		converter.SetShiftMap(m_shiftfile);
 		converter.SetScalerInput(m_scalerfile);
-		if(m_pb) 
-			converter.AttachProgressBar(m_pb);
+		converter.SetProgressCallbackFunc(m_progressCallback);
+		converter.SetProgressFraction(m_progressFraction);
 	
 		EVB_INFO("Beginning conversion...");
 		int count=0;
@@ -345,8 +351,8 @@ namespace EventBuilder {
 		CompassRun converter(unpack_dir);
 		converter.SetShiftMap(m_shiftfile);
 		converter.SetScalerInput(m_scalerfile);
-		if(m_pb) 
-			converter.AttachProgressBar(m_pb);
+		converter.SetProgressCallbackFunc(m_progressCallback);
+		converter.SetProgressFraction(m_progressFraction);
 	
 		EVB_INFO("Beginning conversion...");
 		int count=0;
@@ -393,14 +399,14 @@ namespace EventBuilder {
 	}
 
 
-void EVBApp::SetRunRange(int rmin, int rmax) { EVB_TRACE("Min Run, max run set to [{0}, {1}]", rmin, rmax); m_rmin = rmin; m_rmax = rmax; }
-void EVBApp::SetWorkDirectory(const std::string& fullpath) { EVB_TRACE("Workspace set to {0}", fullpath); m_workspace = fullpath; }
-void EVBApp::SetChannelMap(const std::string& name) { EVB_TRACE("Channel map set to {0}",name); m_mapfile = name; }
-void EVBApp::SetBoardShiftFile(const std::string& name) { EVB_TRACE("Shift file set to {0}", name); m_shiftfile = name; }
-void EVBApp::SetSlowCoincidenceWindow(double window) { EVB_TRACE("Slow Coincidence Window set to {0}",window); m_SlowWindow = window; }
-void EVBApp::SetFastWindowIonChamber(double window) { EVB_TRACE("Fast Coinc. Window Ion Ch. set to {0}",window); m_FastWindowIonCh = window; }
-void EVBApp::SetFastWindowSABRE(double window) { EVB_TRACE("Fast Coinc. Window SABRE set to {0}",window); m_FastWindowSABRE = window; }
-void EVBApp::SetCutList(const std::string& name) { EVB_TRACE("Cut List set  to {0}", name); m_cutList = name; }
-void EVBApp::SetScalerFile(const std::string& fullpath) { EVB_TRACE("Scaler file set to {0}", fullpath); m_scalerfile = fullpath; }
+	void EVBApp::SetRunRange(int rmin, int rmax) { EVB_TRACE("Min Run, max run set to [{0}, {1}]", rmin, rmax); m_rmin = rmin; m_rmax = rmax; }
+	void EVBApp::SetWorkDirectory(const std::string& fullpath) { EVB_TRACE("Workspace set to {0}", fullpath); m_workspace = fullpath; }
+	void EVBApp::SetChannelMap(const std::string& name) { EVB_TRACE("Channel map set to {0}",name); m_mapfile = name; }
+	void EVBApp::SetBoardShiftFile(const std::string& name) { EVB_TRACE("Shift file set to {0}", name); m_shiftfile = name; }
+	void EVBApp::SetSlowCoincidenceWindow(double window) { EVB_TRACE("Slow Coincidence Window set to {0}",window); m_SlowWindow = window; }
+	void EVBApp::SetFastWindowIonChamber(double window) { EVB_TRACE("Fast Coinc. Window Ion Ch. set to {0}",window); m_FastWindowIonCh = window; }
+	void EVBApp::SetFastWindowSABRE(double window) { EVB_TRACE("Fast Coinc. Window SABRE set to {0}",window); m_FastWindowSABRE = window; }
+	void EVBApp::SetCutList(const std::string& name) { EVB_TRACE("Cut List set  to {0}", name); m_cutList = name; }
+	void EVBApp::SetScalerFile(const std::string& fullpath) { EVB_TRACE("Scaler file set to {0}", fullpath); m_scalerfile = fullpath; }
 
 }

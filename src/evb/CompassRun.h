@@ -14,9 +14,8 @@
 #include "DataStructs.h"
 #include "RunCollector.h"
 #include "ShiftMap.h"
+#include "ProgressCallback.h"
 #include <TParameter.h>
-#include <TGProgressBar.h>
-#include <TSystem.h>
 
 namespace EventBuilder {
 	
@@ -39,14 +38,14 @@ namespace EventBuilder {
 		void Convert2FastAnalyzedRoot(const std::string& name, const std::string& mapfile, double window, double fsi_window, double fic_window,
 								  int zt, int at, int zp, int ap, int ze, int ae, double bke, double b, double theta);
 	
-		inline void AttachProgressBar(TGProgressBar* pb) { m_pb = pb; }
+		inline void SetProgressCallbackFunc(const ProgressCallbackFunc& function) { m_progressCallback = function; }
+		inline void SetProgressFraction(double frac) { m_progressFraction = frac; }
 	
 	private:
 		bool GetBinaryFiles();
 		bool GetHitsFromFiles();
 		void SetScalers();
 		void ReadScalerData(const std::string& filename);
-		void SetProgressBar();
 	
 		std::string m_directory, m_scalerinput;
 		std::vector<CompassFile> m_datafiles;
@@ -66,8 +65,8 @@ namespace EventBuilder {
 		//Scaler switch
 		bool m_scaler_flag;
 	
-		//GUI progress bar, if attached
-		TGProgressBar* m_pb;
+		ProgressCallbackFunc m_progressCallback;
+		double m_progressFraction;
 	};
 
 }

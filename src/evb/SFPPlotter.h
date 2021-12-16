@@ -10,8 +10,8 @@
 #define SFPCLEANER_H
 
 #include "DataStructs.h"
+#include "ProgressCallback.h"
 #include "CutHandler.h"
-#include <TGProgressBar.h>
 
 namespace EventBuilder {
 
@@ -20,12 +20,12 @@ namespace EventBuilder {
 	public:
 		SFPPlotter();
 		~SFPPlotter();
-		inline void AttachProgressBar(TGProgressBar* pb) { m_pb = pb; }
 		inline void ApplyCutlist(const std::string& listname) { cutter.SetCuts(listname); }
 		void Run(const std::vector<std::string>& files, const std::string& output);
+		inline void SetProgressCallbackFunc(const ProgressCallbackFunc& function) { m_progressCallback = function; }
+		inline void SetProgressFraction(double frac) { m_progressFraction = frac; }
 	
 	private:
-		void SetProgressBar(long total);
 		void Chain(const std::vector<std::string>& files); //Form TChain
 		void MakeUncutHistograms(const ProcessedEvent& ev, THashTable* table);
 		void MakeCutHistograms(const ProcessedEvent& ev, THashTable* table);
@@ -40,7 +40,8 @@ namespace EventBuilder {
 		/*Cuts*/
 		CutHandler cutter;
 		
-		TGProgressBar* m_pb; //GUI progress
+		ProgressCallbackFunc m_progressCallback;
+		double m_progressFraction;
 	
 	};
 

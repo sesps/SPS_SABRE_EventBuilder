@@ -36,7 +36,7 @@ FileViewFrame::FileViewFrame(const TGWindow* p, const TGFrame* main, UInt_t w, U
 
 	/*Layout orgainization hints*/
 	TGLayoutHints *fhints = new TGLayoutHints(kLHintsCenterX|kLHintsCenterY,5,5,5,5);
-	TGLayoutHints *thints = new TGLayoutHints(kLHintsExpandX|kLHintsCenterY,5,5,5,5);
+	TGLayoutHints *thints = new TGLayoutHints(kLHintsExpandX|kLHintsBottom,5,5,5,5);
 	TGLayoutHints *fchints = new TGLayoutHints(kLHintsExpandX|kLHintsExpandY,5,5,5,5);
 	TGLayoutHints *lhints = new TGLayoutHints(kLHintsLeft|kLHintsTop,5,5,5,5);
 	TGLayoutHints *fbhints = new TGLayoutHints(kLHintsCenterX|kLHintsBottom,5,5,5,5);
@@ -49,7 +49,7 @@ FileViewFrame::FileViewFrame(const TGWindow* p, const TGFrame* main, UInt_t w, U
 	fContents->Connect("DoubleClicked(TGFrame*,Int_t)","FileViewFrame",this,"DoDoubleClick(TGLVEntry*,Int_t)");
 
 	/*Add in text options*/
-	TGVerticalFrame *NameFrame = new TGVerticalFrame(fMain, w, h*0.25);
+	TGHorizontalFrame *NameFrame = new TGHorizontalFrame(fMain, w, h*0.25);
 	TGLabel *nameLabel;
 	if(dirFlag)
 		nameLabel = new TGLabel(NameFrame, "Dir:");
@@ -71,8 +71,8 @@ FileViewFrame::FileViewFrame(const TGWindow* p, const TGFrame* main, UInt_t w, U
 	ButtonFrame->AddFrame(fCancelButton, fhints);
 
 	fMain->AddFrame(fViewer, fchints);
-	fMain->AddFrame(NameFrame, thints);
 	fMain->AddFrame(ButtonFrame, fbhints);
+	fMain->AddFrame(NameFrame, thints);
 
 	/*Send signal to appropriate location*/
 	if(type == EVBMainFrame::WorkDir)
@@ -92,7 +92,10 @@ FileViewFrame::FileViewFrame(const TGWindow* p, const TGFrame* main, UInt_t w, U
 	else if(type == EVBMainFrame::PlotF)
 		Connect("SendText(const char*)","EVBMainFrame",parent,"RunPlot(const char*)");
 
-	fMain->SetWindowName("Select File");
+	if(dirFlag)
+		fMain->SetWindowName("Select Directory");
+	else
+		fMain->SetWindowName("Select File");
 	fMain->MapSubwindows();
 	fMain->Resize();
 	fMain->CenterOnParent();

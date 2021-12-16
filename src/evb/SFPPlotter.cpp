@@ -12,10 +12,9 @@
 namespace EventBuilder {
 
 	/*Generates storage and initializes pointers*/
-	SFPPlotter::SFPPlotter()
+	SFPPlotter::SFPPlotter() :
+		event_address(new ProcessedEvent()), m_progressFraction(0.1)
 	{
-		event_address = new ProcessedEvent();
-		m_pb = nullptr;
 	}
 	
 	SFPPlotter::~SFPPlotter() 
@@ -248,12 +247,7 @@ namespace EventBuilder {
 		THashTable* table = new THashTable();
 	
 		long blentries = chain->GetEntries();
-		long count=0, flush_val=blentries*0.1, flush_count=0;
-		if(m_pb)
-		{
-			flush_val = blentries*0.01;
-			SetProgressBar(blentries);
-		}
+		long count=0, flush_val=blentries*m_progressFraction, flush_count=0;
 	
 	
 		for(long i=0; i<chain->GetEntries(); i++) 
@@ -261,15 +255,9 @@ namespace EventBuilder {
 			count++;
 			if(count == flush_val)
 			{
-				if(m_pb) {
-					m_pb->Increment(count);
-					gSystem->ProcessEvents();
-					count = 0;
-				} else {
-					flush_count++;
-					count=0;
-					EVB_INFO("Percent of data processed: {0} %",flush_count*10);
-				}
+				flush_count++;
+				count=0;
+				m_progressCallback(flush_count*flush_val, blentries);
 			}
 			chain->GetEntry(i);
 			MakeUncutHistograms(*event_address, table);
@@ -286,15 +274,6 @@ namespace EventBuilder {
 		delete table;
 		outfile->Close();
 		delete outfile;
-	}
-	
-	
-	void SFPPlotter::SetProgressBar(long total) 
-	{
-		m_pb->SetMax(total);
-		m_pb->SetMin(0);
-		m_pb->SetPosition(0);
-		gSystem->ProcessEvents();
 	}
 
 }

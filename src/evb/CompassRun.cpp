@@ -19,13 +19,12 @@
 namespace EventBuilder {
 	
 	CompassRun::CompassRun() :
-		m_directory(""), m_scalerinput(""), m_runNum(0), m_scaler_flag(false), m_pb(nullptr)
+		m_directory(""), m_scalerinput(""), m_runNum(0), m_scaler_flag(false), m_progressFraction(0.1)
 	{
-	
 	}
 	
 	CompassRun::CompassRun(const std::string& dir) :
-		m_directory(dir), m_scalerinput(""), m_runNum(0), m_scaler_flag(false), m_pb(nullptr)
+		m_directory(dir), m_scalerinput(""), m_runNum(0), m_scaler_flag(false), m_progressFraction(0.1)
 	{
 	
 	}
@@ -186,12 +185,7 @@ namespace EventBuilder {
 			return;
 		}
 	
-		unsigned int count = 0, flush = m_totalHits*0.1, flush_count = 0;
-		if(m_pb) 
-		{
-			flush = m_totalHits*0.01;
-			SetProgressBar();
-		}
+		unsigned int count = 0, flush = m_totalHits*m_progressFraction, flush_count = 0;
 	
 		startIndex = 0; //Reset the startIndex
 		if(flush == 0) 
@@ -201,18 +195,9 @@ namespace EventBuilder {
 			count++;
 			if(count == flush) 
 			{ //Progress Log
-				if(m_pb)
-				{
-					m_pb->Increment(count);
-					gSystem->ProcessEvents();
-					count=0;
-				} 
-				else 
-				{
-					count = 0;
-					flush_count++;
-					EVB_INFO("Percent of run built: {0} %",flush_count*10);
-				}	
+				count = 0;
+				flush_count++;
+				m_progressCallback(flush_count*flush, m_totalHits);
 			}
 	
 			if(!GetHitsFromFiles()) 
@@ -248,12 +233,7 @@ namespace EventBuilder {
 			return;
 		}
 	
-		unsigned int count = 0, flush = m_totalHits*0.1, flush_count = 0;
-		if(m_pb) 
-		{
-			flush = m_totalHits*0.01;
-			SetProgressBar();
-		}
+		unsigned int count = 0, flush = m_totalHits*m_progressFraction, flush_count = 0;
 	
 		startIndex = 0;
 		SlowSort coincidizer(window, mapfile);
@@ -265,18 +245,9 @@ namespace EventBuilder {
 			count++;
 			if(count == flush) 
 			{
-				if(m_pb) 
-				{
-					m_pb->Increment(count);
-					gSystem->ProcessEvents();
-					count=0;
-				} 
-				else 
-				{
-					count = 0;
-					flush_count++;
-					EVB_INFO("Percent of run built: {0} %",flush_count*10);
-				}
+				count = 0;
+				flush_count++;
+				m_progressCallback(count, m_totalHits);
 			}
 	
 			if(!GetHitsFromFiles()) 
@@ -324,12 +295,7 @@ namespace EventBuilder {
 			return;
 		}
 	
-		unsigned int count = 0, flush = m_totalHits*0.1, flush_count = 0;
-		if(m_pb) 
-		{
-			flush = m_totalHits*0.01;
-			SetProgressBar();
-		}
+		unsigned int count = 0, flush = m_totalHits*m_progressFraction, flush_count = 0;
 	
 		startIndex = 0;
 		CoincEvent this_event;
@@ -347,18 +313,9 @@ namespace EventBuilder {
 			count++;
 			if(count == flush) 
 			{
-				if(m_pb) 
-				{
-					m_pb->Increment(count);
-					gSystem->ProcessEvents();
-					count=0;
-				} 
-				else 
-				{
-					count = 0;
-					flush_count++;
-					EVB_INFO("Percent of run built: {0} %",flush_count*10);
-				}
+				count = 0;
+				flush_count++;
+				m_progressCallback(count, m_totalHits);
 			}
 			
 			if(!GetHitsFromFiles()) 
@@ -419,12 +376,7 @@ namespace EventBuilder {
 			return;
 		}
 	
-		unsigned int count = 0, flush = m_totalHits*0.1, flush_count = 0;
-		if(m_pb) 
-		{
-			flush = m_totalHits*0.01;
-			SetProgressBar();
-		}
+		unsigned int count = 0, flush = m_totalHits*m_progressFraction, flush_count = 0;
 	
 		startIndex = 0;
 		CoincEvent this_event;
@@ -451,18 +403,9 @@ namespace EventBuilder {
 			count++;
 			if(count == flush) 
 			{
-				if(m_pb) 
-				{
-					m_pb->Increment(count);
-					gSystem->ProcessEvents();
-					count=0;
-				} 
-				else 
-				{
-					count = 0;
-					flush_count++;
-					EVB_INFO("Percent of run built: {0} %",flush_count*10);
-				}
+				count = 0;
+				flush_count++;
+				m_progressCallback(count, m_totalHits);
 			}
 	
 			if(!GetHitsFromFiles()) 
@@ -521,12 +464,7 @@ namespace EventBuilder {
 			return;
 		}
 	
-		unsigned int count = 0, flush = m_totalHits*0.1, flush_count = 0;
-		if(m_pb) 
-		{
-			flush = m_totalHits*0.01;
-			SetProgressBar();
-		}
+		unsigned int count = 0, flush = m_totalHits*m_progressFraction, flush_count = 0;
 	
 		startIndex = 0;
 		CoincEvent this_event;
@@ -557,18 +495,9 @@ namespace EventBuilder {
 			count++;
 			if(count == flush) 
 			{
-				if(m_pb) 
-				{
-					m_pb->Increment(count);
-					gSystem->ProcessEvents();
-					count=0;
-				} 
-				else 
-				{
-					count = 0;
-					flush_count++;
-					EVB_INFO("Percent of run built: {0} %",flush_count*10);
-				}
+				count = 0;
+				flush_count++;
+				m_progressCallback(flush_count*flush, m_totalHits);
 			}
 	
 			if(!GetHitsFromFiles()) 
@@ -610,13 +539,4 @@ namespace EventBuilder {
 		analyzer.ClearHashTable();
 		output->Close();
 	}
-	
-	void CompassRun::SetProgressBar() 
-	{
-		m_pb->SetMax(m_totalHits);
-		m_pb->SetMin(0);
-		m_pb->SetPosition(0);
-		gSystem->ProcessEvents();
-	}
-
 }

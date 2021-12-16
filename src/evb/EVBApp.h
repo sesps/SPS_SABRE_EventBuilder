@@ -10,12 +10,13 @@
 #define EVBAPP_H
 
 #include "RunCollector.h"
-#include <TGProgressBar.h>
+#include "ProgressCallback.h"
 
 namespace EventBuilder {
 	
 	class EVBApp {
 	public:
+
 		EVBApp();
 		~EVBApp();
 	
@@ -62,8 +63,10 @@ namespace EventBuilder {
 		inline std::string GetBoardShiftFile() const { return m_shiftfile; }
 		inline std::string GetCutList() const { return m_cutList; }
 		inline std::string GetScalerFile() const { return m_scalerfile; }
-	
-		inline void AttachProgressBar(TGProgressBar* pb) { m_pb = pb; }
+
+		void DefaultProgressCallback(long curVal, long totalVal);
+		inline void SetProgressCallbackFunc(const ProgressCallbackFunc& function) { m_progressCallback = function; }
+		inline void SetProgressFraction(double frac) { m_progressFraction = frac; }
 	
 		enum Operation 
 		{
@@ -81,6 +84,7 @@ namespace EventBuilder {
 		int m_rmin, m_rmax;
 		int m_ZT, m_AT, m_ZP, m_AP, m_ZE, m_AE, m_ZR, m_AR;
 		double m_B, m_Theta, m_BKE;
+		double m_progressFraction;
 	
 		std::string m_workspace;
 		std::string m_mapfile, m_shiftfile;
@@ -92,8 +96,8 @@ namespace EventBuilder {
 		double m_FastWindowSABRE;
 	
 		RunCollector grabber;
-	
-		TGProgressBar* m_pb;
+
+		ProgressCallbackFunc m_progressCallback;
 	
 	};
 

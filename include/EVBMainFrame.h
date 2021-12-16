@@ -11,6 +11,7 @@
 #include <TGTextViewStream.h>
 #include <TGProgressBar.h>
 #include <TTimer.h>
+#include <TGFileDialog.h>
 #include <TGComboBox.h>
 #include "../evb/EVBApp.h"
 
@@ -46,6 +47,7 @@ public:
 	void RunMerge(const char* dir, const char* file);
 	void DisableAllInput();
 	void EnableAllInput();
+	void SetProgressBarPosition(long value, long total);
 
 
 	enum WidgetId 
@@ -93,6 +95,8 @@ private:
 	TGHProgressBar* fProgressBar;
 
 	TGPopupMenu *fFileMenu;
+
+	TGFileInfo* fInfo;
 
 	EventBuilder::EVBApp fBuilder;
 
