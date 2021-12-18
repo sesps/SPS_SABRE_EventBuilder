@@ -10,7 +10,7 @@ To install the event builder, the Premake build system is used. To install Prema
 
 To clone the repository use `git clone --recursive https://github.com/sesps/SPS_SABRE_EventBuilder.git`. If you're using the devel branch be sure to specify this with the `--branch` flag. The recursive flag is important; this tells github to pull all submodules associated with the repository. 
 
-Once the repository is cloned, go into the event builder directory and run the command `premake5 gmake2` on Linux or Mac for a Makefile style build, or `premake5 Xcode4` to build an XCode project on Mac. Then the program can be built using the standard methods of the chosen build type (i.e. `make` or XCode Build).
+Once the repository is cloned, go into the event builder directory and locate the file `premake5.lua`. This is the file which contains the build rules for this project. You will need to specify the location of your `ROOT` install so that we can properly find headers and libraries using the parameters ROOTIncludeDir and ROOTLibDir (lines 8 and 9 of premake5.lua). On unix style systems these paths can be found easily using the `root-config` tool. Simply run `root-config --cflags` and copy the path after the `-I` to ROOTIncludeDir and run `root-config --glibs` and copy the path after the `-L` to ROOTLibDir. Once the `ROOT` paths are set, run the command `premake5 gmake2` on Linux or Mac for a Makefile style build, or `premake5 Xcode4` to build an XCode project on Mac. Then the program can be built using the standard methods of the chosen build type (i.e. `make` or XCode Build).
 
 The binaries are installed to the `bin` directory of the event builder, and should be run from the event builder directory (i.e. `./bin/EventBuilderGui`).
 
