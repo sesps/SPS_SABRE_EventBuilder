@@ -6,6 +6,7 @@
  *Created Jan 2020 by GWM
  */
 
+#include "EventBuilder.h"
 #include "SFPPlotter.h"
 #include <TSystem.h>
 

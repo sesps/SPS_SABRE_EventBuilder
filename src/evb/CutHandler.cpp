@@ -1,3 +1,4 @@
+#include "EventBuilder.h"
 #include "CutHandler.h"
 
 namespace EventBuilder {

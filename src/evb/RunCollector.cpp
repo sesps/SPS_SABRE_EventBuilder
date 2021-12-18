@@ -1,3 +1,4 @@
+#include "EventBuilder.h"
 #include "RunCollector.h"
 #include <TSystemDirectory.h>
 #include <TSystemFile.h>

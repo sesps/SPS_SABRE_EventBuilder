@@ -1,3 +1,4 @@
+#include "evb/Logger.h"
 #include "spsdict/DataStructs.h"
 #include <TApplication.h>
 #include "guidict/EVBMainFrame.h"

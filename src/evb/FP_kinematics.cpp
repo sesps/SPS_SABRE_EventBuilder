@@ -31,6 +31,7 @@
 
 */
 
+#include "EventBuilder.h"
 #include <cmath>
 #include "MassLookup.h"
 #include "FP_kinematics.h"
@@ -97,7 +98,6 @@ namespace EventBuilder {
 		double denom = ME + MR - sqrt(MP*ME*EP/EE)*cos(angle);
 	
 		K /= denom;
-		std::cout<<"Delta Z= "<<-1*rho*DISP*MAG*K<<std::endl;
 		return -1*rho*DISP*MAG*K; //delta-Z in cm
 	
 	}

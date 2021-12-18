@@ -9,6 +9,7 @@
  *
  * Position calibrations swapped as of Aug. 2021 due to detector fixes -- GWM
  */
+#include "EventBuilder.h"
 #include "SFPAnalyzer.h"
 
 namespace EventBuilder {

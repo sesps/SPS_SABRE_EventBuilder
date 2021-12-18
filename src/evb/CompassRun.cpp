@@ -9,6 +9,7 @@
 
 	Updated to also handle scaler data. -- GWM Oct. 2020
 */
+#include "EventBuilder.h"
 #include "CompassRun.h"
 #include "RunCollector.h"
 #include "SlowSort.h"
@@ -247,7 +248,7 @@ namespace EventBuilder {
 			{
 				count = 0;
 				flush_count++;
-				m_progressCallback(count, m_totalHits);
+				m_progressCallback(flush_count*flush, m_totalHits);
 			}
 	
 			if(!GetHitsFromFiles()) 
@@ -315,7 +316,7 @@ namespace EventBuilder {
 			{
 				count = 0;
 				flush_count++;
-				m_progressCallback(count, m_totalHits);
+				m_progressCallback(flush_count*flush, m_totalHits);
 			}
 			
 			if(!GetHitsFromFiles()) 
@@ -405,7 +406,7 @@ namespace EventBuilder {
 			{
 				count = 0;
 				flush_count++;
-				m_progressCallback(count, m_totalHits);
+				m_progressCallback(flush_count*flush, m_totalHits);
 			}
 	
 			if(!GetHitsFromFiles()) 

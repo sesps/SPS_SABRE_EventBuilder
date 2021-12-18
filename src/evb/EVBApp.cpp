@@ -6,6 +6,7 @@
 
 	Written by G.W. McCann Oct. 2020
 */
+#include "EventBuilder.h"
 #include <cstdlib>
 #include "EVBApp.h"
 #include "RunCollector.h"
@@ -20,7 +21,8 @@ namespace EventBuilder {
 	EVBApp::EVBApp() :
 		m_rmin(0), m_rmax(0), m_ZT(0), m_AT(0), m_ZP(0), m_AP(0), m_ZE(0), m_AE(0), m_ZR(0), m_AR(0),
 		m_B(0), m_Theta(0), m_BKE(0), m_progressFraction(0.1), m_workspace("none"), m_mapfile("none"), m_shiftfile("none"),
-		m_cutList("none"), m_SlowWindow(0), m_FastWindowIonCh(0), m_FastWindowSABRE(0)	{
+		m_cutList("none"), m_scalerfile("none"), m_SlowWindow(0), m_FastWindowIonCh(0), m_FastWindowSABRE(0)
+	{
 		SetProgressCallbackFunc(BIND_PROGRESS_CALLBACK_FUNCTION(EVBApp::DefaultProgressCallback));
 	}
 	
@@ -30,7 +32,7 @@ namespace EventBuilder {
 	
 	void EVBApp::DefaultProgressCallback(long curVal, long totalVal)
 	{
-		double fraction = curVal/totalVal;
+		double fraction = ((double)curVal)/totalVal;
 		EVB_INFO("Percent of run built: {0}", fraction*100);
 	}
 

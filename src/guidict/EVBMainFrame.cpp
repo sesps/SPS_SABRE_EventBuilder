@@ -276,12 +276,14 @@ void EVBMainFrame::HandleMenuSelection(int id)
 	if(id == M_Save_Config)
 	{
 		new TGFileDialog(gClient->GetRoot(), this, kFDOpen, fInfo);
-		SaveConfig(fInfo->fFilename);
+		if(fInfo->fFilename)
+			SaveConfig(fInfo->fFilename);
 	}
 	else if(id == M_Load_Config)
 	{
 		new TGFileDialog(gClient->GetRoot(), this, kFDOpen, fInfo);
-		LoadConfig(fInfo->fFilename);
+		if(fInfo->fFilename)
+			LoadConfig(fInfo->fFilename);
 	}
 	else if(id == M_Exit)
 		CloseWindow();
@@ -295,25 +297,29 @@ void EVBMainFrame::DoOpenWorkdir()
 void EVBMainFrame::DoOpenCMapfile() 
 {
 	new TGFileDialog(gClient->GetRoot(), this, kFDOpen, fInfo);
-	DisplayCMap(fInfo->fFilename);
+	if(fInfo->fFilename)
+		DisplayCMap(fInfo->fFilename);
 }
 
 void EVBMainFrame::DoOpenSMapfile() 
 {
 	new TGFileDialog(gClient->GetRoot(), this, kFDOpen, fInfo);
-	DisplaySMap(fInfo->fFilename);
+	if(fInfo->fFilename)
+		DisplaySMap(fInfo->fFilename);
 }
 
 void EVBMainFrame::DoOpenScalerfile() 
 {
 	new TGFileDialog(gClient->GetRoot(), this, kFDOpen, fInfo);
-	DisplayScaler(fInfo->fFilename);
+	if(fInfo->fFilename)
+		DisplayScaler(fInfo->fFilename);
 }
 
 void EVBMainFrame::DoOpenCutfile() 
 {
 	new TGFileDialog(gClient->GetRoot(), this, kFDOpen, fInfo);
-	DisplayCut(fInfo->fFilename);
+	if(fInfo->fFilename)
+		DisplayCut(fInfo->fFilename);
 }
 
 void EVBMainFrame::DoRun() 
