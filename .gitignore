@@ -2,10 +2,12 @@
 pics/
 images/
 build/
+objs/
 
 ###file types to ignore###
 *.swp
 *.o
+*.so
 *.cxx
 *.root
 *.bin
@@ -14,6 +16,8 @@ build/
 *.png
 *.sublime-project
 *.sublime-workspace
+*.make
+Makefile
 event_log.txt
 .DS_Store
 
