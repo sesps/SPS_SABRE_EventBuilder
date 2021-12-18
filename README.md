@@ -6,19 +6,19 @@ It can convert CoMPASS data to ROOT, sort the data in time, build events, perfor
 WHEN TESTING, RUN WITH WIDE WINDOWS
 
 ## Installation
-To install the event builder, the CMake build system is used. From the SPS_SABRE_EventBuilder directory first make a build directory:
+To install the event builder, the Premake build system is used. To install Premake, simply go to the [Premake](https://premake.github.io/) site and Download the right prebuilt binary for your system (there's no need to try and build from source). Place the binary in a location on your path so that you can call it on the commandline by simply typing `premake5`.
 
-`mkdir build`
+To clone the repository use `git clone --recursive https://github.com/sesps/SPS_SABRE_EventBuilder.git`. If you're using the devel branch be sure to specify this with the `--branch` flag. The recursive flag is important; this tells github to pull all submodules associated with the repository. 
 
-Then, in the `build` directory, run the following command to build and install the release version of the event builder:
+Once the repository is cloned, go into the event builder directory and run the command `premake5 gmake2` on Linux or Mac for a Makefile style build, or `premake5 Xcode4` to build an XCode project on Mac. Then the program can be built using the standard methods of the chosen build type (i.e. `make` or XCode Build).
 
-`cmake -DCMAKE_BUILD_TYPE=Release .. && make install`
+The binaries are installed to the `bin` directory of the event builder, and should be run from the event builder directory (i.e. `./bin/EventBuilderGui`).
 
-This will compile and link all event builder programs and dependencies. The executables will be installed to the `bin` directory of the SPS_SABRE_EventBuilder directory, shared libraries for ROOT dictionaries will be in the `lib` directory (with necessary .pcm files), and the header files for the shared libraries will be installed to the `include` directory. To rebuild the program after a change to the code (assuming no files were added), simply run 
+In general, one should only build for Release (this is the default), for maximum optimization. However, it can be useful to run in Debug (in make do `make config=debug`) when testing new features.
 
-`make clean && make install`
+Note: On Mac, if you have XCode installed, it is best to build through XCode. Results when linking can be unreliable otherwise.
 
-## GWMEVB vs. GWMEVB_CL
+## EventBuilder vs. EventBuilderGui
 There are two programs provided. They are `EventBuilderGui` and `EventBuilder`. The first is a full GUI version of the event builder. The GUI supports all conversion methods and the plotting tool.
 
 ### Building Events
