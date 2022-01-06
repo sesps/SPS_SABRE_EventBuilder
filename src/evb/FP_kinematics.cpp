@@ -64,10 +64,10 @@ namespace EventBuilder {
 		B /= 10000; //convert to tesla
 		angle *= DEGTORAD;
 	
-		MT = MASS.FindMass(ZT, AT) - ZT*RESTMASS_ELECTRON*UTOMEV;
-		MP = MASS.FindMass(ZP, AP) - ZP*RESTMASS_ELECTRON*UTOMEV;
-		ME = MASS.FindMass(ZE, AE) - ZE*RESTMASS_ELECTRON*UTOMEV;
-		MR = MASS.FindMass(ZR, AR) - ZR*RESTMASS_ELECTRON*UTOMEV;
+		MT = MASS.FindMass(ZT, AT);
+		MP = MASS.FindMass(ZP, AP);
+		ME = MASS.FindMass(ZE, AE);
+		MR = MASS.FindMass(ZR, AR);
 		
 		if (MT*MP*ME*MR == 0) 
 		{
