@@ -1,12 +1,25 @@
 # SPS-SABRE Data Analysis Package
-Version 3
+Version 4
 This is a software package designed to help experimenters analyze data from SPS-SABRE at FSU. 
 It can convert CoMPASS data to ROOT, sort the data in time, build events, perform preliminary analysis and provide basic plots. Programs are built using make, and a make file is included. Simply using the command make will build all programs.
 
 WHEN TESTING, RUN WITH WIDE WINDOWS
 
-## GWMEVB vs. GWMEVB_CL
-There are two programs provided. They are `GWMEVB` and `GWMEVB_CL`. The first is a full GUI version of the event builder. The GUI supports all conversion methods and the plotting tool.
+## Installation
+To install the event builder, the Premake build system is used. To install Premake, simply go to the [Premake](https://premake.github.io/) site and Download the right prebuilt binary for your system (there's no need to try and build from source). Place the binary in a location on your path so that you can call it on the commandline by simply typing `premake5`.
+
+To clone the repository use `git clone --recursive https://github.com/sesps/SPS_SABRE_EventBuilder.git`. If you're using the devel branch be sure to specify this with the `--branch` flag. The recursive flag is important; this tells github to pull all submodules associated with the repository. 
+
+Once the repository is cloned, go into the event builder directory and locate the file `premake5.lua`. This is the file which contains the build rules for this project. You will need to specify the location of your `ROOT` install so that we can properly find headers and libraries using the parameters ROOTIncludeDir and ROOTLibDir (lines 8 and 9 of premake5.lua). On unix style systems these paths can be found easily using the `root-config` tool. Simply run `root-config --cflags` and copy the path after the `-I` to ROOTIncludeDir and run `root-config --glibs` and copy the path after the `-L` to ROOTLibDir. Once the `ROOT` paths are set, run the command `premake5 gmake2` on Linux or Mac for a Makefile style build, or `premake5 Xcode4` to build an XCode project on Mac. Then the program can be built using the standard methods of the chosen build type (i.e. `make` or XCode Build).
+
+The binaries are installed to the `bin` directory of the event builder, and should be run from the event builder directory (i.e. `./bin/EventBuilderGui`).
+
+In general, one should only build for Release (this is the default), for maximum optimization. However, it can be useful to run in Debug (in make do `make config=debug`) when testing new features.
+
+Note: On Mac, if you have XCode installed, it is best to build through XCode. Results when linking can be unreliable otherwise.
+
+## EventBuilder vs. EventBuilderGui
+There are two programs provided. They are `EventBuilderGui` and `EventBuilder`. The first is a full GUI version of the event builder. The GUI supports all conversion methods and the plotting tool.
 
 ### Building Events
 The event building operation is the bulk of the analysis process. As files are being converted to ROOT from the raw CoMPASS binary, events are built using information given by the user. 
@@ -80,8 +93,3 @@ Currently the pipeline supports declaring individual digitizer channels as scale
 Only tested with `ROOT` 6.14, mileage may vary
 Uses C++11 standards
 Only compatible with MacOSX and Linux
-
-## Compliling and Running
-To compile use the command `make`
-To clean run `make clean` and then run `make`
-For a complete rebuild use `make clean_header` as well as `make clean`.

@@ -9,13 +9,13 @@
 
 */
 
-#include "EventBuilder.h"
 #include "FileViewFrame.h"
 #include <TGTextBuffer.h>
 #include <TGLabel.h>
 #include <TTimer.h>
 
-FileViewFrame::FileViewFrame(const TGWindow* p, const TGFrame* main, UInt_t w, UInt_t h, EVBMainFrame *parent, int type) {
+FileViewFrame::FileViewFrame(const TGWindow* p, const TGFrame* main, UInt_t w, UInt_t h, EVBMainFrame *parent, int type) 
+{
 	fMain = new TGTransientFrame(p,main,w,h);
 	fMain->SetCleanup(kDeepCleanup); //delete all child frames
 	fMain->DontCallClose(); //Close button on window disabled
@@ -23,17 +23,20 @@ FileViewFrame::FileViewFrame(const TGWindow* p, const TGFrame* main, UInt_t w, U
 	dirFlag = false;
 	bool rootFlag = false;
 	suffix = ".txt";
-	if(type == EVBMainFrame::WORKDIR) {
+	if(type == EVBMainFrame::WorkDir) 
+	{
 		dirFlag = true;
 		suffix = ".NOTHING";
-	} else if(type == EVBMainFrame::PLOTF) {
+	} 
+	else if(type == EVBMainFrame::PlotF) 
+	{
 		rootFlag = true;
 		suffix = ".root";
 	}
 
 	/*Layout orgainization hints*/
 	TGLayoutHints *fhints = new TGLayoutHints(kLHintsCenterX|kLHintsCenterY,5,5,5,5);
-	TGLayoutHints *thints = new TGLayoutHints(kLHintsExpandX|kLHintsCenterY,5,5,5,5);
+	TGLayoutHints *thints = new TGLayoutHints(kLHintsExpandX|kLHintsBottom,5,5,5,5);
 	TGLayoutHints *fchints = new TGLayoutHints(kLHintsExpandX|kLHintsExpandY,5,5,5,5);
 	TGLayoutHints *lhints = new TGLayoutHints(kLHintsLeft|kLHintsTop,5,5,5,5);
 	TGLayoutHints *fbhints = new TGLayoutHints(kLHintsCenterX|kLHintsBottom,5,5,5,5);
@@ -46,10 +49,12 @@ FileViewFrame::FileViewFrame(const TGWindow* p, const TGFrame* main, UInt_t w, U
 	fContents->Connect("DoubleClicked(TGFrame*,Int_t)","FileViewFrame",this,"DoDoubleClick(TGLVEntry*,Int_t)");
 
 	/*Add in text options*/
-	TGVerticalFrame *NameFrame = new TGVerticalFrame(fMain, w, h*0.25);
+	TGHorizontalFrame *NameFrame = new TGHorizontalFrame(fMain, w, h*0.25);
 	TGLabel *nameLabel;
-	if(dirFlag) nameLabel = new TGLabel(NameFrame, "Dir:");
-	else nameLabel = new TGLabel(NameFrame, "File:");
+	if(dirFlag)
+		nameLabel = new TGLabel(NameFrame, "Dir:");
+	else 
+		nameLabel = new TGLabel(NameFrame, "File:");
 	TGTextBuffer* fNameBuffer;
 	fNameField = new TGTextEntry(NameFrame, fNameBuffer = new TGTextBuffer(50));
 	fNameField->Resize(w*0.5, fNameField->GetDefaultHeight());
@@ -66,20 +71,31 @@ FileViewFrame::FileViewFrame(const TGWindow* p, const TGFrame* main, UInt_t w, U
 	ButtonFrame->AddFrame(fCancelButton, fhints);
 
 	fMain->AddFrame(fViewer, fchints);
-	fMain->AddFrame(NameFrame, thints);
 	fMain->AddFrame(ButtonFrame, fbhints);
+	fMain->AddFrame(NameFrame, thints);
 
 	/*Send signal to appropriate location*/
-	if(type == EVBMainFrame::WORKDIR) Connect("SendText(const char*)","EVBMainFrame",parent,"DisplayWorkdir(const char*)");
-	else if(type == EVBMainFrame::CMAP) Connect("SendText(const char*)","EVBMainFrame",parent,"DisplayCMap(const char*)");
-	else if(type == EVBMainFrame::SMAP) Connect("SendText(const char*)","EVBMainFrame",parent,"DisplaySMap(const char*)");
-	else if(type == EVBMainFrame::SCALER) Connect("SendText(const char*)","EVBMainFrame",parent,"DisplayScaler(const char*)");
-	else if(type == EVBMainFrame::CUT) Connect("SendText(const char*)","EVBMainFrame",parent,"DisplayCut(const char*)");
-	else if(type == EVBMainFrame::M_LOAD_CONFIG) Connect("SendText(const char*)","EVBMainFrame",parent,"LoadConfig(const char*)");
-	else if(type == EVBMainFrame::M_SAVE_CONFIG) Connect("SendText(const char*)","EVBMainFrame",parent,"SaveConfig(const char*)");
-	else if(type == EVBMainFrame::PLOTF) Connect("SendText(const char*)","EVBMainFrame",parent,"RunPlot(const char*)");
+	if(type == EVBMainFrame::WorkDir)
+		Connect("SendText(const char*)","EVBMainFrame",parent,"DisplayWorkdir(const char*)");
+	else if(type == EVBMainFrame::Cmap)
+		Connect("SendText(const char*)","EVBMainFrame",parent,"DisplayCMap(const char*)");
+	else if(type == EVBMainFrame::Smap)
+		Connect("SendText(const char*)","EVBMainFrame",parent,"DisplaySMap(const char*)");
+	else if(type == EVBMainFrame::Scaler)
+		Connect("SendText(const char*)","EVBMainFrame",parent,"DisplayScaler(const char*)");
+	else if(type == EVBMainFrame::Cut)
+		Connect("SendText(const char*)","EVBMainFrame",parent,"DisplayCut(const char*)");
+	else if(type == EVBMainFrame::M_Load_Config)
+		Connect("SendText(const char*)","EVBMainFrame",parent,"LoadConfig(const char*)");
+	else if(type == EVBMainFrame::M_Save_Config)
+		Connect("SendText(const char*)","EVBMainFrame",parent,"SaveConfig(const char*)");
+	else if(type == EVBMainFrame::PlotF)
+		Connect("SendText(const char*)","EVBMainFrame",parent,"RunPlot(const char*)");
 
-	fMain->SetWindowName("Select File");
+	if(dirFlag)
+		fMain->SetWindowName("Select Directory");
+	else
+		fMain->SetWindowName("Select File");
 	fMain->MapSubwindows();
 	fMain->Resize();
 	fMain->CenterOnParent();
@@ -97,16 +113,19 @@ FileViewFrame::FileViewFrame(const TGWindow* p, const TGFrame* main, UInt_t w, U
 	fMain->Resize();
 }
 
-FileViewFrame::~FileViewFrame() {
+FileViewFrame::~FileViewFrame()
+{
 	fMain->Cleanup(); //delete children
 	fMain->DeleteWindow();
 }
 
-void FileViewFrame::CloseWindow() {
+void FileViewFrame::CloseWindow()
+{
 	delete this;
 }
 
-void FileViewFrame::DoOk() {
+void FileViewFrame::DoOk()
+{
 	/*Prevent user from doing something dumb*/
 	fOkButton->SetState(kButtonDisabled);
 	fCancelButton->SetState(kButtonDisabled);
@@ -115,7 +134,8 @@ void FileViewFrame::DoOk() {
 	TString fullpath;
 	if(!dirFlag) fullpath = TString(fContents->GetDirectory()) + "/" + filename;
 	else fullpath = filename;
-	if(fullpath == "") { //check validity
+	if(fullpath == "") //check validity
+	{ 
 		std::cerr<<"Need to give a name!"<<std::endl;
 		fOkButton->SetState(kButtonUp);
 		fCancelButton->SetState(kButtonUp);
@@ -127,7 +147,8 @@ void FileViewFrame::DoOk() {
 	TTimer::SingleShot(150,"FileViewFrame",this,"CloseWindow()");
 }
 
-void FileViewFrame::DoCancel() {
+void FileViewFrame::DoCancel() 
+{
 	/*Prevent user from doing something dumb*/
 	fOkButton->SetState(kButtonDisabled);
 	fCancelButton->SetState(kButtonDisabled);
@@ -137,7 +158,8 @@ void FileViewFrame::DoCancel() {
 }
 
 //Handle directory selection
-void FileViewFrame::DisplayDir(const TString& name) {
+void FileViewFrame::DisplayDir(const TString& name) 
+{
 	fContents->SetDefaultHeaders();
 	fContents->ChangeDirectory(name);
 	fContents->DisplayDirectory();
@@ -146,23 +168,28 @@ void FileViewFrame::DisplayDir(const TString& name) {
 }
 
 //Handle double click
-void FileViewFrame::DoDoubleClick(TGLVEntry *entry, int id) {
-	if( id != kButton1) return;
+void FileViewFrame::DoDoubleClick(TGLVEntry *entry, int id) 
+{
+	if( id != kButton1) 
+		return;
 	TString dirname(fContents->GetDirectory());
 	TString entryname(entry->GetTitle());
 
-	if(entryname.EndsWith(suffix.c_str())) { //check if its a file
+	if(entryname.EndsWith(suffix.c_str())) //check if its a file
+	{ 
 		TString name = entryname;
 		fNameField->SetText(name.Data());
-	} else {
+	} 
+	else 
+	{
 		DisplayDir(entryname);
-		if(dirFlag) {
+		if(dirFlag)
 			fNameField->SetText((dirname+"/"+entryname).Data());
-		}
 	}
 }
 
 /*SIGNAL*/
-void FileViewFrame::SendText(const char* text) {
+void FileViewFrame::SendText(const char* text) 
+{
 	Emit("SendText(const char*)", text);
 }

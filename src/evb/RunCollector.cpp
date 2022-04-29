@@ -1,196 +1,232 @@
 #include "EventBuilder.h"
 #include "RunCollector.h"
+#include <TSystemDirectory.h>
+#include <TSystemFile.h>
+#include <TCollection.h>
+#include <TList.h>
+#include <cstdlib>
+#include <cstdio>
 
-using namespace std;
+namespace EventBuilder {
 
-RunCollector::RunCollector():
-  initFlag(false), dir(""), run(""), end(""), MaxRun(0), MinRun(0)
-{
-}
+	RunCollector::RunCollector():
+		m_initFlag(false), m_directory(""), m_prefix(""), m_suffix(""), m_minRun(0), m_maxRun(0)
+	{
+	}
+	
+	RunCollector::RunCollector(const std::string& dirname, const std::string& prefix, const std::string& suffix) :
+		m_initFlag(true), m_directory(dirname), m_prefix(prefix), m_suffix(suffix), m_minRun(0), m_maxRun(0)
+	{
+	}
+	
+	RunCollector::RunCollector(const std::string& dirname, const std::string& prefix, const std::string& suffix, int min, int max) :
+		m_initFlag(true), m_directory(dirname), m_prefix(prefix), m_suffix(suffix), m_minRun(min), m_maxRun(max)
+	{
+	}
+	
+	RunCollector::~RunCollector() {}
+	
+	void RunCollector::SetSearchParams(const std::string& dirname, const std::string& prefix, const std::string& suffix, int min, int max)
+	{
+		m_directory = dirname.c_str();
+		m_prefix = prefix.c_str();
+		m_suffix = suffix.c_str();
+		m_minRun = min; m_maxRun = max;
+		m_initFlag = true;
+	}
+	
+	bool RunCollector::GrabAllFiles() 
+	{
+		if(!m_initFlag)
+			return false;
+	
+		TSystemDirectory sysdir(m_directory.c_str(), m_directory.c_str());
+		TList *flist = sysdir.GetListOfFiles();
+		m_filelist.clear();
+	
+		if(!flist)  //Make sure list is real. If not, means no directory
+		{
+			EVB_WARN("RunCollector::GrabAllFiles() unable to find any files in directory {0}",m_directory);
+			return false;
+		}
+	
+		TSystemFile *file;
+		std::string fname, temp;
+		TIter next_element(flist); //List iterator
+		while((file = (TSystemFile*)next_element())) 
+		{
+			temp = file->GetName();
+			if(temp.size() < m_prefix.size() || temp.size() < m_suffix.size())
+				continue;
+			else if(!file->IsDirectory() && !temp.compare(0,m_prefix.size(),m_prefix) && 
+					!temp.compare(temp.size()-m_suffix.size(), m_suffix.size(), m_suffix)) 
+			{
+		  		fname = m_directory+temp;
+		  		m_filelist.push_back(fname);
+			} 
+		}
+	
+		delete flist;
+		if(m_filelist.size()>0) 
+			return true;
+		else 
+		{
+			EVB_WARN("RunCollector::GrabAllFiles() unable to find any files in directory {0} which match run pattern",m_directory);
+			return false;
+		}
+	}
+	
+	std::string RunCollector::GrabFile(int runNum) {
+		if(!m_initFlag) 
+			return "";
+		TSystemDirectory sysdir(m_directory.c_str(), m_directory.c_str());
+		TList* flist = sysdir.GetListOfFiles();
+	
+		if(!flist)
+			return "";
+	
+		TSystemFile *file;
+		std::string fname = "", temp;
+		std::string runno = "_"+std::to_string(runNum)+m_suffix;
+		TIter next_element(flist);
+		while((file = (TSystemFile*)next_element())) 
+		{
+			temp = file->GetName();
+			if(temp.size() < m_prefix.size() || temp.size() < runno.size())
+				continue;
+			else if(!file->IsDirectory() && !temp.compare(0,m_prefix.size(),m_prefix) && 
+					!temp.compare(temp.size()-runno.size(),runno.size(), runno)) 
+			{
+				fname = m_directory+temp;
+				break;
+			}
+		}
+	
+		delete flist;
+		return fname;
+	}
+	
+	/*Grabs all files within a specified run range*/
+	bool RunCollector::GrabFilesInRange() 
+	{
+		if(!m_initFlag)
+			return false;
+	
+		TSystemDirectory sysdir(m_directory.c_str(), m_directory.c_str());
+		TList *flist = sysdir.GetListOfFiles();
+		m_filelist.clear();
+	
+		if(!flist) 
+		{
+			EVB_WARN("RunCollector::GrabFilesInRange() unable to find any files in directory {0}",m_directory);
+			return false;
+		}
+	
+		TSystemFile *file;
+		std::string fname, temp;
+		std::string runno;
+		for(int i=m_minRun; i<=m_maxRun; i++) //loop over range
+		{
+			TIter next_element(flist);//list iterator
+			runno = "_"+std::to_string(i) + m_suffix; //suffix is now _#.suffix
+			while((file = (TSystemFile*)next_element())) //look through directory until file found
+			{
+				temp = file->GetName();
+				if(temp.size() < m_prefix.size() || temp.size() < runno.size())
+					continue;
+				else if(!file->IsDirectory() && !temp.compare(0,m_prefix.size(),m_prefix) && 
+						!temp.compare(temp.size()-runno.size(),runno.size(), runno)) 
+				{
+					fname = m_directory+temp;
+					m_filelist.push_back(fname);
+					break; //if we find the file, break out of iterator loop
+				}
+			}
+		}
+	
+		delete flist;
+		if(m_filelist.size()>0)
+			return true;
+		else 
+		{
+			EVB_WARN("RunCollector::GrabAllFiles() unable to find any files in directory {0} which match run pattern and were in run range",m_directory);
+			return false;
+		}
+	
+	}
+	
+	bool RunCollector::Merge_hadd(const std::string& outname) 
+	{
+		int sys_return;
+		if(!m_initFlag) 
+			return false;
+	
+		if(m_maxRun == 0) 
+		{
+			if(GrabAllFiles()) 
+			{ 
+				std::string clump = "hadd "+outname;
+				for(unsigned int i=0; i<m_filelist.size(); i++) 
+					clump += " "+m_filelist[i];
+				sys_return = std::system(clump.c_str());
+				return true;
+			} 
+			else
+				return false;
+		} 
+		else 
+		{
+			if(GrabFilesInRange()) 
+			{
+				std::string clump = "hadd "+outname;
+				for(unsigned int i=0; i<m_filelist.size(); i++)
+					clump += " "+m_filelist[i];
+				sys_return = std::system(clump.c_str());
+				return true;
+			} 
+			else 
+				return false;
+		}
 
-RunCollector::RunCollector(const string& dirname, const string& prefix, const string& suffix) {
-  dir = dirname.c_str();
-  run = prefix.c_str();
-  end = suffix.c_str();
+		if(!sys_return)
+			EVB_ERROR("How did i even get here?");
+		return false;
+	}
+	
+	bool RunCollector::Merge_TChain(const std::string& outname) 
+	{
+		if(!m_initFlag)
+			return false;
+		TFile *output = new TFile(outname.c_str(), "RECREATE");
+		TChain *chain = new TChain("SPSTree", "SPSTree");
+		
+		if(m_maxRun == 0) 
+		{
+			if(GrabAllFiles()) 
+			{ 
+				for(unsigned int i=0; i<m_filelist.size(); i++)
+					chain->Add(m_filelist[i].c_str());
+				chain->Merge(output,0,"fast");
+				return true;
+			} 
+			else
+				return false;
+		} 
+		else 
+		{
+			if(GrabFilesInRange()) 
+			{
+				for(unsigned int i=0; i<m_filelist.size(); i++)
+					chain->Add(m_filelist[i].c_str());
+				chain->Merge(output,0,"fast");
+				return true;
+			} else
+				return false;
+		}
+	
+		if(output->IsOpen()) 
+			output->Close();
+		return false;
+	}
 
-  MinRun = 0; MaxRun = LITERALMAX;
-  initFlag = true;
-}
-
-RunCollector::RunCollector(const string& dirname, const string& prefix, const string& suffix, int min, int max) {
-  dir = dirname.c_str();
-  run = prefix.c_str();
-  end = suffix.c_str();
-
-  MinRun = min; MaxRun = max;
-  initFlag = true;
-}
-
-RunCollector::~RunCollector() {}
-
-void RunCollector::SetSearchParams(const string& dirname, const string& prefix, const string& suffix, int min, int max) {
-  dir = dirname.c_str();
-  run = prefix.c_str();
-  end = suffix.c_str();
-  MinRun = min; MaxRun = max;
-  initFlag = true;
-}
-
-int RunCollector::GrabAllFiles() {
-  if(!initFlag) {return 0;}
-  TSystemDirectory sysdir(dir.Data(), dir.Data());
-  TList *flist = sysdir.GetListOfFiles();
-  filelist.clear();
-  int counter = 0;
-  if(flist) { //Make sure list is real. If not, means no directory
-    TSystemFile *file;
-    TString fname, temp;
-    TIter next_element(flist); //List iterator
-    while((file = (TSystemFile*)next_element())) {
-      temp = file->GetName();
-      if(!file->IsDirectory() && temp.BeginsWith(run.Data()) && temp.EndsWith(end.Data())) {
-        counter++;
-        fname = dir+temp;
-        filelist.push_back(fname);
-      } 
-    }
-    if(counter>0) {
-      delete flist;
-      return 1;
-    } else {
-      cerr<<"Unable to find files with matching run name in directory; check input.txt"<<endl;
-      delete flist;
-      return 0;
-    }
-  } else {
-    cerr<<"Unable to find any files in directory; check name given to the input.txt"<<endl;
-    delete flist;
-    return 0;
-  } 
-}
-
-std::string RunCollector::GrabFile(int runNum) {
-  if(!initFlag) return "";
-  TSystemDirectory sysdir(dir.Data(), dir.Data());
-  TList* flist = sysdir.GetListOfFiles();
-
-  if(!flist) return "";
-
-  TSystemFile *file;
-  TString fname = "", temp;
-  string runno = "_"+to_string(runNum)+end.Data();
-  TIter next_element(flist);
-  while((file = (TSystemFile*)next_element())) {
-    temp = file->GetName();
-    if(!file->IsDirectory() && temp.BeginsWith(run.Data()) && temp.EndsWith(runno.c_str())) {
-      fname = dir+temp;
-      break;
-    }
-  }
-
-  return fname.Data();
-}
-
-/*Grabs all files within a specified run range*/
-int RunCollector::GrabFilesInRange() {
-  if(!initFlag) {return 0;}
-  TSystemDirectory sysdir(dir.Data(), dir.Data());
-  TList *flist = sysdir.GetListOfFiles();
-  filelist.clear();
-  int counter = 0;
-  if(flist) {
-    TSystemFile *file;
-    TString fname, temp;
-    string runno;
-    for(int i=MinRun; i<=MaxRun; i++) {//loop over range
-      TIter next_element(flist);//list iterator
-      runno = "_"+to_string(i) + end.Data(); //suffix is now _#.endData
-      while((file = (TSystemFile*)next_element())) {//look through directory until file found
-        temp = file->GetName();
-        if(!file->IsDirectory()&&temp.BeginsWith(run.Data())&&temp.EndsWith(runno.c_str())){
-          counter++;
-          fname = dir+temp;
-          filelist.push_back(fname);
-          break; //if we find the file, break out of iterator loop
-        }
-      }
-    }
-    if(counter>0) {
-      delete flist;
-      return 1;
-    } else {
-      cerr<<"Unable to find files with matching run name in directory; check input.txt"<<endl;
-      delete flist;
-      return 0;
-    }
-  } else {
-    cerr<<"Unable to find any files in directory; check name given to input.txt"<<endl;
-    delete flist;
-    return 0;
-  }
-}
-
-int RunCollector::Merge_hadd(const string& outname) {
-  if(!initFlag) {return 0;}
-  if(MaxRun == LITERALMAX) {
-    if(GrabAllFiles()) { 
-      TString clump = "hadd "+outname;
-      for(unsigned int i=0; i<filelist.size(); i++) {
-        clump += " "+filelist[i];
-      }
-      cout<<"Merging runs into single file..."<<endl;
-      system(clump.Data());
-      cout<<"Finished merging"<<endl;
-      return 1;
-    } else {
-      return 0;
-    }
-  } else {
-    if(GrabFilesInRange()) {
-      TString clump = "hadd "+outname;
-      for(unsigned int i=0; i<filelist.size(); i++) {
-        clump += " "+filelist[i];
-      }
-      cout<<"Merging runs "<<MinRun<<" to "<<MaxRun<<" into a single file..."<<endl;
-      system(clump.Data());
-      cout<<"Finished merging"<<endl;
-      return 1;
-    } else {
-      return 0;
-    }
-  }
-}
-
-int RunCollector::Merge_TChain(const string& outname) {
-  if(!initFlag) {return 0;}
-  TFile *output = new TFile(outname.c_str(), "RECREATE");
-  TChain *chain = new TChain("SPSTree", "SPSTree");
-  
-  if(MaxRun == LITERALMAX) {
-    if(GrabAllFiles()) { 
-      for(unsigned int i=0; i<filelist.size(); i++) {
-        chain->Add(filelist[i].Data());
-      }
-      cout<<"Merging runs into single file..."<<endl;
-      chain->Merge(output,0,"fast");
-      cout<<"Finished merging"<<endl;
-      return 1;
-    } else {
-      return 0;
-    }
-  } else {
-    if(GrabFilesInRange()) {
-      for(unsigned int i=0; i<filelist.size(); i++) {
-        chain->Add(filelist[i]);
-      }
-      cout<<"Merging runs "<<MinRun<<" to "<<MaxRun<<" into a single file..."<<endl;
-      chain->Merge(output,0,"fast");
-      cout<<"Finished merging"<<endl;
-      return 1;
-    } else {
-      return 0;
-    }
-  }
-  if(output->IsOpen()) output->Close();
-  return 0;
 }

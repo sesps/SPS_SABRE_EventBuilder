@@ -1,11 +1,15 @@
-#include "EventBuilder.h"
-#include "GWMEventBuilder.h"
-#include "Stopwatch.h"
+#include "evb/Logger.h"
+#include "spsdict/DataStructs.h"
+#include "evb/EVBApp.h"
+#include "evb/Stopwatch.h"
 
-int main(int argc, char** argv) {
-	if(argc != 3) {
-		std::cerr<<"Incorrect number of command line arguments!"<<std::endl;
-		std::cerr<<"Need to specify type of operation (buildSlow, buildFast, etc.) and input file."<<std::endl;
+int main(int argc, char** argv) 
+{
+	EnforceDictionaryLinked();
+	EventBuilder::Logger::Init();
+	if(argc != 3) 
+	{
+		EVB_ERROR("Incorrcect number of commandline arguments! Need to specify type of operation and input file.");
 		return 1;
 	}
 
@@ -14,48 +18,43 @@ int main(int argc, char** argv) {
 
 
 	/* DEFAULT Operation Types:
-		convert (convert binary archive to root data)
-		convertSlow (convert binary arhcive to event slow data)
-		convertFast (convert binary archive to event fast data)
-		convertSlowA (convert binary archive to analyzed slow event data)
-		convertFastA (convert binary archive to analyzed fast event data)
-		merge (combine root files)
-		plot (generate a default histogram file from analyzed data)
+		Convert (convert binary archive to root data)
+		ConvertSlow (convert binary arhcive to event slow data)
+		ConvertFast (convert binary archive to event fast data)
+		ConvertSlowA (convert binary archive to analyzed slow event data)
+		ConvertFastA (convert binary archive to analyzed fast event data)
+		Merge (combine root files)
+		Plot (generate a default histogram file from analyzed data)
 	*/
 
-	GWMEventBuilder theBuilder;
-	if(!theBuilder.ReadConfigFile(filename)) {
-		return 1;
-	}
-	Stopwatch timer;
+	EventBuilder::EVBApp theBuilder;
+
+	theBuilder.ReadConfigFile(filename);
+
+	EventBuilder::Stopwatch timer;
 	timer.Start();
-	if(operation == "convert") {
-		theBuilder.SetAnalysisType(GWMEventBuilder::CONVERT);
+	if(operation == "Convert")
 		theBuilder.Convert2RawRoot();
-	} else if(operation == "merge") {
-		theBuilder.SetAnalysisType(GWMEventBuilder::MERGE);
+	else if(operation == "Merge")
 		theBuilder.MergeROOTFiles();
-	} else if(operation == "plot") {
-		theBuilder.SetAnalysisType(GWMEventBuilder::PLOT);
+	else if(operation == "Plot")
 		theBuilder.PlotHistograms();
-	} else if (operation == "convertSlow"){
-		theBuilder.SetAnalysisType(GWMEventBuilder::CONVERT_S);
+	else if (operation == "ConvertSlow")
 		theBuilder.Convert2SortedRoot();
-	} else if (operation == "convertFast"){
-		theBuilder.SetAnalysisType(GWMEventBuilder::CONVERT_F);
+	else if (operation == "ConvertFast")
 		theBuilder.Convert2FastSortedRoot();
-	} else if (operation == "convertSlowA"){
-		theBuilder.SetAnalysisType(GWMEventBuilder::CONVERT_SA);
+	else if (operation == "ConvertSlowA")
 		theBuilder.Convert2SlowAnalyzedRoot();
-	} else if (operation == "convertFastA"){
-		theBuilder.SetAnalysisType(GWMEventBuilder::CONVERT_FA);
+	else if (operation == "ConvertFastA")
 		theBuilder.Convert2FastAnalyzedRoot();
-	} else {
-		std::cerr<<"Unidentified type of operation! Check your first argument."<<std::endl;
+	else 
+	{
+		EVB_ERROR("Invalid operation {0} given to EventBuilder! Exiting.", operation);
 		return 1;
 	}
+	
 	timer.Stop();
-	std::cout<<"Elapsed time (ms): "<<timer.GetElapsedMilliseconds()<<std::endl;
+	EVB_INFO("Elapsed time (ms): {0}", timer.GetElapsedMilliseconds());
 
 	return 0;
 }

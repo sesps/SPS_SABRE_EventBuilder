@@ -9,6 +9,7 @@
 #include <stdexcept>
 #include <fstream>
 #include <iomanip>
+#include <cstdint>
 
 
 //ROOT
@@ -23,6 +24,9 @@
 #include <TCanvas.h>
 #include <THashTable.h>
 #include <TCutG.h>
+
+//Mine
+#include "Logger.h"
 
 
 #endif

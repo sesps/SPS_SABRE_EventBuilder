@@ -8,11 +8,16 @@
 #ifndef ORDERCHECKER_H
 #define ORDERCHECKER_H
 
-class OrderChecker {
-public:
-	OrderChecker();
-	~OrderChecker();
-	bool IsOrdered(const std::string& filename);
-};
+namespace EventBuilder {
+
+	class OrderChecker 
+	{
+	public:
+		OrderChecker();
+		~OrderChecker();
+		bool IsOrdered(const std::string& filename);
+	};
+
+}
 
 #endif

@@ -1,10 +1,10 @@
 -------Data Location----------
-WorkspaceDirectory: /data1/gwm17/10B3He/Feb2021/
+WorkspaceDirectory: /media/gordon/GordonData/gwm17/9BFeb2021
 -------------------------------
 ------Experimental Inputs------
-ChannelMapFile: /home/gwm17/GWM_EventBuilder/etc/orig_ChannelMap_Feb2021_SABRE.txt
-ScalerFile: /home/gwm17/GWM_EventBuilder/etc/orig_ScalerFile_Feb2021_SABRE.txt
-CutListFile: /home/gwm17/GWM_EventBuilder/etc/new_CutList_Feb202110B3hea.txt
+ChannelMapFile: /home/gordon/SPS_SABRE_EventBuilder/etc/ChannelMap_Feb2021_SABRE.txt
+ScalerFile: /home/gordon/SPS_SABRE_EventBuilder/etc/ScalerFile_Feb2021_SABRE.txt
+CutListFile: /home/gordon/SPS_SABRE_EventBuilder/etc/CutList_Feb2021_10B3hea.txt
 ZT: 5
 AT: 10
 ZP: 2
@@ -16,7 +16,7 @@ BeamKE(MeV): 24
 Theta(deg): 15
 -------------------------------
 -------Timing Information------
-BoardOffsetFile: /home/gwm17/GWM_EventBuilder/etc/orig_ShiftMap_Feb2021_SABRE.txt
+BoardOffsetFile: /home/gordon/SPS_SABRE_EventBuilder/etc/ShiftMap_Feb2021_SABRE.txt
 SlowCoincidenceWindow(ps): 1.5e+06
 FastCoincidenceWindow_IonCh(ps): 250000
 FastCoincidenceWindow_SABRE(ps): 150000

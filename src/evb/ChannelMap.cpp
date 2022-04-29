@@ -9,64 +9,89 @@
 #include "EventBuilder.h"
 #include "ChannelMap.h"
 
-ChannelMap::ChannelMap() :
-	is_valid(false)
-{
-}
+namespace EventBuilder {
 
-ChannelMap::ChannelMap(const std::string& name) :
-	is_valid(false)
-{
-	FillMap(name);
-}
-
-ChannelMap::~ChannelMap() {}
-
-bool ChannelMap::FillMap(const std::string& name) {
-	std::ifstream input(name);
-	if(!input.is_open()) {
-		is_valid = false;
-		return is_valid;
+	ChannelMap::ChannelMap() :
+		m_validFlag(false)
+	{
 	}
-	std::string junk, type, partname;
-	int gchan, id;
-
-	std::getline(input, junk);
-	std::getline(input, junk);
-	Channel this_chan;
-	while(input>>gchan) {
-		//Set default values
-		this_chan.detectorType = -1;
-		this_chan.detectorID = -1;
-		this_chan.detectorPart = -1;
-		input>>id>>type>>partname;
-		if(type == "SABRERING") {
-			this_chan.detectorType = SABRERING;
-			this_chan.detectorID = id;
-			this_chan.detectorPart = std::stoi(partname);
-		} else if(type == "SABREWEDGE") {
-			this_chan.detectorType = SABREWEDGE;
-			this_chan.detectorID = id;
-			this_chan.detectorPart = std::stoi(partname);
-		} else if (type == "FOCALPLANE") {
-			this_chan.detectorType = FOCALPLANE;
-			this_chan.detectorID = id;
-			if(partname == "SCINTRIGHT") this_chan.detectorPart = SCINTRIGHT;
-			else if(partname == "SCINTLEFT") this_chan.detectorPart = SCINTLEFT;
-			else if(partname == "DELAYFR") this_chan.detectorPart = DELAYFR;
-			else if(partname == "DELAYFL") this_chan.detectorPart = DELAYFL;
-			else if(partname == "DELAYBR") this_chan.detectorPart = DELAYBR;
-			else if(partname == "DELAYBL") this_chan.detectorPart = DELAYBL;
-			else if(partname == "CATHODE") this_chan.detectorPart = CATHODE;
-			else if(partname == "ANODEFRONT") this_chan.detectorPart = ANODEFRONT;
-			else if(partname == "ANODEBACK") this_chan.detectorPart = ANODEBACK;
-			else if(partname == "MONITOR") this_chan.detectorPart = MONITOR;
+	
+	ChannelMap::ChannelMap(const std::string& name) :
+		m_validFlag(false)
+	{
+		FillMap(name);
+	}
+	
+	ChannelMap::~ChannelMap() {}
+	
+	bool ChannelMap::FillMap(const std::string& name) 
+	{
+		std::ifstream input(name);
+		if(!input.is_open()) 
+		{
+			m_validFlag = false;
+			return m_validFlag;
 		}
-
-		cmap[gchan] = this_chan;
+		std::string junk, type, partname;
+		int gchan, id;
+	
+		std::getline(input, junk);
+		std::getline(input, junk);
+		Channel this_chan;
+		while(input>>gchan) 
+		{
+			//Set default values
+			this_chan.type = DetType::NoneType;
+			this_chan.local_channel = -1;
+			this_chan.attribute = DetAttribute::NoneAttr;
+			input>>id>>type>>partname;
+			if(type == "SABRERING")
+			{
+				this_chan.type = DetType::Sabre;
+				switch(id)
+				{
+					case 0: this_chan.attribute = DetAttribute::SabreRing0; break;
+					case 1: this_chan.attribute = DetAttribute::SabreRing1; break;
+					case 2: this_chan.attribute = DetAttribute::SabreRing2; break;
+					case 3: this_chan.attribute = DetAttribute::SabreRing3; break;
+					case 4: this_chan.attribute = DetAttribute::SabreRing4; break;
+				}
+				this_chan.local_channel = std::stoi(partname);
+			} 
+			else if(type == "SABREWEDGE") 
+			{
+				this_chan.type = DetType::Sabre;
+				switch(id)
+				{
+					case 0: this_chan.attribute = DetAttribute::SabreWedge0; break;
+					case 1: this_chan.attribute = DetAttribute::SabreWedge1; break;
+					case 2: this_chan.attribute = DetAttribute::SabreWedge2; break;
+					case 3: this_chan.attribute = DetAttribute::SabreWedge3; break;
+					case 4: this_chan.attribute = DetAttribute::SabreWedge4; break;
+				}
+				this_chan.local_channel = std::stoi(partname);
+			} 
+			else if (type == "FOCALPLANE") 
+			{
+				this_chan.type = DetType::FocalPlane;
+				this_chan.local_channel = id;
+				if(partname == "SCINTRIGHT") this_chan.attribute = DetAttribute::ScintRight;
+				else if(partname == "SCINTLEFT") this_chan.attribute = DetAttribute::ScintLeft;
+				else if(partname == "DELAYFR") this_chan.attribute = DetAttribute::DelayFR;
+				else if(partname == "DELAYFL") this_chan.attribute = DetAttribute::DelayFL;
+				else if(partname == "DELAYBR") this_chan.attribute = DetAttribute::DelayBR;
+				else if(partname == "DELAYBL") this_chan.attribute = DetAttribute::DelayBL;
+				else if(partname == "CATHODE") this_chan.attribute = DetAttribute::Cathode;
+				else if(partname == "ANODEFRONT") this_chan.attribute = DetAttribute::AnodeFront;
+				else if(partname == "ANODEBACK") this_chan.attribute = DetAttribute::AnodeBack;
+				else if(partname == "MONITOR") this_chan.attribute = DetAttribute::Monitor;
+			}
+	
+			m_cmap[gchan] = this_chan;
+		}
+	
+		input.close();
+		m_validFlag = true;
+		return m_validFlag;
 	}
-
-	input.close();
-	is_valid = true;
-	return is_valid;
 }
