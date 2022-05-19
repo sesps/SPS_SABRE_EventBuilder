@@ -178,7 +178,7 @@ namespace EventBuilder {
 			EVB_INFO("Converting file {0}...", binfile);
 			rawfile = rawroot_dir + "compass_run_"+ std::to_string(i) + ".root";
 			unpack_command = "tar -xzf "+binfile+" --directory "+unpack_dir;
-			wipe_command = "rm -r "+unpack_dir+"*.bin";
+			wipe_command = "rm -r "+unpack_dir+"*.BIN";
 	
 			sys_return = system(unpack_command.c_str());
 			converter.Convert2RawRoot(rawfile);
@@ -238,7 +238,7 @@ namespace EventBuilder {
 	
 			sortfile = sortroot_dir +"run_"+std::to_string(i)+ ".root";
 			unpack_command = "tar -xzf "+binfile+" --directory "+unpack_dir;
-			wipe_command = "rm -r "+unpack_dir+"*.bin";
+			wipe_command = "rm -r "+unpack_dir+"*.BIN";
 	
 			sys_return = system(unpack_command.c_str());
 			converter.Convert2SortedRoot(sortfile, m_mapfile, m_SlowWindow);
@@ -281,7 +281,7 @@ namespace EventBuilder {
 	
 			sortfile = sortroot_dir + "run_" + std::to_string(i) + ".root";
 			unpack_command = "tar -xzf "+binfile+" --directory "+unpack_dir;
-			wipe_command = "rm -r "+unpack_dir+"*.bin";
+			wipe_command = "rm -r "+unpack_dir+"*.BIN";
 	
 			sys_return = system(unpack_command.c_str());
 			converter.Convert2FastSortedRoot(sortfile, m_mapfile, m_SlowWindow, m_FastWindowSABRE, m_FastWindowIonCh);
@@ -324,7 +324,7 @@ namespace EventBuilder {
 	
 			sortfile = sortroot_dir + "run_" + std::to_string(i) + ".root";
 			unpack_command = "tar -xzf "+binfile+" --directory "+unpack_dir;
-			wipe_command = "rm -r "+unpack_dir+"*.bin";
+			wipe_command = "rm -r "+unpack_dir+"*.BIN";
 	
 			sys_return = system(unpack_command.c_str());
 			converter.Convert2SlowAnalyzedRoot(sortfile, m_mapfile, m_SlowWindow, m_ZT, m_AT, m_ZP, m_AP, m_ZE, m_AE, m_BKE, m_B, m_Theta);
@@ -368,7 +368,7 @@ namespace EventBuilder {
 	
 			sortfile = sortroot_dir + "run_" + std::to_string(i) + ".root";
 			unpack_command = "tar -xzf "+binfile+" --directory "+unpack_dir;
-			wipe_command = "rm -r "+unpack_dir+"*.bin";
+			wipe_command = "rm -r "+unpack_dir+"*.BIN";
 	
 			sys_return = system(unpack_command.c_str());
 			converter.Convert2FastAnalyzedRoot(sortfile, m_mapfile, m_SlowWindow, m_FastWindowSABRE, m_FastWindowIonCh, m_ZT, m_AT, m_ZP, m_AP, m_ZE, m_AE, m_BKE, m_B, m_Theta);

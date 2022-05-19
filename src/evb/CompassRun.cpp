@@ -49,7 +49,7 @@ namespace EventBuilder {
 		while(input>>filename) 
 		{
 			input>>varname;
-			filename = m_directory+filename+"_run_"+std::to_string(m_runNum)+".bin";
+			filename = m_directory+filename+"_run_"+std::to_string(m_runNum)+".BIN";
 			m_scaler_map[filename] = TParameter<Long64_t>(varname.c_str(), init);
 		}
 		input.close();
@@ -58,7 +58,7 @@ namespace EventBuilder {
 	bool CompassRun::GetBinaryFiles() 
 	{
 		std::string prefix = "";
-		std::string suffix = ".bin"; //binaries
+		std::string suffix = ".BIN"; //binaries
 		RunCollector grabber(m_directory, prefix, suffix);
 		grabber.GrabAllFiles();
 	
@@ -168,8 +168,8 @@ namespace EventBuilder {
 	
 		outtree->Branch("Board", &hit.board);
 		outtree->Branch("Channel", &hit.channel);
-		outtree->Branch("Energy", &hit.lgate);
-		outtree->Branch("EnergyShort", &hit.sgate);
+		outtree->Branch("Energy", &hit.energy);
+		outtree->Branch("EnergyShort", &hit.energyShort);
 		outtree->Branch("Timestamp", &hit.timestamp);
 		outtree->Branch("Flags", &hit.flags);
 	
