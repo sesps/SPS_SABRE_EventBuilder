@@ -92,7 +92,7 @@ namespace EventBuilder {
 			EVB_ERROR("Waveforms are not supported by the SPS_SABRE_EventBuilder. The wave data will be skipped.");
 			m_hitsize += 5;
 			char* firstHit = new char[m_hitsize]; //A compass hit by default has 24 bytes (at least in our setup)
-			m_file->read(firstHit, 24);
+			m_file->read(firstHit, m_hitsize);
 			firstHit += m_hitsize - 4;
 			uint32_t nsamples = *((uint32_t*) firstHit);
 			m_hitsize += nsamples * 2; //Each sample is a 2 byte data value
