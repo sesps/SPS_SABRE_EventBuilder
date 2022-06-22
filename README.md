@@ -6,7 +6,14 @@ It can convert CoMPASS data to ROOT, sort the data in time, build events, perfor
 WHEN TESTING, RUN WITH WIDE WINDOWS
 
 ## Installation
-To install the event builder, the Premake build system is used. To install Premake, simply go to the [Premake](https://premake.github.io/) site and Download the right prebuilt binary for your system (there's no need to try and build from source). Place the binary in a location on your path so that you can call it on the commandline by simply typing `premake5`.
+To build and install the event builder, the CMake build system is used. To build, simply run the following commands from the SPS_SABRE_EventBuilder directory:
+```
+mkdir build
+cd build
+cmake ..
+make
+```
+The executables are then located in the `bin` directory of the SPS_SABRE_EventBuilder repository.
 
 To clone the repository use `git clone --recursive https://github.com/sesps/SPS_SABRE_EventBuilder.git`. If you're using the devel branch be sure to specify this with the `--branch` flag. The recursive flag is important; this tells github to pull all submodules associated with the repository. 
 
