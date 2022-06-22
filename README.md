@@ -1,9 +1,7 @@
 # SPS-SABRE Data Analysis Package
 Version 4
 This is a software package designed to help experimenters analyze data from SPS-SABRE at FSU. 
-It can convert CoMPASS data to ROOT, sort the data in time, build events, perform preliminary analysis and provide basic plots. Programs are built using make, and a make file is included. Simply using the command make will build all programs.
-
-WHEN TESTING, RUN WITH WIDE WINDOWS
+It can convert CoMPASS data to ROOT, sort the data in time, build events, perform preliminary analysis and provide basic plots.
 
 ## Installation
 To build and install the event builder, the CMake build system is used. To build, simply run the following commands from the SPS_SABRE_EventBuilder directory:
@@ -13,17 +11,12 @@ cd build
 cmake ..
 make
 ```
-The executables are then located in the `bin` directory of the SPS_SABRE_EventBuilder repository.
 
 To clone the repository use `git clone --recursive https://github.com/sesps/SPS_SABRE_EventBuilder.git`. If you're using the devel branch be sure to specify this with the `--branch` flag. The recursive flag is important; this tells github to pull all submodules associated with the repository. 
 
-Once the repository is cloned, go into the event builder directory and locate the file `premake5.lua`. This is the file which contains the build rules for this project. You will need to specify the location of your `ROOT` install so that we can properly find headers and libraries using the parameters ROOTIncludeDir and ROOTLibDir (lines 8 and 9 of premake5.lua). On unix style systems these paths can be found easily using the `root-config` tool. Simply run `root-config --cflags` and copy the path after the `-I` to ROOTIncludeDir and run `root-config --glibs` and copy the path after the `-L` to ROOTLibDir. Once the `ROOT` paths are set, run the command `premake5 gmake2` on Linux or Mac for a Makefile style build, or `premake5 Xcode4` to build an XCode project on Mac. Then the program can be built using the standard methods of the chosen build type (i.e. `make` or XCode Build).
-
 The binaries are installed to the `bin` directory of the event builder, and should be run from the event builder directory (i.e. `./bin/EventBuilderGui`).
 
-In general, one should only build for Release (this is the default), for maximum optimization. However, it can be useful to run in Debug (in make do `make config=debug`) when testing new features.
-
-Note: On Mac, if you have XCode installed, it is best to build through XCode. Results when linking can be unreliable otherwise.
+In general, one should only build for Release (this is the default), for maximum optimization. However, it can be useful to run in Debug (change the cmake command to `cmake -DCMAKE_BUILD_TYPE_DEBUG ..`) when testing new features.
 
 ## EventBuilder vs. EventBuilderGui
 There are two programs provided. They are `EventBuilderGui` and `EventBuilder`. The first is a full GUI version of the event builder. The GUI supports all conversion methods and the plotting tool.
@@ -97,6 +90,5 @@ size (again center the peak on 0, the width of the peak becomes the fast window)
 Currently the pipeline supports declaring individual digitizer channels as scalers. These channels will be used a pure counting measures. To make a channel a scaler, put the CoMPASS formated name of the channel and board (check the given etc/ScalerFile.txt for an example) in a text file along with a parameter name for the scaler to be saved as. These files are then processed outside of the event building loop, which can greatly increase the computational speed. Future versions will include scaler rates as well.
 
 ## System Requirements
-Only tested with `ROOT` 6.14, mileage may vary
-Uses C++11 standards
-Only compatible with MacOSX and Linux
+Requires ROOT version which supports CMake dictionary generation
+Requires CMake > 3.16 for pch suport
