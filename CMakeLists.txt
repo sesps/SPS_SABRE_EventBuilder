@@ -14,8 +14,6 @@ project(SPS_SABRE_EventBuilder)
 
 find_package(ROOT REQUIRED COMPONENTS Gui)
 
-message("ROOT libs " ${ROOT_LIBRARIES})
-
 set(EVB_BINARY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 set(EVB_LIBRARY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 
