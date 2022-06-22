@@ -29,7 +29,7 @@ namespace EventBuilder {
 	
 		for(Long64_t i=0; i<tree->GetEntries(); i++) 
 		{
-			tree->GetEntry();
+			tree->GetEntry(i);
 			if(prevStamp >= ts) 
 			{
 				EVB_WARN("Bad order at entry {0} out of {1}",i,tree->GetEntries());
