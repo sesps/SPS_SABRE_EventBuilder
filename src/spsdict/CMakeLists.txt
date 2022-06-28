@@ -1,7 +1,7 @@
 add_library(SPSDict SHARED)
 
 target_include_directories(SPSDict SYSTEM PUBLIC ${ROOT_INCLUDE_DIRS} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-ROOT_GENERATE_DICTIONARY(spsdict DataStructs.h LINKDEF LinkDef_sps.h MODULE SPSDict)
+ROOT_GENERATE_DICTIONARY(sps_dict DataStructs.h LINKDEF LinkDef_sps.h MODULE SPSDict)
 
 target_sources(SPSDict PRIVATE
     DataStructs.h

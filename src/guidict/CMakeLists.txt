@@ -1,7 +1,7 @@
 add_library(GuiDict SHARED)
 
 target_include_directories(GuiDict SYSTEM PUBLIC ../../vendor/spdlog/include/ ${ROOT_INCLUDE_DIRS} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-ROOT_GENERATE_DICTIONARY(guidict EVBMainFrame.h FileViewFrame.h LINKDEF LinkDef_Gui.h MODULE GuiDict)
+ROOT_GENERATE_DICTIONARY(gui_dict EVBMainFrame.h FileViewFrame.h LINKDEF LinkDef_Gui.h MODULE GuiDict)
 
 target_sources(GuiDict PRIVATE
     FileViewFrame.h
