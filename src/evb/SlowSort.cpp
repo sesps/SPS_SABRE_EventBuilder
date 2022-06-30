@@ -76,8 +76,8 @@ namespace EventBuilder {
 	{
 		DPPChannel curHit;
 		curHit.Timestamp = mhit.timestamp;
-		curHit.Energy = mhit.lgate;
-		curHit.EnergyShort = mhit.sgate;
+		curHit.Energy = mhit.energy;
+		curHit.EnergyShort = mhit.energyShort;
 		curHit.Channel = mhit.channel;
 		curHit.Board = mhit.board;
 		curHit.Flags = mhit.flags;

@@ -3,6 +3,7 @@ pics/
 images/
 build/
 objs/
+.vscode/
 
 ###file types to ignore###
 *.swp

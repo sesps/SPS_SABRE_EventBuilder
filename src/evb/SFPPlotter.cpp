@@ -140,9 +140,9 @@ namespace EventBuilder {
 			if(ev.sabreRingE[i] != -1)  //Again, at this point front&back are required
 			{
 				MyFill(table,"sabreRingE_NoCuts",2000,0,20,ev.sabreRingE[i]);
-				MyFill(table,"sabreRingChannel_sabreRingE_NoCuts",144,0,144,ev.sabreRingChannel[i],200,0,20,ev.sabreRingE[i]);
+				MyFill(table,"sabreRingChannel_sabreRingE_NoCuts",144,0,144,ev.sabreRingChannel[i],4096,0,16384,ev.sabreRingE[i]);
 				MyFill(table,"sabreWedgeE_NoCuts",2000,0,20,ev.sabreWedgeE[i]);
-				MyFill(table,"sabreWedgeChannel_sabreWedgeE_NoCuts",144,0,144,ev.sabreWedgeChannel[i],200,0,20,ev.sabreWedgeE[i]);
+				MyFill(table,"sabreWedgeChannel_sabreWedgeE_NoCuts",144,0,144,ev.sabreWedgeChannel[i],4096,0,16384,ev.sabreWedgeE[i]);
 			}
 		}
 		
