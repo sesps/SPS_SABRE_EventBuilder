@@ -19,24 +19,20 @@
 
 namespace EventBuilder {
 	
+	struct EVBParameters; //Foward decl to avoid recursive includes
+
 	class CompassRun 
 	{
 	
 	public:
-		CompassRun();
-		CompassRun(const std::string& dir);
+		CompassRun(const EVBParameters& params);
 		~CompassRun();
-		inline void SetDirectory(const std::string& dir) { m_directory = dir; }
-		inline void SetScalerInput(const std::string& filename) { m_scalerinput = filename; }
 		inline void SetRunNumber(int n) { m_runNum = n; }
-		inline void SetShiftMap(const std::string& filename) { m_smap.SetFile(filename); }
 		void Convert2RawRoot(const std::string& name);
-		void Convert2SortedRoot(const std::string& name, const std::string& mapfile, double window);
-		void Convert2FastSortedRoot(const std::string& name, const std::string& mapfile, double window, double fsi_window, double fic_window);
-		void Convert2SlowAnalyzedRoot(const std::string& name, const std::string& mapfile, double window,
-								  int zt, int at, int zp, int ap, int ze, int ae, double bke, double b, double theta);
-		void Convert2FastAnalyzedRoot(const std::string& name, const std::string& mapfile, double window, double fsi_window, double fic_window,
-								  int zt, int at, int zp, int ap, int ze, int ae, double bke, double b, double theta);
+		void Convert2SortedRoot(const std::string& name);
+		void Convert2FastSortedRoot(const std::string& name);
+		void Convert2SlowAnalyzedRoot(const std::string& name);
+		void Convert2FastAnalyzedRoot(const std::string& name);
 	
 		inline void SetProgressCallbackFunc(const ProgressCallbackFunc& function) { m_progressCallback = function; }
 		inline void SetProgressFraction(double frac) { m_progressFraction = frac; }
@@ -46,8 +42,10 @@ namespace EventBuilder {
 		bool GetHitsFromFiles();
 		void SetScalers();
 		void ReadScalerData(const std::string& filename);
+
+		EVBParameters m_params;
+		std::filesystem::path m_tempDir;
 	
-		std::string m_directory, m_scalerinput;
 		std::vector<CompassFile> m_datafiles;
 		unsigned int startIndex; //this is the file we start looking at; increases as we finish files.
 		ShiftMap m_smap;

@@ -13,6 +13,33 @@
 #include "ProgressCallback.h"
 
 namespace EventBuilder {
+
+	struct EVBParameters
+	{
+		std::filesystem::path workspaceDir = "";
+		std::filesystem::path channelMapFile = "";
+		std::filesystem::path timeShiftFile = "";
+		std::filesystem::path cutListFile = "";
+		std::filesystem::path scalerFile = "";
+
+		int runMin = 0;
+		int runMax = 0;
+
+		double slowCoincidenceWindow = 3.0e6;
+		double fastCoincidenceWindowIonCh = 0.0;
+		double fastCoincidenceWindowSABRE = 0.0;
+
+		int ZT = 6;
+		int AT = 12;
+		int ZP = 1;
+		int AP = 2;
+		int ZE = 1;
+		int AE = 1;
+
+		double BField = 7.8; //kG
+		double spsAngle = 15.0; //degrees
+		double beamEnergy = 16.0; //MeV
+	};
 	
 	class EVBApp {
 	public:
@@ -31,38 +58,8 @@ namespace EventBuilder {
 		void Convert2SlowAnalyzedRoot();
 		void Convert2FastAnalyzedRoot();
 	
-		void SetRunRange(int rmin, int rmax);
-		void SetWorkDirectory(const std::string& fullpath);
-		void SetChannelMap(const std::string& name);
-		void SetBoardShiftFile(const std::string& name);
-		void SetSlowCoincidenceWindow(double window);
-		void SetFastWindowIonChamber(double window);
-		void SetFastWindowSABRE(double window);
-		void SetCutList(const std::string& name);
-		void SetScalerFile(const std::string& fullpath);
-		bool SetKinematicParameters(int zt, int at, int zp, int ap, int ze, int ae, double b, double theta, double bke);
-	
-		inline int GetRunMin() const { return m_rmin; }
-		inline int GetRunMax() const { return m_rmax; }
-		inline std::string GetWorkDirectory() const { return m_workspace; }
-		inline int GetTargetZ() const { return m_ZT; }
-		inline int GetTargetA() const { return m_AT; }
-		inline int GetProjectileZ() const { return m_ZP; }
-		inline int GetProjectileA() const { return m_AP; }
-		inline int GetEjectileZ() const { return m_ZE; }
-		inline int GetEjectileA() const { return m_AE; }
-		inline int GetResidualZ() const { return m_ZR; }
-		inline int GetResidualA() const { return m_AR; }
-		inline double GetBField() const { return m_B; }
-		inline double GetBeamKE() const { return m_BKE; }
-		inline double GetTheta() const { return m_Theta; }
-		inline double GetSlowCoincidenceWindow() const { return m_SlowWindow; }
-		inline double GetFastWindowIonChamber() const { return m_FastWindowIonCh; }
-		inline double GetFastWindowSABRE() const { return m_FastWindowSABRE; }
-		inline std::string GetChannelMap() const { return m_mapfile; }
-		inline std::string GetBoardShiftFile() const { return m_shiftfile; }
-		inline std::string GetCutList() const { return m_cutList; }
-		inline std::string GetScalerFile() const { return m_scalerfile; }
+		inline void SetParameters(const EVBParameters& params) { m_params = params; }
+		inline EVBParameters& GetParameters() { return m_params; }
 
 		void DefaultProgressCallback(long curVal, long totalVal);
 		inline void SetProgressCallbackFunc(const ProgressCallbackFunc& function) { m_progressCallback = function; }
@@ -80,23 +77,9 @@ namespace EventBuilder {
 		};
 	
 	private:
-	
-		int m_rmin, m_rmax;
-		int m_ZT, m_AT, m_ZP, m_AP, m_ZE, m_AE, m_ZR, m_AR;
-		double m_B, m_Theta, m_BKE;
-		double m_progressFraction;
-	
-		std::string m_workspace;
-		std::string m_mapfile, m_shiftfile;
-		std::string m_cutList;
-		std::string m_scalerfile;
-	
-		double m_SlowWindow;
-		double m_FastWindowIonCh;
-		double m_FastWindowSABRE;
-	
+		EVBParameters m_params;
 		RunCollector grabber;
-
+		double m_progressFraction;
 		ProgressCallbackFunc m_progressCallback;
 	
 	};

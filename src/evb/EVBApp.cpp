@@ -19,9 +19,7 @@
 namespace EventBuilder {
 	
 	EVBApp::EVBApp() :
-		m_rmin(0), m_rmax(0), m_ZT(0), m_AT(0), m_ZP(0), m_AP(0), m_ZE(0), m_AE(0), m_ZR(0), m_AR(0),
-		m_B(0), m_Theta(0), m_BKE(0), m_progressFraction(0.1), m_workspace("none"), m_mapfile("none"), m_shiftfile("none"),
-		m_cutList("none"), m_scalerfile("none"), m_SlowWindow(0), m_FastWindowIonCh(0), m_FastWindowSABRE(0)
+		m_progressFraction(0.1)
 	{
 		SetProgressCallbackFunc(BIND_PROGRESS_CALLBACK_FUNCTION(EVBApp::DefaultProgressCallback));
 	}
@@ -48,31 +46,31 @@ namespace EventBuilder {
 		std::string junk;
 	
 		std::getline(input, junk);
-		input>>junk>>m_workspace;
+		input>>junk>>m_params.workspaceDir;
 		input>>junk;
 		std::getline(input, junk);
 		std::getline(input, junk);
-		input>>junk>>m_mapfile;
-		input>>junk>>m_scalerfile;
-		input>>junk>>m_cutList;
-		input>>junk>>m_ZT>>junk>>m_AT;
-		input>>junk>>m_ZP>>junk>>m_AP;
-		input>>junk>>m_ZE>>junk>>m_AE;
-		input>>junk>>m_B;
-		input>>junk>>m_BKE;
-		input>>junk>>m_Theta;
+		input>>junk>>m_params.channelMapFile;
+		input>>junk>>m_params.scalerFile;
+		input>>junk>>m_params.cutListFile;
+		input>>junk>>m_params.ZT>>junk>>m_params.AT;
+		input>>junk>>m_params.ZP>>junk>>m_params.AP;
+		input>>junk>>m_params.ZE>>junk>>m_params.AE;
+		input>>junk>>m_params.BField;
+		input>>junk>>m_params.beamEnergy;
+		input>>junk>>m_params.spsAngle;
 		input>>junk;
 		std::getline(input, junk);
 		std::getline(input, junk);
-		input>>junk>>m_shiftfile;
-		input>>junk>>m_SlowWindow;
-		input>>junk>>m_FastWindowIonCh;
-		input>>junk>>m_FastWindowSABRE;
+		input>>junk>>m_params.timeShiftFile;
+		input>>junk>>m_params.slowCoincidenceWindow;
+		input>>junk>>m_params.fastCoincidenceWindowIonCh;
+		input>>junk>>m_params.fastCoincidenceWindowSABRE;
 		input>>junk;
 		std::getline(input, junk);
 		std::getline(input, junk);
-		input>>junk>>m_rmin;
-		input>>junk>>m_rmax;
+		input>>junk>>m_params.runMin;
+		input>>junk>>m_params.runMax;
 	
 		input.close();
 	
@@ -93,31 +91,31 @@ namespace EventBuilder {
 		}
 	
 		output<<"-------Data Location----------"<<std::endl;
-		output<<"WorkspaceDirectory: "<<m_workspace<<std::endl;
+		output<<"WorkspaceDirectory: "<<m_params.workspaceDir<<std::endl;
 		output<<"-------------------------------"<<std::endl;
 		output<<"------Experimental Inputs------"<<std::endl;
-		output<<"ChannelMapFile: "<<m_mapfile<<std::endl;
-		output<<"ScalerFile: "<<m_scalerfile<<std::endl;
-		output<<"CutListFile: "<<m_cutList<<std::endl;
-		output<<"ZT: "<<m_ZT<<std::endl;
-		output<<"AT: "<<m_AT<<std::endl;
-		output<<"ZP: "<<m_ZP<<std::endl;
-		output<<"AP: "<<m_AP<<std::endl;
-		output<<"ZE: "<<m_ZE<<std::endl;
-		output<<"AE: "<<m_AE<<std::endl;
-		output<<"BField(G): "<<m_B<<std::endl;
-		output<<"BeamKE(MeV): "<<m_BKE<<std::endl;
-		output<<"Theta(deg): "<<m_Theta<<std::endl;
+		output<<"ChannelMapFile: "<<m_params.channelMapFile<<std::endl;
+		output<<"ScalerFile: "<<m_params.scalerFile<<std::endl;
+		output<<"CutListFile: "<<m_params.cutListFile<<std::endl;
+		output<<"ZT: "<<m_params.ZT<<std::endl;
+		output<<"AT: "<<m_params.AT<<std::endl;
+		output<<"ZP: "<<m_params.ZP<<std::endl;
+		output<<"AP: "<<m_params.AP<<std::endl;
+		output<<"ZE: "<<m_params.ZE<<std::endl;
+		output<<"AE: "<<m_params.AE<<std::endl;
+		output<<"BField(G): "<<m_params.BField<<std::endl;
+		output<<"BeamKE(MeV): "<<m_params.beamEnergy<<std::endl;
+		output<<"Theta(deg): "<<m_params.spsAngle<<std::endl;
 		output<<"-------------------------------"<<std::endl;
 		output<<"-------Timing Information------"<<std::endl;
-		output<<"BoardOffsetFile: "<<m_shiftfile<<std::endl;
-		output<<"SlowCoincidenceWindow(ps): "<<m_SlowWindow<<std::endl;
-		output<<"FastCoincidenceWindow_IonCh(ps): "<<m_FastWindowIonCh<<std::endl;
-		output<<"FastCoincidenceWindow_SABRE(ps): "<<m_FastWindowSABRE<<std::endl;
+		output<<"BoardOffsetFile: "<<m_params.timeShiftFile<<std::endl;
+		output<<"SlowCoincidenceWindow(ps): "<<m_params.slowCoincidenceWindow<<std::endl;
+		output<<"FastCoincidenceWindow_IonCh(ps): "<<m_params.fastCoincidenceWindowIonCh<<std::endl;
+		output<<"FastCoincidenceWindow_SABRE(ps): "<<m_params.fastCoincidenceWindowSABRE<<std::endl;
 		output<<"-------------------------------"<<std::endl;
 		output<<"--------Run Information--------"<<std::endl;
-		output<<"MinRun: "<<m_rmin<<std::endl;
-		output<<"MaxRun: "<<m_rmax<<std::endl;
+		output<<"MinRun: "<<m_params.runMin<<std::endl;
+		output<<"MaxRun: "<<m_params.runMax<<std::endl;
 		output<<"-------------------------------"<<std::endl;
 	
 		output.close();
@@ -128,16 +126,16 @@ namespace EventBuilder {
 	
 	void EVBApp::PlotHistograms() 
 	{
-		std::string analyze_dir = m_workspace+"/analyzed/";
-		std::string plot_file = m_workspace+"/histograms/run_"+std::to_string(m_rmin)+"_"+std::to_string(m_rmax)+".root";
+		std::string analyze_dir = m_params.workspaceDir+"/analyzed/";
+		std::string plot_file = m_params.workspaceDir+"/histograms/run_"+std::to_string(m_params.runMin)+"_"+std::to_string(m_params.runMax)+".root";
 		SFPPlotter grammer;
 		grammer.SetProgressCallbackFunc(m_progressCallback);
 		grammer.SetProgressFraction(m_progressFraction);
-		grammer.ApplyCutlist(m_cutList);
-		EVB_INFO("Generating histograms from analyzed runs [{0}, {1}] with Cut List {2}...", m_rmin, m_rmax, m_cutList);
+		grammer.ApplyCutlist(m_params.cutListFile);
+		EVB_INFO("Generating histograms from analyzed runs [{0}, {1}] with Cut List {2}...", m_params.runMin, m_params.runMax, m_params.cutListFile);
 		EVB_INFO("Output file will be named {0}",plot_file);
 	
-		grabber.SetSearchParams(analyze_dir, "", ".root", m_rmin, m_rmax);
+		grabber.SetSearchParams(analyze_dir, "", ".root", m_params.runMin, m_params.runMax);
 		if(grabber.GrabFilesInRange()) 
 		{
 			grammer.Run(grabber.GetFileList(), plot_file);
@@ -152,24 +150,22 @@ namespace EventBuilder {
 	void EVBApp::Convert2RawRoot() 
 	{
 		int sys_return;
-		std::string rawroot_dir = m_workspace+"/raw_root/";
-		std::string unpack_dir = m_workspace+"/temp_binary/";
-		std::string binary_dir = m_workspace+"/raw_binary/";
-		EVB_INFO("Converting binary archives to ROOT files over run range [{0}, {1}]",m_rmin,m_rmax);
+		std::string rawroot_dir = m_params.workspaceDir+"/raw_root/";
+		std::string unpack_dir = m_params.workspaceDir+"/temp_binary/";
+		std::string binary_dir = m_params.workspaceDir+"/raw_binary/";
+		EVB_INFO("Converting binary archives to ROOT files over run range [{0}, {1}]",m_params.runMin,m_params.runMax);
 	
 		grabber.SetSearchParams(binary_dir, "", ".tar.gz",0,1000);
 	
 		std::string rawfile, binfile;
 		std::string unpack_command, wipe_command;
 	
-		CompassRun converter(unpack_dir);
-		converter.SetShiftMap(m_shiftfile);
-		converter.SetScalerInput(m_scalerfile);
+		CompassRun converter(m_params);
 		converter.SetProgressCallbackFunc(m_progressCallback);
 		converter.SetProgressFraction(m_progressFraction);
 	
 		EVB_INFO("Beginning conversion...");
-		for(int i=m_rmin; i<=m_rmax; i++) 
+		for(int i=m_params.runMin; i<=m_params.runMax; i++) 
 		{
 			binfile = grabber.GrabFile(i);
 			if(binfile == "") 
@@ -190,13 +186,13 @@ namespace EventBuilder {
 	
 	void EVBApp::MergeROOTFiles() 
 	{
-		std::string merge_file = m_workspace+"/merged/run_"+std::to_string(m_rmin)+"_"+std::to_string(m_rmax)+".root";
-		std::string file_dir = m_workspace+"/analyzed/";
-		EVB_INFO("Merging ROOT files into single file for runs in range [{0}, {1}]", m_rmin, m_rmax);
+		std::string merge_file = m_params.workspaceDir+"/merged/run_"+std::to_string(m_params.runMin)+"_"+std::to_string(m_params.runMax)+".root";
+		std::string file_dir = m_params.workspaceDir.string()+"/analyzed/";
+		EVB_INFO("Merging ROOT files into single file for runs in range [{0}, {1}]", m_params.runMin, m_params.runMax);
 		EVB_INFO("Merged file will be named {0}", merge_file);
 		std::string prefix = "";
 		std::string suffix = ".root";
-		grabber.SetSearchParams(file_dir, prefix, suffix,m_rmin,m_rmax);
+		grabber.SetSearchParams(file_dir, prefix, suffix,m_params.runMin,m_params.runMax);
 		EVB_INFO("Starting merge...");
 		if(!grabber.Merge_TChain(merge_file)) 
 		{
@@ -209,26 +205,24 @@ namespace EventBuilder {
 	void EVBApp::Convert2SortedRoot() 
 	{
 		int sys_return;
-		std::string sortroot_dir = m_workspace+"/sorted/";
-		std::string unpack_dir = m_workspace+"/temp_binary/";
-		std::string binary_dir = m_workspace+"/raw_binary/";
-		EVB_INFO("Converting binary archives to event built ROOT files over run range [{0}, {1}]",m_rmin,m_rmax);
+		std::string sortroot_dir = m_params.workspaceDir+"/sorted/";
+		std::string unpack_dir = m_params.workspaceDir+"/temp_binary/";
+		std::string binary_dir = m_params.workspaceDir+"/raw_binary/";
+		EVB_INFO("Converting binary archives to event built ROOT files over run range [{0}, {1}]",m_params.runMin,m_params.runMax);
 	
-		grabber.SetSearchParams(binary_dir,"",".tar.gz",m_rmin,m_rmax);
+		grabber.SetSearchParams(binary_dir,"",".tar.gz",m_params.runMin,m_params.runMax);
 	
 		std::string sortfile, binfile;
 		std::string unpack_command, wipe_command;
 	
-		CompassRun converter(unpack_dir);
-		converter.SetShiftMap(m_shiftfile);
-		converter.SetScalerInput(m_scalerfile);
+		CompassRun converter(m_params);
 		converter.SetProgressCallbackFunc(m_progressCallback);
 		converter.SetProgressFraction(m_progressFraction);
 	
 		EVB_INFO("Beginning conversion...");
 	
 		int count=0;
-		for(int i=m_rmin; i<= m_rmax; i++) 
+		for(int i=m_params.runMin; i<= m_params.runMax; i++) 
 		{
 			binfile = grabber.GrabFile(i);
 			if(binfile == "") 
@@ -241,7 +235,7 @@ namespace EventBuilder {
 			wipe_command = "rm -r "+unpack_dir+"*.BIN";
 	
 			sys_return = system(unpack_command.c_str());
-			converter.Convert2SortedRoot(sortfile, m_mapfile, m_SlowWindow);
+			converter.Convert2SortedRoot(sortfile);
 			sys_return = system(wipe_command.c_str());
 			count++;
 		}
@@ -253,25 +247,23 @@ namespace EventBuilder {
 	
 	void EVBApp::Convert2FastSortedRoot() {
 		int sys_return;
-		std::string sortroot_dir = m_workspace+"/fast/";
-		std::string unpack_dir = m_workspace+"/temp_binary/";
-		std::string binary_dir = m_workspace+"/raw_binary/";
-		EVB_INFO("Converting binary archives to fast event built ROOT files over run range [{0}, {1}]",m_rmin,m_rmax);
+		std::string sortroot_dir = m_params.workspaceDir+"/fast/";
+		std::string unpack_dir = m_params.workspaceDir+"/temp_binary/";
+		std::string binary_dir = m_params.workspaceDir+"/raw_binary/";
+		EVB_INFO("Converting binary archives to fast event built ROOT files over run range [{0}, {1}]",m_params.runMin,m_params.runMax);
 	
-		grabber.SetSearchParams(binary_dir,"",".tar.gz",m_rmin,m_rmax);
+		grabber.SetSearchParams(binary_dir,"",".tar.gz",m_params.runMin,m_params.runMax);
 	
 		std::string sortfile, binfile;
 		std::string unpack_command, wipe_command;
 	
-		CompassRun converter(unpack_dir);
-		converter.SetShiftMap(m_shiftfile);
-		converter.SetScalerInput(m_scalerfile);
+		CompassRun converter(m_params);
 		converter.SetProgressCallbackFunc(m_progressCallback);
 		converter.SetProgressFraction(m_progressFraction);
 	
 		EVB_INFO("Beginning conversion...");
 		int count=0;
-		for(int i=m_rmin; i<=m_rmax; i++) 
+		for(int i=m_params.runMin; i<=m_params.runMax; i++) 
 		{
 			binfile = grabber.GrabFile(i);
 			if(binfile == "") 
@@ -284,7 +276,7 @@ namespace EventBuilder {
 			wipe_command = "rm -r "+unpack_dir+"*.BIN";
 	
 			sys_return = system(unpack_command.c_str());
-			converter.Convert2FastSortedRoot(sortfile, m_mapfile, m_SlowWindow, m_FastWindowSABRE, m_FastWindowIonCh);
+			converter.Convert2FastSortedRoot(sortfile);
 			sys_return = system(wipe_command.c_str());
 			count++;
 		}
@@ -296,25 +288,23 @@ namespace EventBuilder {
 	
 	void EVBApp::Convert2SlowAnalyzedRoot() {
 		int sys_return;
-		std::string sortroot_dir = m_workspace+"/analyzed/";
-		std::string unpack_dir = m_workspace+"/temp_binary/";
-		std::string binary_dir = m_workspace+"/raw_binary/";
-		EVB_INFO("Converting binary archives to analyzed event built ROOT files over run range [{0}, {1}]",m_rmin,m_rmax);
+		std::string sortroot_dir = m_params.workspaceDir+"/analyzed/";
+		std::string unpack_dir = m_params.workspaceDir+"/temp_binary/";
+		std::string binary_dir = m_params.workspaceDir+"/raw_binary/";
+		EVB_INFO("Converting binary archives to analyzed event built ROOT files over run range [{0}, {1}]",m_params.runMin,m_params.runMax);
 
-		grabber.SetSearchParams(binary_dir,"",".tar.gz",m_rmin, m_rmax);
+		grabber.SetSearchParams(binary_dir,"",".tar.gz",m_params.runMin, m_params.runMax);
 	
 		std::string sortfile, binfile;
 		std::string unpack_command, wipe_command;
 	
-		CompassRun converter(unpack_dir);
-		converter.SetShiftMap(m_shiftfile);
-		converter.SetScalerInput(m_scalerfile);
+		CompassRun converter(m_params);
 		converter.SetProgressCallbackFunc(m_progressCallback);
 		converter.SetProgressFraction(m_progressFraction);
 	
 		EVB_INFO("Beginning conversion...");
 		int count=0;
-		for(int i=m_rmin; i<=m_rmax; i++) 
+		for(int i=m_params.runMin; i<=m_params.runMax; i++) 
 		{
 			binfile = grabber.GrabFile(i);
 			if(binfile == "") 
@@ -327,7 +317,7 @@ namespace EventBuilder {
 			wipe_command = "rm -r "+unpack_dir+"*.BIN";
 	
 			sys_return = system(unpack_command.c_str());
-			converter.Convert2SlowAnalyzedRoot(sortfile, m_mapfile, m_SlowWindow, m_ZT, m_AT, m_ZP, m_AP, m_ZE, m_AE, m_BKE, m_B, m_Theta);
+			converter.Convert2SlowAnalyzedRoot(sortfile);
 			sys_return = system(wipe_command.c_str());
 			count++;
 		}
@@ -340,25 +330,23 @@ namespace EventBuilder {
 	void EVBApp::Convert2FastAnalyzedRoot() 
 	{
 		int sys_return;
-		std::string sortroot_dir = m_workspace+"/analyzed/";
-		std::string unpack_dir = m_workspace+"/temp_binary/";
-		std::string binary_dir = m_workspace+"/raw_binary/";
-		EVB_INFO("Converting binary archives to analyzed fast event built ROOT files over run range [{0}, {1}]",m_rmin,m_rmax);
+		std::string sortroot_dir = m_params.workspaceDir+"/analyzed/";
+		std::string unpack_dir = m_params.workspaceDir+"/temp_binary/";
+		std::string binary_dir = m_params.workspaceDir+"/raw_binary/";
+		EVB_INFO("Converting binary archives to analyzed fast event built ROOT files over run range [{0}, {1}]",m_params.runMin,m_params.runMax);
 		
-		grabber.SetSearchParams(binary_dir,"",".tar.gz",m_rmin,m_rmax);
+		grabber.SetSearchParams(binary_dir,"",".tar.gz",m_params.runMin,m_params.runMax);
 	
 		std::string sortfile, binfile;
 		std::string unpack_command, wipe_command;
 	
-		CompassRun converter(unpack_dir);
-		converter.SetShiftMap(m_shiftfile);
-		converter.SetScalerInput(m_scalerfile);
+		CompassRun converter(m_params);
 		converter.SetProgressCallbackFunc(m_progressCallback);
 		converter.SetProgressFraction(m_progressFraction);
 	
 		EVB_INFO("Beginning conversion...");
 		int count=0;
-		for(int i=m_rmin; i<=m_rmax; i++) 
+		for(int i=m_params.runMin; i<=m_params.runMax; i++) 
 		{
 			binfile = grabber.GrabFile(i);
 			if(binfile == "") 
@@ -371,7 +359,7 @@ namespace EventBuilder {
 			wipe_command = "rm -r "+unpack_dir+"*.BIN";
 	
 			sys_return = system(unpack_command.c_str());
-			converter.Convert2FastAnalyzedRoot(sortfile, m_mapfile, m_SlowWindow, m_FastWindowSABRE, m_FastWindowIonCh, m_ZT, m_AT, m_ZP, m_AP, m_ZE, m_AE, m_BKE, m_B, m_Theta);
+			converter.Convert2FastAnalyzedRoot(sortfile);
 			sys_return = system(wipe_command.c_str());
 			count++;
 		}
@@ -380,35 +368,5 @@ namespace EventBuilder {
 		else
 			EVB_INFO("Conversion complete.");
 	}
-	
-	bool EVBApp::SetKinematicParameters(int zt, int at, int zp, int ap, int ze, int ae, double b, double theta, double bke) 
-	{
-	
-		if((at + ap - ae) < 0 || (zt + zp - ze) < 0) 
-		{
-			EVB_WARN("Invalid kinematic parameters, nucleon number not conserved! Parameters not set");
-			return false;
-		}
-		m_ZT = zt; m_AT = at; m_ZP = zp; m_AP = ap; m_ZE = ze; m_AE = ae;
-		m_B = b; m_Theta = theta; m_BKE = bke;
-	
-		m_ZR = (zt + zp - ze);
-		m_AR = (at + ap - ae);
-
-		EVB_TRACE("Kinematic paramters updated.");
-	
-		return true;
-	}
-
-
-	void EVBApp::SetRunRange(int rmin, int rmax) { EVB_TRACE("Min Run, max run set to [{0}, {1}]", rmin, rmax); m_rmin = rmin; m_rmax = rmax; }
-	void EVBApp::SetWorkDirectory(const std::string& fullpath) { EVB_TRACE("Workspace set to {0}", fullpath); m_workspace = fullpath; }
-	void EVBApp::SetChannelMap(const std::string& name) { EVB_TRACE("Channel map set to {0}",name); m_mapfile = name; }
-	void EVBApp::SetBoardShiftFile(const std::string& name) { EVB_TRACE("Shift file set to {0}", name); m_shiftfile = name; }
-	void EVBApp::SetSlowCoincidenceWindow(double window) { EVB_TRACE("Slow Coincidence Window set to {0}",window); m_SlowWindow = window; }
-	void EVBApp::SetFastWindowIonChamber(double window) { EVB_TRACE("Fast Coinc. Window Ion Ch. set to {0}",window); m_FastWindowIonCh = window; }
-	void EVBApp::SetFastWindowSABRE(double window) { EVB_TRACE("Fast Coinc. Window SABRE set to {0}",window); m_FastWindowSABRE = window; }
-	void EVBApp::SetCutList(const std::string& name) { EVB_TRACE("Cut List set  to {0}", name); m_cutList = name; }
-	void EVBApp::SetScalerFile(const std::string& fullpath) { EVB_TRACE("Scaler file set to {0}", fullpath); m_scalerfile = fullpath; }
 
 }

@@ -42,6 +42,8 @@ target_sources(EventBuilderCore PRIVATE
     MassLookup.cpp
     SFPAnalyzer.cpp
     SlowSort.h
+    EVBWorkspace.cpp
+    EVBWorkspace.h
 )
 
 target_link_libraries(EventBuilderCore PUBLIC

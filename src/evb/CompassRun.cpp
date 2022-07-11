@@ -16,18 +16,14 @@
 #include "FastSort.h"
 #include "SFPAnalyzer.h"
 #include "FlagHandler.h"
+#include "EVBApp.h"
 
 namespace EventBuilder {
-	
-	CompassRun::CompassRun() :
-		m_directory(""), m_scalerinput(""), m_runNum(0), m_scaler_flag(false), m_progressFraction(0.1)
+
+	CompassRun::CompassRun(const EVBParameters& params) :
+		m_params(params)
 	{
-	}
-	
-	CompassRun::CompassRun(const std::string& dir) :
-		m_directory(dir), m_scalerinput(""), m_runNum(0), m_scaler_flag(false), m_progressFraction(0.1)
-	{
-	
+		m_tempDir = m_params.workspaceDir / "temp_binary";
 	}
 	
 	CompassRun::~CompassRun() {}
@@ -36,7 +32,7 @@ namespace EventBuilder {
 	/*Load em into a map*/
 	void CompassRun::SetScalers() 
 	{
-		std::ifstream input(m_scalerinput);
+		std::ifstream input(m_params.scalerFile);
 		if(!input.is_open()) 
 			return;
 	
@@ -49,7 +45,7 @@ namespace EventBuilder {
 		while(input>>filename) 
 		{
 			input>>varname;
-			filename = m_directory+filename+"_run_"+std::to_string(m_runNum)+".BIN";
+			filename = m_tempDir.string()+filename+"_run_"+std::to_string(m_runNum)+".BIN";
 			m_scaler_map[filename] = TParameter<Long64_t>(varname.c_str(), init);
 		}
 		input.close();
@@ -214,7 +210,7 @@ namespace EventBuilder {
 		output->Close();
 	}
 	
-	void CompassRun::Convert2SortedRoot(const std::string& name, const std::string& mapfile, double window) 
+	void CompassRun::Convert2SortedRoot(const std::string& name) 
 	{
 		TFile* output = TFile::Open(name.c_str(), "RECREATE");
 		TTree* outtree = new TTree("SortTree", "SortTree");
@@ -237,7 +233,7 @@ namespace EventBuilder {
 		unsigned int count = 0, flush = m_totalHits*m_progressFraction, flush_count = 0;
 	
 		startIndex = 0;
-		SlowSort coincidizer(window, mapfile);
+		SlowSort coincidizer(m_params.slowCoincidenceWindow, m_params.channelMapFile);
 		bool killFlag = false;
 		if(flush == 0) 
 			flush = 1;
@@ -276,7 +272,7 @@ namespace EventBuilder {
 		output->Close();
 	}
 	
-	void CompassRun::Convert2FastSortedRoot(const std::string& name, const std::string& mapfile, double window, double fsi_window, double fic_window) 
+	void CompassRun::Convert2FastSortedRoot(const std::string& name) 
 	{
 		TFile* output = TFile::Open(name.c_str(), "RECREATE");
 		TTree* outtree = new TTree("SortTree", "SortTree");
@@ -301,8 +297,8 @@ namespace EventBuilder {
 		startIndex = 0;
 		CoincEvent this_event;
 		std::vector<CoincEvent> fast_events;
-		SlowSort coincidizer(window, mapfile);
-		FastSort speedyCoincidizer(fsi_window, fic_window);
+		SlowSort coincidizer(m_params.slowCoincidenceWindow, m_params.channelMapFile);
+		FastSort speedyCoincidizer(m_params.fastCoincidenceWindowSABRE, m_params.fastCoincidenceWindowIonCh);
 	
 		FlagHandler flagger;
 	
@@ -355,8 +351,7 @@ namespace EventBuilder {
 	}
 	
 	
-	void CompassRun::Convert2SlowAnalyzedRoot(const std::string& name, const std::string& mapfile, double window,
-										  int zt, int at, int zp, int ap, int ze, int ae, double bke, double b, double theta) 
+	void CompassRun::Convert2SlowAnalyzedRoot(const std::string& name) 
 	{
 	
 		TFile* output = TFile::Open(name.c_str(), "RECREATE");
@@ -381,20 +376,20 @@ namespace EventBuilder {
 	
 		startIndex = 0;
 		CoincEvent this_event;
-		SlowSort coincidizer(window, mapfile);
-		SFPAnalyzer analyzer(zt, at, zp, ap, ze, ae, bke, theta, b);
+		SlowSort coincidizer(m_params.slowCoincidenceWindow, m_params.channelMapFile);
+		SFPAnalyzer analyzer(m_params.ZT, m_params.AT, m_params.ZP, m_params.AP, m_params.ZE, m_params.AE, m_params.beamEnergy, m_params.spsAngle, m_params.BField);
 	
 		std::vector<TParameter<Double_t>> parvec;
 		parvec.reserve(9);
-		parvec.emplace_back("ZT", zt);
-		parvec.emplace_back("AT", at);
-		parvec.emplace_back("ZP", zp);
-		parvec.emplace_back("AP", ap);
-		parvec.emplace_back("ZE", ze);
-		parvec.emplace_back("AE", ae);
-		parvec.emplace_back("Bfield", b);
-		parvec.emplace_back("BeamKE", bke);
-		parvec.emplace_back("Theta", theta);
+		parvec.emplace_back("ZT", m_params.ZT);
+		parvec.emplace_back("AT", m_params.AT);
+		parvec.emplace_back("ZP", m_params.ZP);
+		parvec.emplace_back("AP", m_params.AP);
+		parvec.emplace_back("ZE", m_params.ZE);
+		parvec.emplace_back("AE", m_params.AE);
+		parvec.emplace_back("Bfield", m_params.BField);
+		parvec.emplace_back("BeamKE", m_params.beamEnergy);
+		parvec.emplace_back("Theta", m_params.spsAngle);
 	
 		bool killFlag = false;
 		if(flush == 0) 
@@ -443,8 +438,7 @@ namespace EventBuilder {
 		output->Close();
 	}
 	
-	void CompassRun::Convert2FastAnalyzedRoot(const std::string& name, const std::string& mapfile, double window, double fsi_window, double fic_window,
-										  int zt, int at, int zp, int ap, int ze, int ae, double bke, double b, double theta) 
+	void CompassRun::Convert2FastAnalyzedRoot(const std::string& name) 
 	{
 	
 		TFile* output = TFile::Open(name.c_str(), "RECREATE");
@@ -470,21 +464,21 @@ namespace EventBuilder {
 		startIndex = 0;
 		CoincEvent this_event;
 		std::vector<CoincEvent> fast_events;
-		SlowSort coincidizer(window, mapfile);
-		FastSort speedyCoincidizer(fsi_window, fic_window);
-		SFPAnalyzer analyzer(zt, at, zp, ap, ze, ae, bke, theta, b);
+		SlowSort coincidizer(m_params.slowCoincidenceWindow, m_params.channelMapFile);
+		FastSort speedyCoincidizer(m_params.fastCoincidenceWindowSABRE, m_params.fastCoincidenceWindowIonCh);
+		SFPAnalyzer analyzer(m_params.ZT, m_params.AT, m_params.ZP, m_params.AP, m_params.ZE, m_params.AE, m_params.beamEnergy, m_params.spsAngle, m_params.BField);
 	
 		std::vector<TParameter<Double_t>> parvec;
 		parvec.reserve(9);
-		parvec.emplace_back("ZT", zt);
-		parvec.emplace_back("AT", at);
-		parvec.emplace_back("ZP", zp);
-		parvec.emplace_back("AP", ap);
-		parvec.emplace_back("ZE", ze);
-		parvec.emplace_back("AE", ae);
-		parvec.emplace_back("Bfield", b);
-		parvec.emplace_back("BeamKE", bke);
-		parvec.emplace_back("Theta", theta);
+		parvec.emplace_back("ZT", m_params.ZT);
+		parvec.emplace_back("AT", m_params.AT);
+		parvec.emplace_back("ZP", m_params.ZP);
+		parvec.emplace_back("AP", m_params.AP);
+		parvec.emplace_back("ZE", m_params.ZE);
+		parvec.emplace_back("AE", m_params.AE);
+		parvec.emplace_back("Bfield", m_params.BField);
+		parvec.emplace_back("BeamKE", m_params.beamEnergy);
+		parvec.emplace_back("Theta", m_params.spsAngle);
 	
 		FlagHandler flagger;
 	
