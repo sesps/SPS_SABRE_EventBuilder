@@ -12,11 +12,11 @@ cmake ..
 make
 ```
 
-To clone the repository use `git clone --recursive https://github.com/sesps/SPS_SABRE_EventBuilder.git`. If you're using the devel branch be sure to specify this with the `--branch` flag. The recursive flag is important; this tells github to pull all submodules associated with the repository. 
+To clone the repository use `git clone --recursive https://github.com/sesps/SPS_SABRE_EventBuilder.git`. The recursive flag is important; this tells github to pull all submodules associated with the repository. 
 
 The binaries are installed to the `bin` directory of the event builder, and should be run from the event builder directory (i.e. `./bin/EventBuilderGui`).
 
-In general, one should only build for Release (this is the default), for maximum optimization. However, it can be useful to run in Debug (change the cmake command to `cmake -DCMAKE_BUILD_TYPE_DEBUG ..`) when testing new features.
+In general, one should only build for Release (this is the default), for maximum optimization. However, it can be useful to run in Debug (change the cmake command to `cmake -DCMAKE_BUILD_TYPE=Debug ..`) when testing new features.
 
 ## EventBuilder vs. EventBuilderGui
 There are two programs provided. They are `EventBuilderGui` and `EventBuilder`. The first is a full GUI version of the event builder. The GUI supports all conversion methods and the plotting tool.
@@ -90,6 +90,6 @@ size (again center the peak on 0, the width of the peak becomes the fast window)
 Currently the pipeline supports declaring individual digitizer channels as scalers. These channels will be used a pure counting measures. To make a channel a scaler, put the CoMPASS formated name of the channel and board (check the given etc/ScalerFile.txt for an example) in a text file along with a parameter name for the scaler to be saved as. These files are then processed outside of the event building loop, which can greatly increase the computational speed. Future versions will include scaler rates as well.
 
 ## System Requirements
-- Requires ROOT version which supports CMake dictionary generation
-- Requires CMake > 3.16
+- Requires ROOT >= 6.22.04 for C++17 support
+- Requires CMake > 3.16 for pch suport
 - This version is for data from CAEN CoMPASS > 2.0. Data from older CoMPASS versions are not compatible.
