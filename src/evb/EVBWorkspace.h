@@ -6,36 +6,45 @@ namespace EventBuilder {
     class EVBWorkspace
     {
     public:
-        EVBWorkspace(const std::filesystem::path& workspace);
+        EVBWorkspace(const std::string& workspace);
         ~EVBWorkspace();
 
         inline const bool IsValid() const { return m_isValid; }
 
-        inline std::filesystem::path GetBinaryDir() const { return m_binaryDir; }
-        inline std::filesystem::path GetTempDir() const { return m_tempDir; }
-        inline std::filesystem::path GetSortedDir() const { return m_sortedDir; }
-        inline std::filesystem::path GetBuiltDir() const { return m_builtDir; }
-        inline std::filesystem::path GetAnalyzedDir() const { return m_analyzedDir; }
-        inline std::filesystem::path GetHistogramDir() const { return m_histogramDir; }
-        inline std::filesystem::path GetCutDir() const { return m_cutDir; }
+        inline std::string GetBinaryDir() const { return m_binaryDir; }
+        inline std::string GetTempDir() const { return m_tempDir; }
+        inline std::string GetSortedDir() const { return m_sortedDir; }
+        inline std::string GetBuiltDir() const { return m_builtDir; }
+        inline std::string GetAnalyzedDir() const { return m_analyzedDir; }
+        inline std::string GetHistogramDir() const { return m_histogramDir; }
+        inline std::string GetCutDir() const { return m_cutDir; }
+        inline std::string GetMergedDir() const { return m_mergedDir; }
 
         std::vector<std::string> GetBinaryRunRange(int runMin, int runMax);
-        std::string GetBinaryRun(int run);
+        std::vector<std::string> GetAnalyzedRunRange(int runMin, int runMax);
+        
+        bool UnpackBinaryRunToTemp(int run); //Currently Linux/MacOS only. Windows support to come.
         std::vector<std::string> GetTempFiles();
+        bool ClearTempDirectory();
+        //Maybe offload to another class? Idk. Feel like EVBWorkspace shouldn't know about ROOT
+        bool MergeAnalyzedFiles(const std::string& outputname, int runMin, int runMax);
 
     private:
         void Init();
+        std::string GetBinaryRun(int run);
+        std::string GetAnalyzedRun(int run);
         bool m_isValid;
 
-        std::filesystem::path m_workspace;
+        std::string m_workspace;
 
-        std::filesystem::path m_binaryDir;
-        std::filesystem::path m_tempDir;
-        std::filesystem::path m_sortedDir;
-        std::filesystem::path m_builtDir;
-        std::filesystem::path m_analyzedDir;
-        std::filesystem::path m_histogramDir;
-        std::filesystem::path m_cutDir;
+        std::string m_binaryDir;
+        std::string m_tempDir;
+        std::string m_sortedDir;
+        std::string m_builtDir;
+        std::string m_analyzedDir;
+        std::string m_histogramDir;
+        std::string m_cutDir;
+        std::string m_mergedDir;
     };
 }
 

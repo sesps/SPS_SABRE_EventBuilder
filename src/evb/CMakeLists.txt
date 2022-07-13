@@ -44,6 +44,7 @@ target_sources(EventBuilderCore PRIVATE
     SlowSort.h
     EVBWorkspace.cpp
     EVBWorkspace.h
+    EVBParameters.h
 )
 
 target_link_libraries(EventBuilderCore PUBLIC

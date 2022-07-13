@@ -1,4 +1,3 @@
-#include "EventBuilder.h"
 #include "FastSort.h"
 
 namespace EventBuilder {

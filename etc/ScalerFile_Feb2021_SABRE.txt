@@ -1,4 +1,3 @@
 Format: scaler_param_name assoc_binary_file_name_without_runID
 NOTE: As of this version, scalers are pure counting parameters (the total events will be counted and saved as a TParameter with the data)
-CH0@V1730_89_Data t1
-CH5@V1730_89_Data t2
+Data_CH5@V1730_89 beamint

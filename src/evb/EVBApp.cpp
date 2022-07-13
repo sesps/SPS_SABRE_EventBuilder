@@ -6,20 +6,15 @@
 
 	Written by G.W. McCann Oct. 2020
 */
-#include "EventBuilder.h"
 #include <cstdlib>
 #include "EVBApp.h"
-#include "RunCollector.h"
 #include "CompassRun.h"
-#include "SlowSort.h"
-#include "FastSort.h"
-#include "SFPAnalyzer.h"
 #include "SFPPlotter.h"
 
 namespace EventBuilder {
 	
 	EVBApp::EVBApp() :
-		m_progressFraction(0.1)
+		m_workspace(nullptr), m_progressFraction(0.1)
 	{
 		SetProgressCallbackFunc(BIND_PROGRESS_CALLBACK_FUNCTION(EVBApp::DefaultProgressCallback));
 	}
@@ -32,6 +27,18 @@ namespace EventBuilder {
 	{
 		double fraction = ((double)curVal)/totalVal;
 		EVB_INFO("Percent of run built: {0}", fraction*100);
+	}
+
+	void EVBApp::SetParameters(const EVBParameters& params)
+	{
+		if(m_params.workspaceDir != params.workspaceDir)
+		{
+			m_workspace.reset(new EVBWorkspace(params.workspaceDir));
+			if(!m_workspace->IsValid())
+				EVB_ERROR("Unable to process new parameters due to bad workspace");
+		}
+
+		m_params = params;
 	}
 
 	bool EVBApp::ReadConfigFile(const std::string& fullpath) 
@@ -47,6 +54,12 @@ namespace EventBuilder {
 	
 		std::getline(input, junk);
 		input>>junk>>m_params.workspaceDir;
+		m_workspace.reset(new EVBWorkspace(m_params.workspaceDir)); //frees underlying and sets to new pointer
+		if(!m_workspace->IsValid())
+		{
+			EVB_ERROR("Unable to process input configuration due to bad workspace.");
+			return false;
+		}
 		input>>junk;
 		std::getline(input, junk);
 		std::getline(input, junk);
@@ -126,8 +139,12 @@ namespace EventBuilder {
 	
 	void EVBApp::PlotHistograms() 
 	{
-		std::string analyze_dir = m_params.workspaceDir+"/analyzed/";
-		std::string plot_file = m_params.workspaceDir+"/histograms/run_"+std::to_string(m_params.runMin)+"_"+std::to_string(m_params.runMax)+".root";
+		if(m_workspace == nullptr || !m_workspace->IsValid())
+		{
+			EVB_ERROR("Unable to preform event building request due to bad workspace.");
+		}
+
+		std::string plot_file = m_workspace->GetHistogramDir()+"run_"+std::to_string(m_params.runMin)+"_"+std::to_string(m_params.runMax)+".root";
 		SFPPlotter grammer;
 		grammer.SetProgressCallbackFunc(m_progressCallback);
 		grammer.SetProgressFraction(m_progressFraction);
@@ -135,10 +152,10 @@ namespace EventBuilder {
 		EVB_INFO("Generating histograms from analyzed runs [{0}, {1}] with Cut List {2}...", m_params.runMin, m_params.runMax, m_params.cutListFile);
 		EVB_INFO("Output file will be named {0}",plot_file);
 	
-		grabber.SetSearchParams(analyze_dir, "", ".root", m_params.runMin, m_params.runMax);
-		if(grabber.GrabFilesInRange()) 
+		auto files = m_workspace->GetAnalyzedRunRange(m_params.runMin, m_params.runMax);
+		if(files.size() > 0) 
 		{
-			grammer.Run(grabber.GetFileList(), plot_file);
+			grammer.Run(files, plot_file);
 			EVB_INFO("Finished.");
 		} 
 		else 
@@ -149,54 +166,56 @@ namespace EventBuilder {
 	
 	void EVBApp::Convert2RawRoot() 
 	{
-		int sys_return;
-		std::string rawroot_dir = m_params.workspaceDir+"/raw_root/";
-		std::string unpack_dir = m_params.workspaceDir+"/temp_binary/";
-		std::string binary_dir = m_params.workspaceDir+"/raw_binary/";
-		EVB_INFO("Converting binary archives to ROOT files over run range [{0}, {1}]",m_params.runMin,m_params.runMax);
+		if(m_workspace == nullptr || !m_workspace->IsValid())
+		{
+			EVB_ERROR("Unable to preform event building request due to bad workspace.");
+		}
+
+		std::string rawroot_dir = m_workspace->GetSortedDir();
+		EVB_INFO("Converting binary archives to ROOT files over run range [{0}, {1}]", m_params.runMin, m_params.runMax);
 	
-		grabber.SetSearchParams(binary_dir, "", ".tar.gz",0,1000);
+		std::string rawfile;
 	
-		std::string rawfile, binfile;
-		std::string unpack_command, wipe_command;
-	
-		CompassRun converter(m_params);
+		CompassRun converter(m_params, m_workspace);
 		converter.SetProgressCallbackFunc(m_progressCallback);
 		converter.SetProgressFraction(m_progressFraction);
 	
 		EVB_INFO("Beginning conversion...");
+		int count = 0;
 		for(int i=m_params.runMin; i<=m_params.runMax; i++) 
 		{
-			binfile = grabber.GrabFile(i);
-			if(binfile == "") 
-				continue;
-			converter.SetRunNumber(i);
-			EVB_INFO("Converting file {0}...", binfile);
 			rawfile = rawroot_dir + "compass_run_"+ std::to_string(i) + ".root";
-			unpack_command = "tar -xzf "+binfile+" --directory "+unpack_dir;
-			wipe_command = "rm -r "+unpack_dir+"*.BIN";
-	
-			sys_return = system(unpack_command.c_str());
-			converter.Convert2RawRoot(rawfile);
-			sys_return = system(wipe_command.c_str());
-	
+			EVB_INFO("Converting file {0}...", rawfile);
+			m_workspace->ClearTempDirectory(); //In case something weird happened
+			if(m_workspace->UnpackBinaryRunToTemp(i))
+			{
+				converter.SetRunNumber(i);
+				converter.Convert2RawRoot(rawfile);
+				++count;
+			}
+			m_workspace->ClearTempDirectory();
 		}
-		EVB_INFO("Conversion complete.");
+
+		if(count != 0)
+			EVB_INFO("Conversion complete.");
+		else
+			EVB_WARN("Nothing converted, no files found in the range [{0}, {1}]", m_params.runMin, m_params.runMax);
 	}
 	
 	void EVBApp::MergeROOTFiles() 
 	{
-		std::string merge_file = m_params.workspaceDir+"/merged/run_"+std::to_string(m_params.runMin)+"_"+std::to_string(m_params.runMax)+".root";
-		std::string file_dir = m_params.workspaceDir.string()+"/analyzed/";
+		if(m_workspace == nullptr || !m_workspace->IsValid())
+		{
+			EVB_ERROR("Unable to preform event building request due to bad workspace.");
+		}
+
+		std::string merge_file = m_workspace->GetMergedDir()+"run_"+std::to_string(m_params.runMin)+"_"+std::to_string(m_params.runMax)+".root";
 		EVB_INFO("Merging ROOT files into single file for runs in range [{0}, {1}]", m_params.runMin, m_params.runMax);
 		EVB_INFO("Merged file will be named {0}", merge_file);
-		std::string prefix = "";
-		std::string suffix = ".root";
-		grabber.SetSearchParams(file_dir, prefix, suffix,m_params.runMin,m_params.runMax);
 		EVB_INFO("Starting merge...");
-		if(!grabber.Merge_TChain(merge_file)) 
+		if(!m_workspace->MergeAnalyzedFiles(merge_file, m_params.runMin, m_params.runMax)) 
 		{
-			EVB_ERROR("Unable to find files for merge at EVBApp::MergeROOTFiles()!");
+			EVB_ERROR("Unable to merge at EVBApp::MergeROOTFiles()!");
 			return;
 		}
 		EVB_INFO("Finished.");
@@ -204,169 +223,157 @@ namespace EventBuilder {
 	
 	void EVBApp::Convert2SortedRoot() 
 	{
-		int sys_return;
-		std::string sortroot_dir = m_params.workspaceDir+"/sorted/";
-		std::string unpack_dir = m_params.workspaceDir+"/temp_binary/";
-		std::string binary_dir = m_params.workspaceDir+"/raw_binary/";
-		EVB_INFO("Converting binary archives to event built ROOT files over run range [{0}, {1}]",m_params.runMin,m_params.runMax);
-	
-		grabber.SetSearchParams(binary_dir,"",".tar.gz",m_params.runMin,m_params.runMax);
-	
-		std::string sortfile, binfile;
-		std::string unpack_command, wipe_command;
-	
-		CompassRun converter(m_params);
-		converter.SetProgressCallbackFunc(m_progressCallback);
-		converter.SetProgressFraction(m_progressFraction);
-	
-		EVB_INFO("Beginning conversion...");
-	
-		int count=0;
-		for(int i=m_params.runMin; i<= m_params.runMax; i++) 
+		if(m_workspace == nullptr || !m_workspace->IsValid())
 		{
-			binfile = grabber.GrabFile(i);
-			if(binfile == "") 
-				continue;
-			converter.SetRunNumber(i);
-			EVB_INFO("Converting file {0}...",binfile);
-	
-			sortfile = sortroot_dir +"run_"+std::to_string(i)+ ".root";
-			unpack_command = "tar -xzf "+binfile+" --directory "+unpack_dir;
-			wipe_command = "rm -r "+unpack_dir+"*.BIN";
-	
-			sys_return = system(unpack_command.c_str());
-			converter.Convert2SortedRoot(sortfile);
-			sys_return = system(wipe_command.c_str());
-			count++;
+			EVB_ERROR("Unable to preform event building request due to bad workspace.");
 		}
-		if(count==0)
-			EVB_WARN("Conversion failed, no archives were found!");
-		else
-			EVB_INFO("Conversion complete.");
-	}
+
+		std::string sortroot_dir = m_workspace->GetBuiltDir();
+		EVB_INFO("Converting binary archives to event built ROOT files over run range [{0}, {1}]", m_params.runMin, m_params.runMax);
 	
-	void EVBApp::Convert2FastSortedRoot() {
-		int sys_return;
-		std::string sortroot_dir = m_params.workspaceDir+"/fast/";
-		std::string unpack_dir = m_params.workspaceDir+"/temp_binary/";
-		std::string binary_dir = m_params.workspaceDir+"/raw_binary/";
-		EVB_INFO("Converting binary archives to fast event built ROOT files over run range [{0}, {1}]",m_params.runMin,m_params.runMax);
-	
-		grabber.SetSearchParams(binary_dir,"",".tar.gz",m_params.runMin,m_params.runMax);
-	
-		std::string sortfile, binfile;
-		std::string unpack_command, wipe_command;
-	
-		CompassRun converter(m_params);
+		std::string sortfile;
+
+		CompassRun converter(m_params, m_workspace);
 		converter.SetProgressCallbackFunc(m_progressCallback);
 		converter.SetProgressFraction(m_progressFraction);
-	
+
 		EVB_INFO("Beginning conversion...");
-		int count=0;
+		int count = 0;
 		for(int i=m_params.runMin; i<=m_params.runMax; i++) 
 		{
-			binfile = grabber.GrabFile(i);
-			if(binfile == "") 
-				continue;
-			converter.SetRunNumber(i);
-			EVB_INFO("Converting file {0}...",binfile);
-	
-			sortfile = sortroot_dir + "run_" + std::to_string(i) + ".root";
-			unpack_command = "tar -xzf "+binfile+" --directory "+unpack_dir;
-			wipe_command = "rm -r "+unpack_dir+"*.BIN";
-	
-			sys_return = system(unpack_command.c_str());
-			converter.Convert2FastSortedRoot(sortfile);
-			sys_return = system(wipe_command.c_str());
-			count++;
+			sortfile = sortroot_dir + "run_"+ std::to_string(i) + ".root";
+			EVB_INFO("Converting file {0}...", sortfile);
+			m_workspace->ClearTempDirectory(); //In case something weird happened
+			if(m_workspace->UnpackBinaryRunToTemp(i))
+			{
+				converter.SetRunNumber(i);
+				converter.Convert2SortedRoot(sortfile);
+				EVB_INFO("Finished converting");
+				++count;
+			}
+			m_workspace->ClearTempDirectory();
 		}
-		if(count==0)
-			EVB_WARN("Conversion failed, no archives were found!");
-		else
+
+		if(count != 0)
 			EVB_INFO("Conversion complete.");
+		else
+			EVB_WARN("Nothing converted, no files found in the range [{0}, {1}]", m_params.runMin, m_params.runMax);
 	}
 	
-	void EVBApp::Convert2SlowAnalyzedRoot() {
-		int sys_return;
-		std::string sortroot_dir = m_params.workspaceDir+"/analyzed/";
-		std::string unpack_dir = m_params.workspaceDir+"/temp_binary/";
-		std::string binary_dir = m_params.workspaceDir+"/raw_binary/";
+	void EVBApp::Convert2FastSortedRoot()
+	{
+		if(m_workspace == nullptr || !m_workspace->IsValid())
+		{
+			EVB_ERROR("Unable to preform event building request due to bad workspace.");
+		}
+
+		std::string sortroot_dir = m_workspace->GetBuiltDir();
+		EVB_INFO("Converting binary archives to fast event built ROOT files over run range [{0}, {1}]", m_params.runMin, m_params.runMax);
+	
+	
+		std::string sortfile;
+	
+		CompassRun converter(m_params, m_workspace);
+		converter.SetProgressCallbackFunc(m_progressCallback);
+		converter.SetProgressFraction(m_progressFraction);
+	
+		EVB_INFO("Beginning conversion...");
+		int count = 0;
+		for(int i=m_params.runMin; i<=m_params.runMax; i++) 
+		{
+			sortfile = sortroot_dir + "run_"+ std::to_string(i) + ".root";
+			EVB_INFO("Converting file {0}...", sortfile);
+			m_workspace->ClearTempDirectory(); //In case something weird happened
+			if(m_workspace->UnpackBinaryRunToTemp(i))
+			{
+				converter.SetRunNumber(i);
+				converter.Convert2FastSortedRoot(sortfile);
+				++count;
+			}
+			m_workspace->ClearTempDirectory();
+		}
+
+		if(count != 0)
+			EVB_INFO("Conversion complete.");
+		else
+			EVB_WARN("Nothing converted, no files found in the range [{0}, {1}]", m_params.runMin, m_params.runMax);
+	}
+	
+	void EVBApp::Convert2SlowAnalyzedRoot()
+	{
+		if(m_workspace == nullptr || !m_workspace->IsValid())
+		{
+			EVB_ERROR("Unable to preform event building request due to bad workspace.");
+		}
+
+		std::string sortroot_dir = m_workspace->GetAnalyzedDir();
 		EVB_INFO("Converting binary archives to analyzed event built ROOT files over run range [{0}, {1}]",m_params.runMin,m_params.runMax);
 
-		grabber.SetSearchParams(binary_dir,"",".tar.gz",m_params.runMin, m_params.runMax);
+		std::string sortfile;
 	
-		std::string sortfile, binfile;
-		std::string unpack_command, wipe_command;
-	
-		CompassRun converter(m_params);
+		CompassRun converter(m_params, m_workspace);
 		converter.SetProgressCallbackFunc(m_progressCallback);
 		converter.SetProgressFraction(m_progressFraction);
-	
+
 		EVB_INFO("Beginning conversion...");
-		int count=0;
+		int count = 0;
 		for(int i=m_params.runMin; i<=m_params.runMax; i++) 
 		{
-			binfile = grabber.GrabFile(i);
-			if(binfile == "") 
-				continue;
-			converter.SetRunNumber(i);
-			EVB_INFO("Converting file {0}...",binfile);
-	
-			sortfile = sortroot_dir + "run_" + std::to_string(i) + ".root";
-			unpack_command = "tar -xzf "+binfile+" --directory "+unpack_dir;
-			wipe_command = "rm -r "+unpack_dir+"*.BIN";
-	
-			sys_return = system(unpack_command.c_str());
-			converter.Convert2SlowAnalyzedRoot(sortfile);
-			sys_return = system(wipe_command.c_str());
-			count++;
+			sortfile = sortroot_dir + "run_"+ std::to_string(i) + ".root";
+			EVB_INFO("Converting file {0}...", sortfile);
+			m_workspace->ClearTempDirectory(); //In case something weird happened
+			if(m_workspace->UnpackBinaryRunToTemp(i))
+			{
+				converter.SetRunNumber(i);
+				converter.Convert2SlowAnalyzedRoot(sortfile);
+				++count;
+			}
+			m_workspace->ClearTempDirectory();
 		}
-		if(count==0)
-			EVB_WARN("Conversion failed, no archives were found!");
-		else
+
+		if(count != 0)
 			EVB_INFO("Conversion complete.");
+		else
+			EVB_WARN("Nothing converted, no files found in the range [{0}, {1}]", m_params.runMin, m_params.runMax);
 	}
 	
 	void EVBApp::Convert2FastAnalyzedRoot() 
 	{
-		int sys_return;
-		std::string sortroot_dir = m_params.workspaceDir+"/analyzed/";
-		std::string unpack_dir = m_params.workspaceDir+"/temp_binary/";
-		std::string binary_dir = m_params.workspaceDir+"/raw_binary/";
+		if(m_workspace == nullptr || !m_workspace->IsValid())
+		{
+			EVB_ERROR("Unable to preform event building request due to bad workspace.");
+		}
+
+		std::string sortroot_dir = m_workspace->GetAnalyzedDir();
 		EVB_INFO("Converting binary archives to analyzed fast event built ROOT files over run range [{0}, {1}]",m_params.runMin,m_params.runMax);
 		
-		grabber.SetSearchParams(binary_dir,"",".tar.gz",m_params.runMin,m_params.runMax);
 	
-		std::string sortfile, binfile;
-		std::string unpack_command, wipe_command;
+		std::string sortfile;
 	
-		CompassRun converter(m_params);
+		CompassRun converter(m_params, m_workspace);
 		converter.SetProgressCallbackFunc(m_progressCallback);
 		converter.SetProgressFraction(m_progressFraction);
-	
+
 		EVB_INFO("Beginning conversion...");
-		int count=0;
+		int count = 0;
 		for(int i=m_params.runMin; i<=m_params.runMax; i++) 
 		{
-			binfile = grabber.GrabFile(i);
-			if(binfile == "") 
-				continue;
-			converter.SetRunNumber(i);
-			EVB_INFO("Converting file {0}...",binfile);
-	
-			sortfile = sortroot_dir + "run_" + std::to_string(i) + ".root";
-			unpack_command = "tar -xzf "+binfile+" --directory "+unpack_dir;
-			wipe_command = "rm -r "+unpack_dir+"*.BIN";
-	
-			sys_return = system(unpack_command.c_str());
-			converter.Convert2FastAnalyzedRoot(sortfile);
-			sys_return = system(wipe_command.c_str());
-			count++;
+			sortfile = sortroot_dir + "run_"+ std::to_string(i) + ".root";
+			EVB_INFO("Converting file {0}...", sortfile);
+			m_workspace->ClearTempDirectory(); //In case something weird happened
+			if(m_workspace->UnpackBinaryRunToTemp(i))
+			{
+				converter.SetRunNumber(i);
+				converter.Convert2FastAnalyzedRoot(sortfile);
+				++count;
+			}
+			m_workspace->ClearTempDirectory();
 		}
-		if(count==0)
-			EVB_WARN("Conversion failed, no archives were found!");
-		else
+
+		if(count != 0)
 			EVB_INFO("Conversion complete.");
+		else
+			EVB_WARN("Nothing converted, no files found in the range [{0}, {1}]", m_params.runMin, m_params.runMax);
 	}
 
 }

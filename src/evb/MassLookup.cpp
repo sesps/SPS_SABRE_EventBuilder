@@ -8,7 +8,6 @@ of this map (MASS) for use throughout code it is included into.
 Written by G.W. McCann Aug. 2020
 
 */
-#include "EventBuilder.h"
 #include "MassLookup.h"
 
 namespace EventBuilder {

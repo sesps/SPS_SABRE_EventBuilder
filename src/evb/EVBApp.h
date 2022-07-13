@@ -9,37 +9,11 @@
 #ifndef EVBAPP_H
 #define EVBAPP_H
 
-#include "RunCollector.h"
+#include "EVBParameters.h"
+#include "EVBWorkspace.h"
 #include "ProgressCallback.h"
 
 namespace EventBuilder {
-
-	struct EVBParameters
-	{
-		std::filesystem::path workspaceDir = "";
-		std::filesystem::path channelMapFile = "";
-		std::filesystem::path timeShiftFile = "";
-		std::filesystem::path cutListFile = "";
-		std::filesystem::path scalerFile = "";
-
-		int runMin = 0;
-		int runMax = 0;
-
-		double slowCoincidenceWindow = 3.0e6;
-		double fastCoincidenceWindowIonCh = 0.0;
-		double fastCoincidenceWindowSABRE = 0.0;
-
-		int ZT = 6;
-		int AT = 12;
-		int ZP = 1;
-		int AP = 2;
-		int ZE = 1;
-		int AE = 1;
-
-		double BField = 7.8; //kG
-		double spsAngle = 15.0; //degrees
-		double beamEnergy = 16.0; //MeV
-	};
 	
 	class EVBApp {
 	public:
@@ -52,13 +26,13 @@ namespace EventBuilder {
 	
 		void PlotHistograms();
 		void MergeROOTFiles();
+		void Convert2RawRoot();
 		void Convert2SortedRoot();
 		void Convert2FastSortedRoot();
-		void Convert2RawRoot();
 		void Convert2SlowAnalyzedRoot();
 		void Convert2FastAnalyzedRoot();
 	
-		inline void SetParameters(const EVBParameters& params) { m_params = params; }
+		void SetParameters(const EVBParameters& params);
 		inline EVBParameters& GetParameters() { return m_params; }
 
 		void DefaultProgressCallback(long curVal, long totalVal);
@@ -78,7 +52,7 @@ namespace EventBuilder {
 	
 	private:
 		EVBParameters m_params;
-		RunCollector grabber;
+		std::shared_ptr<EVBWorkspace> m_workspace;
 		double m_progressFraction;
 		ProgressCallbackFunc m_progressCallback;
 	

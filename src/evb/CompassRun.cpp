@@ -9,9 +9,7 @@
 
 	Updated to also handle scaler data. -- GWM Oct. 2020
 */
-#include "EventBuilder.h"
 #include "CompassRun.h"
-#include "RunCollector.h"
 #include "SlowSort.h"
 #include "FastSort.h"
 #include "SFPAnalyzer.h"
@@ -20,10 +18,10 @@
 
 namespace EventBuilder {
 
-	CompassRun::CompassRun(const EVBParameters& params) :
-		m_params(params)
+	CompassRun::CompassRun(const EVBParameters& params, const std::shared_ptr<EVBWorkspace>& workspace) :
+		m_params(params), m_workspace(workspace)
 	{
-		m_tempDir = m_params.workspaceDir / "temp_binary";
+		m_smap.SetFile(m_params.timeShiftFile);
 	}
 	
 	CompassRun::~CompassRun() {}
@@ -45,7 +43,7 @@ namespace EventBuilder {
 		while(input>>filename) 
 		{
 			input>>varname;
-			filename = m_tempDir.string()+filename+"_run_"+std::to_string(m_runNum)+".BIN";
+			filename = m_workspace->GetTempDir()+filename+"_run_"+std::to_string(m_runNum)+".BIN";
 			m_scaler_map[filename] = TParameter<Long64_t>(varname.c_str(), init);
 		}
 		input.close();
@@ -53,17 +51,14 @@ namespace EventBuilder {
 	
 	bool CompassRun::GetBinaryFiles() 
 	{
-		std::string prefix = "";
-		std::string suffix = ".BIN"; //binaries
-		RunCollector grabber(m_directory, prefix, suffix);
-		grabber.GrabAllFiles();
-	
+		auto files = m_workspace->GetTempFiles();
+
 		m_datafiles.clear(); //so that the CompassRun can be reused
-		m_datafiles.reserve(grabber.GetFileList().size());
+		m_datafiles.reserve(files.size()); //NOTE: This line is mandatory. We need the memory preallocated to avoid any move semantics with the filestreams.
 		bool scalerd;
 		m_totalHits = 0; //reset total run size
 	
-		for(auto& entry : grabber.GetFileList()) 
+		for(auto& entry : files) 
 		{
 			//Handle scaler files, if they exist
 			if(m_scaler_flag) 
@@ -132,9 +127,10 @@ namespace EventBuilder {
 		std::pair<CompassHit, bool*> earliestHit = std::make_pair(CompassHit(), nullptr);
 		for(unsigned int i=startIndex; i<m_datafiles.size(); i++) 
 		{
-			if(m_datafiles[i].CheckHitHasBeenUsed()) 
+			if(m_datafiles[i].CheckHitHasBeenUsed())
+			{
 				m_datafiles[i].GetNextHit();
-	
+			}
 			if(m_datafiles[i].IsEOF()) 
 			{
 				if(i == startIndex)
@@ -254,12 +250,13 @@ namespace EventBuilder {
 			} 
 			else
 				coincidizer.AddHitToEvent(hit);
-	
+
 			if(coincidizer.IsEventReady()) 
 			{
 				event = coincidizer.GetEvent();
 				outtree->Fill();
-				if(killFlag) break;
+				if(killFlag)
+					break;
 			}
 		}
 	

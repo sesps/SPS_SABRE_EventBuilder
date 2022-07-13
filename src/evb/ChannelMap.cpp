@@ -6,7 +6,6 @@
 
 	Written by G.W. McCann Oct. 2020
 */
-#include "EventBuilder.h"
 #include "ChannelMap.h"
 
 namespace EventBuilder {

@@ -12,20 +12,19 @@
 
 #include "CompassFile.h"
 #include "DataStructs.h"
-#include "RunCollector.h"
 #include "ShiftMap.h"
 #include "ProgressCallback.h"
+#include "EVBWorkspace.h"
+#include "EVBParameters.h"
 #include <TParameter.h>
 
 namespace EventBuilder {
 	
-	struct EVBParameters; //Foward decl to avoid recursive includes
-
 	class CompassRun 
 	{
 	
 	public:
-		CompassRun(const EVBParameters& params);
+		CompassRun(const EVBParameters& params, const std::shared_ptr<EVBWorkspace>& workspace);
 		~CompassRun();
 		inline void SetRunNumber(int n) { m_runNum = n; }
 		void Convert2RawRoot(const std::string& name);
@@ -44,7 +43,7 @@ namespace EventBuilder {
 		void ReadScalerData(const std::string& filename);
 
 		EVBParameters m_params;
-		std::filesystem::path m_tempDir;
+		std::shared_ptr<EVBWorkspace> m_workspace;
 	
 		std::vector<CompassFile> m_datafiles;
 		unsigned int startIndex; //this is the file we start looking at; increases as we finish files.
