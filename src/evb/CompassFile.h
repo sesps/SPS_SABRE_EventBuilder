@@ -35,7 +35,6 @@ namespace EventBuilder {
 		inline bool CheckHitHasBeenUsed() const { return m_hitUsedFlag; } //query to find out if we've used the current hit
 		inline void SetHitHasBeenUsed() { m_hitUsedFlag = true; } //flip the flag to indicate the current hit has been used
 		inline bool IsEOF() const { return m_eofFlag; } //see if we've read all available data
-		inline bool* GetUsedFlagPtr() { return &m_hitUsedFlag; }
 		inline void AttachShiftMap(ShiftMap* map) { m_smap = map; }
 		inline unsigned int GetSize() const { return m_size; }
 		inline unsigned int GetNumberOfHits() const { return m_nHits; }

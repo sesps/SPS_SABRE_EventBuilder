@@ -50,10 +50,8 @@ namespace EventBuilder {
 		ShiftMap m_smap;
 		std::unordered_map<std::string, TParameter<Long64_t>> m_scaler_map; //maps scaler files to the TParameter to be saved
 	
-		//Potential branch variables
-		CompassHit hit;
-		CoincEvent event;
-		ProcessedEvent pevent;
+		//Raw hit
+		CompassHit m_hit;
 	
 		//what run is this
 		int m_runNum;

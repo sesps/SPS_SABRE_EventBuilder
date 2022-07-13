@@ -114,43 +114,35 @@ namespace EventBuilder {
 	
 	/*
 		GetHitsFromFiles() is the function which actually retrieves and sorts the data from the individual
-		files. There are several tricks which allow this to happen. First is that, after sorting, it is impossible
-		to determine which file the data originally came from (short of parsing the name of the file against board/channel).
-		However, we need to let the file know that we want it to pull the next hit. To do this, a pointer to the UsedFlag of the file
-		is retrieved along with the data. This flag is flipped so that on the next hit cycle a new hit is pulled. Second is the use
-		of a rolling start index. Once a file has gone EOF, we no longer need it. If this is the first file in the list, we can just skip
+		files. Once a file has gone EOF, we no longer need it. If this is the first file in the list, we can just skip
 		that index all together. In this way, the loop can go from N times to N-1 times.
 	*/
 	bool CompassRun::GetHitsFromFiles() 
 	{
 	
-		std::pair<CompassHit, bool*> earliestHit = std::make_pair(CompassHit(), nullptr);
+		//std::pair<CompassHit, bool*> earliestHit = std::make_pair(CompassHit(), nullptr);
+		CompassFile* earliestHit = nullptr;
 		for(unsigned int i=startIndex; i<m_datafiles.size(); i++) 
 		{
 			if(m_datafiles[i].CheckHitHasBeenUsed())
-			{
 				m_datafiles[i].GetNextHit();
-			}
+
 			if(m_datafiles[i].IsEOF()) 
 			{
 				if(i == startIndex)
 					startIndex++;
 				continue;
-			} 
-			else if(i == startIndex) 
-			{
-				earliestHit = std::make_pair(m_datafiles[i].GetCurrentHit(), m_datafiles[i].GetUsedFlagPtr());
-			} 
-			else if(m_datafiles[i].GetCurrentHit().timestamp < earliestHit.first.timestamp) 
-			{
-				earliestHit = std::make_pair(m_datafiles[i].GetCurrentHit(), m_datafiles[i].GetUsedFlagPtr());
 			}
+			else if(i == startIndex) //start with first in the list
+				earliestHit = &m_datafiles[i];
+			else if(m_datafiles[i].GetCurrentHit().timestamp < earliestHit->GetCurrentHit().timestamp) //if earlier
+				earliestHit = &m_datafiles[i];
 		}
 	
-		if(earliestHit.second == nullptr) 
+		if(earliestHit == nullptr) 
 			return false; //Make sure that there actually was a hit
-		hit = earliestHit.first;
-		*earliestHit.second = true;
+		m_hit = earliestHit->GetCurrentHit();
+		earliestHit->SetHitHasBeenUsed();
 		return true;
 	}
 	
@@ -158,12 +150,12 @@ namespace EventBuilder {
 		TFile* output = TFile::Open(name.c_str(), "RECREATE");
 		TTree* outtree = new TTree("Data", "Data");
 	
-		outtree->Branch("Board", &hit.board);
-		outtree->Branch("Channel", &hit.channel);
-		outtree->Branch("Energy", &hit.energy);
-		outtree->Branch("EnergyShort", &hit.energyShort);
-		outtree->Branch("Timestamp", &hit.timestamp);
-		outtree->Branch("Flags", &hit.flags);
+		outtree->Branch("Board", &m_hit.board);
+		outtree->Branch("Channel", &m_hit.channel);
+		outtree->Branch("Energy", &m_hit.energy);
+		outtree->Branch("EnergyShort", &m_hit.energyShort);
+		outtree->Branch("Timestamp", &m_hit.timestamp);
+		outtree->Branch("Flags", &m_hit.flags);
 	
 		if(!m_smap.IsValid()) 
 		{
@@ -211,6 +203,7 @@ namespace EventBuilder {
 		TFile* output = TFile::Open(name.c_str(), "RECREATE");
 		TTree* outtree = new TTree("SortTree", "SortTree");
 	
+		CoincEvent event;
 		outtree->Branch("event", &event);
 	
 		if(!m_smap.IsValid()) 
@@ -249,7 +242,7 @@ namespace EventBuilder {
 				killFlag = true;
 			} 
 			else
-				coincidizer.AddHitToEvent(hit);
+				coincidizer.AddHitToEvent(m_hit);
 
 			if(coincidizer.IsEventReady()) 
 			{
@@ -274,6 +267,7 @@ namespace EventBuilder {
 		TFile* output = TFile::Open(name.c_str(), "RECREATE");
 		TTree* outtree = new TTree("SortTree", "SortTree");
 	
+		CoincEvent event;
 		outtree->Branch("event", &event);
 	
 		if(!m_smap.IsValid()) 
@@ -319,8 +313,8 @@ namespace EventBuilder {
 			} 
 			else 
 			{
-				flagger.CheckFlag(hit.board, hit.channel, hit.flags);
-				coincidizer.AddHitToEvent(hit);
+				flagger.CheckFlag(m_hit.board, m_hit.channel, m_hit.flags);
+				coincidizer.AddHitToEvent(m_hit);
 			}
 	
 			if(coincidizer.IsEventReady()) 
@@ -354,6 +348,7 @@ namespace EventBuilder {
 		TFile* output = TFile::Open(name.c_str(), "RECREATE");
 		TTree* outtree = new TTree("SPSTree", "SPSTree");
 	
+		ProcessedEvent pevent;
 		outtree->Branch("event", &pevent);
 	
 		if(!m_smap.IsValid()) 
@@ -408,7 +403,7 @@ namespace EventBuilder {
 			} 
 			else 
 			{
-				coincidizer.AddHitToEvent(hit);
+				coincidizer.AddHitToEvent(m_hit);
 			}
 	
 			if(coincidizer.IsEventReady()) 
@@ -441,6 +436,7 @@ namespace EventBuilder {
 		TFile* output = TFile::Open(name.c_str(), "RECREATE");
 		TTree* outtree = new TTree("SPSTree", "SPSTree");
 	
+		ProcessedEvent pevent;
 		outtree->Branch("event", &pevent);
 	
 		if(!m_smap.IsValid()) 
@@ -499,8 +495,8 @@ namespace EventBuilder {
 			} 
 			else 
 			{
-				flagger.CheckFlag(hit.board, hit.channel, hit.flags);
-				coincidizer.AddHitToEvent(hit);
+				flagger.CheckFlag(m_hit.board, m_hit.channel, m_hit.flags);
+				coincidizer.AddHitToEvent(m_hit);
 			}
 	
 			if(coincidizer.IsEventReady()) 
