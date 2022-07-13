@@ -136,7 +136,7 @@ EVBMainFrame::EVBMainFrame(const TGWindow* p, UInt_t w, UInt_t h) :
 	beamFrame->AddFrame(bkelabel, lhints);
 	beamFrame->AddFrame(fBKEField, fhints);
 	TGHorizontalFrame* bfFrame = new TGHorizontalFrame(extraFrame, w*0.175, h*0.15);
-	TGLabel *bfieldlabel = new TGLabel(bfFrame, "B-Field (G):");
+	TGLabel *bfieldlabel = new TGLabel(bfFrame, "B-Field (kG):");
 	fBField = new TGNumberEntryField(bfFrame, BField, 0, TGNumberEntry::kNESRealFour, TGNumberEntry::kNEANonNegative);
 	bfFrame->AddFrame(bfieldlabel, lhints);
 	bfFrame->AddFrame(fBField, fhints);

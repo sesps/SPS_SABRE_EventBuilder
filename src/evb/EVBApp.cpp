@@ -10,6 +10,7 @@
 #include "EVBApp.h"
 #include "CompassRun.h"
 #include "SFPPlotter.h"
+#include "yaml-cpp/yaml.h"
 
 namespace EventBuilder {
 	
@@ -44,51 +45,44 @@ namespace EventBuilder {
 	bool EVBApp::ReadConfigFile(const std::string& fullpath) 
 	{
 		EVB_INFO("Reading in EVB configuration from file {0}...", fullpath);
-		std::ifstream input(fullpath);
-		if(!input.is_open()) 
+		YAML::Node data;
+		try
 		{
-			EVB_WARN("Read of EVB config failed, unable to open input file!");
+			data = YAML::LoadFile(fullpath);
+		}
+		catch(YAML::ParserException& e)
+		{
+			EVB_ERROR("Read of EVB config failed, unable to open input file!");
 			return false;
 		}
-		std::string junk;
+		m_params.workspaceDir = data["WorkspaceDir"].as<std::string>();
+		m_params.channelMapFile = data["ChannelMap"].as<std::string>();
+		m_params.scalerFile = data["ScalerFile"].as<std::string>();
+		m_params.cutListFile = data["CutListFile"].as<std::string>();
+		m_params.timeShiftFile = data["TimeShiftFile"].as<std::string>();
+		m_params.slowCoincidenceWindow = data["SlowCoincidenceWindow(ps)"].as<double>();
+		m_params.fastCoincidenceWindowIonCh = data["FastCoincidenceWinowIonCh(ps)"].as<double>();
+		m_params.fastCoincidenceWindowSABRE = data["FastCoincidenceWinowSABRE(ps)"].as<double>();
+		m_params.ZT = data["ZT"].as<int>();
+		m_params.AT = data["AT"].as<int>();
+		m_params.ZP = data["ZP"].as<int>();
+		m_params.AP = data["AP"].as<int>();
+		m_params.ZE = data["ZE"].as<int>();
+		m_params.AE = data["AE"].as<int>();
+		m_params.BField = data["BField(kG)"].as<double>();
+		m_params.beamEnergy = data["BeamEnergy(MeV)"].as<double>();
+		m_params.spsAngle = data["SPSAngle(deg)"].as<double>();
+		m_params.runMin = data["MinRun"].as<int>();
+		m_params.runMax = data["MaxRun"].as<int>();
 	
-		std::getline(input, junk);
-		input>>junk>>m_params.workspaceDir;
-		m_workspace.reset(new EVBWorkspace(m_params.workspaceDir)); //frees underlying and sets to new pointer
+		EVB_INFO("Successfully loaded EVB config.");
+	
+		m_workspace.reset(new EVBWorkspace(m_params.workspaceDir));
 		if(!m_workspace->IsValid())
 		{
 			EVB_ERROR("Unable to process input configuration due to bad workspace.");
 			return false;
 		}
-		input>>junk;
-		std::getline(input, junk);
-		std::getline(input, junk);
-		input>>junk>>m_params.channelMapFile;
-		input>>junk>>m_params.scalerFile;
-		input>>junk>>m_params.cutListFile;
-		input>>junk>>m_params.ZT>>junk>>m_params.AT;
-		input>>junk>>m_params.ZP>>junk>>m_params.AP;
-		input>>junk>>m_params.ZE>>junk>>m_params.AE;
-		input>>junk>>m_params.BField;
-		input>>junk>>m_params.beamEnergy;
-		input>>junk>>m_params.spsAngle;
-		input>>junk;
-		std::getline(input, junk);
-		std::getline(input, junk);
-		input>>junk>>m_params.timeShiftFile;
-		input>>junk>>m_params.slowCoincidenceWindow;
-		input>>junk>>m_params.fastCoincidenceWindowIonCh;
-		input>>junk>>m_params.fastCoincidenceWindowSABRE;
-		input>>junk;
-		std::getline(input, junk);
-		std::getline(input, junk);
-		input>>junk>>m_params.runMin;
-		input>>junk>>m_params.runMax;
-	
-		input.close();
-	
-		EVB_INFO("Successfully loaded EVB config.");
-	
 		return true;
 	}
 	
@@ -102,35 +96,32 @@ namespace EventBuilder {
 			EVB_WARN("Failed to write to config to file {0}, unable to open file!", fullpath);
 			return;
 		}
-	
-		output<<"-------Data Location----------"<<std::endl;
-		output<<"WorkspaceDirectory: "<<m_params.workspaceDir<<std::endl;
-		output<<"-------------------------------"<<std::endl;
-		output<<"------Experimental Inputs------"<<std::endl;
-		output<<"ChannelMapFile: "<<m_params.channelMapFile<<std::endl;
-		output<<"ScalerFile: "<<m_params.scalerFile<<std::endl;
-		output<<"CutListFile: "<<m_params.cutListFile<<std::endl;
-		output<<"ZT: "<<m_params.ZT<<std::endl;
-		output<<"AT: "<<m_params.AT<<std::endl;
-		output<<"ZP: "<<m_params.ZP<<std::endl;
-		output<<"AP: "<<m_params.AP<<std::endl;
-		output<<"ZE: "<<m_params.ZE<<std::endl;
-		output<<"AE: "<<m_params.AE<<std::endl;
-		output<<"BField(G): "<<m_params.BField<<std::endl;
-		output<<"BeamKE(MeV): "<<m_params.beamEnergy<<std::endl;
-		output<<"Theta(deg): "<<m_params.spsAngle<<std::endl;
-		output<<"-------------------------------"<<std::endl;
-		output<<"-------Timing Information------"<<std::endl;
-		output<<"BoardOffsetFile: "<<m_params.timeShiftFile<<std::endl;
-		output<<"SlowCoincidenceWindow(ps): "<<m_params.slowCoincidenceWindow<<std::endl;
-		output<<"FastCoincidenceWindow_IonCh(ps): "<<m_params.fastCoincidenceWindowIonCh<<std::endl;
-		output<<"FastCoincidenceWindow_SABRE(ps): "<<m_params.fastCoincidenceWindowSABRE<<std::endl;
-		output<<"-------------------------------"<<std::endl;
-		output<<"--------Run Information--------"<<std::endl;
-		output<<"MinRun: "<<m_params.runMin<<std::endl;
-		output<<"MaxRun: "<<m_params.runMax<<std::endl;
-		output<<"-------------------------------"<<std::endl;
-	
+
+		YAML::Emitter yamlStream;
+		yamlStream << YAML::BeginMap;
+		yamlStream << YAML::Key << "WorkspaceDir" << YAML::Value << m_params.workspaceDir;
+		yamlStream << YAML::Key << "ChannelMap" << YAML::Value << m_params.channelMapFile;
+		yamlStream << YAML::Key << "ScalerFile" << YAML::Value <<  m_params.scalerFile;
+		yamlStream << YAML::Key << "CutListFile" << YAML::Value << m_params.cutListFile;
+		yamlStream << YAML::Key << "TimeShiftFile" << YAML::Value << m_params.timeShiftFile;
+		yamlStream << YAML::Key << "SlowCoincidenceWindow(ps)" << YAML::Value << m_params.slowCoincidenceWindow;
+		yamlStream << YAML::Key << "FastCoincidenceWinowIonCh(ps)" << YAML::Value << m_params.fastCoincidenceWindowIonCh;
+		yamlStream << YAML::Key << "FastCoincidenceWinowSABRE(ps)" << YAML::Value << m_params.fastCoincidenceWindowSABRE;
+		yamlStream << YAML::Key << "ZT" << YAML::Value << m_params.ZT;
+		yamlStream << YAML::Key << "AT" << YAML::Value << m_params.AT;
+		yamlStream << YAML::Key << "ZP" << YAML::Value << m_params.ZP;
+		yamlStream << YAML::Key << "AP" << YAML::Value << m_params.AP;
+		yamlStream << YAML::Key << "ZE" << YAML::Value << m_params.ZE;
+		yamlStream << YAML::Key << "AE" << YAML::Value << m_params.AE;
+		yamlStream << YAML::Key << "BField(kG)" << YAML::Value << m_params.BField;
+		yamlStream << YAML::Key << "BeamEnergy(MeV)" << YAML::Value << m_params.beamEnergy;
+		yamlStream << YAML::Key << "SPSAngle(deg)" << YAML::Value << m_params.spsAngle;
+		yamlStream << YAML::Key << "MinRun" << YAML::Value << m_params.runMin;
+		yamlStream << YAML::Key << "MaxRun" << YAML::Value << m_params.runMax;
+		yamlStream << YAML::EndMap;
+
+		output << yamlStream.c_str();
+		
 		output.close();
 	
 		EVB_INFO("Successfully wrote config to file.");

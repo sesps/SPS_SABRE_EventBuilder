@@ -97,7 +97,5 @@ private:
 
 	int counter;
 	UInt_t MAIN_W, MAIN_H;
-
-
 };
 #endif

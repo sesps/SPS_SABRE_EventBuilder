@@ -19,6 +19,7 @@ objs/
 *.sublime-project
 *.sublime-workspace
 *.make
+*.yaml
 Makefile
 event_log.txt
 .DS_Store
