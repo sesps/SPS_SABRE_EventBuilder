@@ -4,6 +4,7 @@ images/
 build/
 objs/
 .vscode/
+lib/
 
 ###file types to ignore###
 *.swp
