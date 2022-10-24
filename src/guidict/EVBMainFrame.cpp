@@ -29,7 +29,6 @@ EVBMainFrame::EVBMainFrame(const TGWindow* p, UInt_t w, UInt_t h) :
 	TGLabel* workLabel = new TGLabel(WorkFrame, "Workspace Directory:");
 	fWorkField = new TGTextEntry(WorkFrame, new TGTextBuffer(120), WorkDir);
 	fWorkField->Resize(w*0.25, fWorkField->GetDefaultHeight());
-	fWorkField->Connect("ReturnPressed()","EVBMainFrame",this,"UpdateWorkdir()");
 	fOpenWorkButton = new TGTextButton(WorkFrame, "Open");
 	fOpenWorkButton->Connect("Clicked()","EVBMainFrame",this,"DoOpenWorkdir()");
 	WorkFrame->AddFrame(workLabel, lhints);
@@ -40,7 +39,6 @@ EVBMainFrame::EVBMainFrame(const TGWindow* p, UInt_t w, UInt_t h) :
 	TGLabel* cmaplabel = new TGLabel(CMapFrame, "Channel Map File:");
 	fCMapField = new TGTextEntry(CMapFrame, new TGTextBuffer(120), Cmap);
 	fCMapField->Resize(w*0.25, fCMapField->GetDefaultHeight());
-	fCMapField->Connect("ReturnPressed()","EVBMainFrame",this,"UpdateCMap()");
 	fOpenCMapButton = new TGTextButton(CMapFrame, "Open");
 	fOpenCMapButton->Connect("Clicked()","EVBMainFrame",this,"DoOpenCMapfile()");
 	CMapFrame->AddFrame(cmaplabel, lhints);
@@ -51,7 +49,6 @@ EVBMainFrame::EVBMainFrame(const TGWindow* p, UInt_t w, UInt_t h) :
 	TGLabel* smaplabel = new TGLabel(SMapFrame, "Board Shift File:");
 	fSMapField = new TGTextEntry(SMapFrame, new TGTextBuffer(120), Smap);
 	fSMapField->Resize(w*0.25, fSMapField->GetDefaultHeight());
-	fSMapField->Connect("ReturnPressed()","EVBMainFrame",this,"UpdateSMap()");
 	fOpenSMapButton = new TGTextButton(SMapFrame, "Open");
 	fOpenSMapButton->Connect("Clicked()","EVBMainFrame",this,"DoOpenSMapfile()");
 	SMapFrame->AddFrame(smaplabel, lhints);
@@ -61,7 +58,6 @@ EVBMainFrame::EVBMainFrame(const TGWindow* p, UInt_t w, UInt_t h) :
 	TGHorizontalFrame *ScalerFrame = new TGHorizontalFrame(NameFrame, w, h*0.06);
 	TGLabel* sclabel = new TGLabel(ScalerFrame, "Scaler File: ");
 	fScalerField = new TGTextEntry(ScalerFrame, new TGTextBuffer(120), Scaler);
-	fScalerField->Connect("ReturnPressed()","EVBMainFrame",this,"UpdateScaler()");
 	fOpenScalerButton = new TGTextButton(ScalerFrame, "Open");
 	fOpenScalerButton->Connect("Clicked()","EVBMainFrame", this, "DoOpenScalerfile()");
 	ScalerFrame->AddFrame(sclabel, lhints);
@@ -71,7 +67,6 @@ EVBMainFrame::EVBMainFrame(const TGWindow* p, UInt_t w, UInt_t h) :
 	TGHorizontalFrame *CutFrame = new TGHorizontalFrame(NameFrame, w, h*0.06);
 	TGLabel* clabel = new TGLabel(CutFrame, "Cut List: ");
 	fCutField = new TGTextEntry(CutFrame, new TGTextBuffer(120), Cut);
-	fCutField->Connect("ReturnPressed()","EVBMainFrame",this,"UpdateCut()");
 	fOpenCutButton = new TGTextButton(CutFrame, "Open");
 	fOpenCutButton->Connect("Clicked()","EVBMainFrame",this,"DoOpenCutfile()");
 	CutFrame->AddFrame(clabel, lhints);
@@ -141,7 +136,7 @@ EVBMainFrame::EVBMainFrame(const TGWindow* p, UInt_t w, UInt_t h) :
 	beamFrame->AddFrame(bkelabel, lhints);
 	beamFrame->AddFrame(fBKEField, fhints);
 	TGHorizontalFrame* bfFrame = new TGHorizontalFrame(extraFrame, w*0.175, h*0.15);
-	TGLabel *bfieldlabel = new TGLabel(bfFrame, "B-Field (G):");
+	TGLabel *bfieldlabel = new TGLabel(bfFrame, "B-Field (kG):");
 	fBField = new TGNumberEntryField(bfFrame, BField, 0, TGNumberEntry::kNESRealFour, TGNumberEntry::kNEANonNegative);
 	bfFrame->AddFrame(bfieldlabel, lhints);
 	bfFrame->AddFrame(fBField, fhints);
@@ -250,8 +245,8 @@ EVBMainFrame::EVBMainFrame(const TGWindow* p, UInt_t w, UInt_t h) :
 	AddFrame(ParamFrame, new TGLayoutHints(kLHintsCenterX|kLHintsExpandY,5,5,5,5));
 	AddFrame(PBFrame, fpbhints);
 
-	fBuilder.SetProgressCallbackFunc(BIND_PROGRESS_CALLBACK_FUNCTION(EVBMainFrame::SetProgressBarPosition));
-	fBuilder.SetProgressFraction(0.01);
+	m_builder.SetProgressCallbackFunc(BIND_PROGRESS_CALLBACK_FUNCTION(EVBMainFrame::SetProgressBarPosition));
+	m_builder.SetProgressFraction(0.01);
 	SetWindowName("GWM Event Builder");
 	MapSubwindows();
 	Resize();
@@ -291,7 +286,12 @@ void EVBMainFrame::HandleMenuSelection(int id)
 
 void EVBMainFrame::DoOpenWorkdir() 
 {
-	new FileViewFrame(gClient->GetRoot(), this, MAIN_W*0.5, MAIN_H, this, WorkDir);
+	new TGFileDialog(gClient->GetRoot(), this, kDOpen, fInfo);
+	if(fInfo->fFilename)
+	{
+		std::string path_wtrailer = fInfo->fFilename + std::string("/");
+		DisplayWorkdir(path_wtrailer.c_str());
+	}
 }
 
 void EVBMainFrame::DoOpenCMapfile() 
@@ -335,37 +335,37 @@ void EVBMainFrame::DoRun()
 	{
 		case EventBuilder::EVBApp::Operation::Plot :
 		{
-			RunPlot();
+			m_builder.PlotHistograms();
 			break;
 		}
 		case EventBuilder::EVBApp::Operation::Convert :
 		{
-			fBuilder.Convert2RawRoot();
+			m_builder.Convert2RawRoot();
 			break;
 		}
 		case EventBuilder::EVBApp::Operation::Merge :
 		{
-			fBuilder.MergeROOTFiles();
+			m_builder.MergeROOTFiles();
 			break;
 		}
 		case EventBuilder::EVBApp::Operation::ConvertSlow :
 		{
-			fBuilder.Convert2SortedRoot();
+			m_builder.Convert2SortedRoot();
 			break;
 		}
 		case EventBuilder::EVBApp::Operation::ConvertFast :
 		{
-			fBuilder.Convert2FastSortedRoot();
+			m_builder.Convert2FastSortedRoot();
 			break;
 		}
 		case EventBuilder::EVBApp::Operation::ConvertSlowA :
 		{
-			fBuilder.Convert2SlowAnalyzedRoot();
+			m_builder.Convert2SlowAnalyzedRoot();
 			break;
 		}
 		case EventBuilder::EVBApp::Operation::ConvertFastA :
 		{
-			fBuilder.Convert2FastAnalyzedRoot();
+			m_builder.Convert2FastAnalyzedRoot();
 			break;
 		}
 	}
@@ -380,125 +380,96 @@ void EVBMainFrame::HandleTypeSelection(int box, int entry)
 
 bool EVBMainFrame::SetParameters()
 {
-	fBuilder.SetRunRange(fRMinField->GetIntNumber(), fRMaxField->GetIntNumber());
-	fBuilder.SetSlowCoincidenceWindow(fSlowWindowField->GetNumber());
-	fBuilder.SetFastWindowIonChamber(fFastICField->GetNumber());
-	fBuilder.SetFastWindowSABRE(fFastSABREField->GetNumber());
-	UpdateWorkdir();
-	UpdateSMap();
-	UpdateCMap();
-	UpdateScaler();
-	UpdateCut();
-	bool test = fBuilder.SetKinematicParameters(fZTField->GetIntNumber(), fATField->GetIntNumber(),
-												fZPField->GetIntNumber(), fAPField->GetIntNumber(),
-												fZEField->GetIntNumber(), fAEField->GetIntNumber(),
-												fBField->GetNumber(), fThetaField->GetNumber(),
-												fBKEField->GetNumber());
-	return test;
+	m_parameters.runMin = fRMinField->GetIntNumber();
+	m_parameters.runMax = fRMaxField->GetIntNumber();
+	m_parameters.slowCoincidenceWindow = fSlowWindowField->GetNumber();
+	m_parameters.fastCoincidenceWindowIonCh = fFastICField->GetNumber();
+	m_parameters.fastCoincidenceWindowSABRE = fFastSABREField->GetNumber();
+	m_parameters.workspaceDir = fWorkField->GetText();
+	m_parameters.channelMapFile = fCMapField->GetText();
+	m_parameters.scalerFile = fScalerField->GetText();
+	m_parameters.timeShiftFile = fSMapField->GetText();
+	m_parameters.cutListFile = fCutField->GetText();
+	m_parameters.ZT = fZTField->GetIntNumber();
+	m_parameters.AT = fATField->GetIntNumber();
+	m_parameters.ZP = fZPField->GetIntNumber();
+	m_parameters.AP = fAPField->GetIntNumber();
+	m_parameters.ZE = fZEField->GetIntNumber();
+	m_parameters.AE = fAEField->GetIntNumber();
+	m_parameters.BField = fBField->GetNumber();
+	m_parameters.beamEnergy = fBKEField->GetNumber();
+	m_parameters.spsAngle = fThetaField->GetNumber();
+
+	m_builder.SetParameters(m_parameters);
+	return true;
 }
 
 void EVBMainFrame::DisplayWorkdir(const char* dir) 
 {
 	fWorkField->SetText(dir);
-	fBuilder.SetWorkDirectory(dir);
+	SetParameters();
 }
 
 void EVBMainFrame::DisplayCMap(const char* file) 
 {
 	fCMapField->SetText(file);
-	fBuilder.SetChannelMap(file);
+	SetParameters();
 }
 
 void EVBMainFrame::DisplaySMap(const char* file) 
 {
 	fSMapField->SetText(file);
-	fBuilder.SetBoardShiftFile(file);
+	SetParameters();
 }
 
 void EVBMainFrame::DisplayScaler(const char* file) 
 {
 	fScalerField->SetText(file);
-	fBuilder.SetScalerFile(file);
+	SetParameters();
 }
 
 void EVBMainFrame::DisplayCut(const char* file) 
 {
 	fCutField->SetText(file);
-	fBuilder.SetCutList(file);
+	SetParameters();
 }
 
 void EVBMainFrame::SaveConfig(const char* file) 
 {
 	std::string filename = file;
-	fBuilder.WriteConfigFile(filename);
+	m_builder.WriteConfigFile(filename);
 }
 
 void EVBMainFrame::LoadConfig(const char* file) 
 {
 	std::string filename = file;
-	fBuilder.ReadConfigFile(filename);
+	m_builder.ReadConfigFile(filename);
+	m_parameters = m_builder.GetParameters();
 
-	fWorkField->SetText(fBuilder.GetWorkDirectory().c_str());
-	fCMapField->SetText(fBuilder.GetChannelMap().c_str());
-	fSMapField->SetText(fBuilder.GetBoardShiftFile().c_str());
-	fCutField->SetText(fBuilder.GetCutList().c_str());
-	fScalerField->SetText(fBuilder.GetScalerFile().c_str());
+	fWorkField->SetText(m_parameters.workspaceDir.c_str());
+	fCMapField->SetText(m_parameters.channelMapFile.c_str());
+	fSMapField->SetText(m_parameters.timeShiftFile.c_str());
+	fCutField->SetText(m_parameters.cutListFile.c_str());
+	fScalerField->SetText(m_parameters.scalerFile.c_str());
 	
-	fZTField->SetIntNumber(fBuilder.GetTargetZ());
-	fATField->SetIntNumber(fBuilder.GetTargetA());
-	fZPField->SetIntNumber(fBuilder.GetProjectileZ());
-	fAPField->SetIntNumber(fBuilder.GetProjectileA());
-	fZEField->SetIntNumber(fBuilder.GetEjectileZ());
-	fAEField->SetIntNumber(fBuilder.GetEjectileA());
-	fBKEField->SetNumber(fBuilder.GetBeamKE());
-	fBField->SetNumber(fBuilder.GetBField());
-	fThetaField->SetNumber(fBuilder.GetTheta());
+	fZTField->SetIntNumber(m_parameters.ZT);
+	fATField->SetIntNumber(m_parameters.AT);
+	fZPField->SetIntNumber(m_parameters.ZP);
+	fAPField->SetIntNumber(m_parameters.AP);
+	fZEField->SetIntNumber(m_parameters.ZE);
+	fAEField->SetIntNumber(m_parameters.AE);
+	fBKEField->SetNumber(m_parameters.beamEnergy);
+	fBField->SetNumber(m_parameters.BField);
+	fThetaField->SetNumber(m_parameters.spsAngle);
 
-	fSlowWindowField->SetNumber(fBuilder.GetSlowCoincidenceWindow());
-	fFastSABREField->SetNumber(fBuilder.GetFastWindowSABRE());
-	fFastICField->SetNumber(fBuilder.GetFastWindowIonChamber());
+	fSlowWindowField->SetNumber(m_parameters.slowCoincidenceWindow);
+	fFastSABREField->SetNumber(m_parameters.fastCoincidenceWindowSABRE);
+	fFastICField->SetNumber(m_parameters.fastCoincidenceWindowIonCh);
 
-	fRMaxField->SetIntNumber(fBuilder.GetRunMax());
-	fRMinField->SetIntNumber(fBuilder.GetRunMin());
+	fRMaxField->SetIntNumber(m_parameters.runMax);
+	fRMinField->SetIntNumber(m_parameters.runMin);
 
 }
-
-void EVBMainFrame::UpdateWorkdir() 
-{
-	const char* dir = fWorkField->GetText();
-	fBuilder.SetWorkDirectory(dir);
-}
-
-void EVBMainFrame::UpdateSMap() 
-{
-	const char* file = fSMapField->GetText();
-	fBuilder.SetBoardShiftFile(file);
-}
-
-void EVBMainFrame::UpdateCMap() 
-{
-	const char* file = fCMapField->GetText();
-	fBuilder.SetChannelMap(file);
-}
-
-void EVBMainFrame::UpdateScaler() 
-{
-	const char* file = fScalerField->GetText();
-	fBuilder.SetScalerFile(file);
-}
-
-void EVBMainFrame::UpdateCut() 
-{
-	const char* file = fCutField->GetText();
-	fBuilder.SetCutList(file);
-}
-
-void EVBMainFrame::RunPlot() 
-{
-	fBuilder.PlotHistograms();
-}
-
-void EVBMainFrame::RunMerge(const char* file, const char* dir) {}
 
 void EVBMainFrame::DisableAllInput() 
 {

@@ -12,9 +12,10 @@
 
 #include "CompassFile.h"
 #include "DataStructs.h"
-#include "RunCollector.h"
 #include "ShiftMap.h"
 #include "ProgressCallback.h"
+#include "EVBWorkspace.h"
+#include "EVBParameters.h"
 #include <TParameter.h>
 
 namespace EventBuilder {
@@ -23,20 +24,14 @@ namespace EventBuilder {
 	{
 	
 	public:
-		CompassRun();
-		CompassRun(const std::string& dir);
+		CompassRun(const EVBParameters& params, const std::shared_ptr<EVBWorkspace>& workspace);
 		~CompassRun();
-		inline void SetDirectory(const std::string& dir) { m_directory = dir; }
-		inline void SetScalerInput(const std::string& filename) { m_scalerinput = filename; }
 		inline void SetRunNumber(int n) { m_runNum = n; }
-		inline void SetShiftMap(const std::string& filename) { m_smap.SetFile(filename); }
 		void Convert2RawRoot(const std::string& name);
-		void Convert2SortedRoot(const std::string& name, const std::string& mapfile, double window);
-		void Convert2FastSortedRoot(const std::string& name, const std::string& mapfile, double window, double fsi_window, double fic_window);
-		void Convert2SlowAnalyzedRoot(const std::string& name, const std::string& mapfile, double window,
-								  int zt, int at, int zp, int ap, int ze, int ae, double bke, double b, double theta);
-		void Convert2FastAnalyzedRoot(const std::string& name, const std::string& mapfile, double window, double fsi_window, double fic_window,
-								  int zt, int at, int zp, int ap, int ze, int ae, double bke, double b, double theta);
+		void Convert2SortedRoot(const std::string& name);
+		void Convert2FastSortedRoot(const std::string& name);
+		void Convert2SlowAnalyzedRoot(const std::string& name);
+		void Convert2FastAnalyzedRoot(const std::string& name);
 	
 		inline void SetProgressCallbackFunc(const ProgressCallbackFunc& function) { m_progressCallback = function; }
 		inline void SetProgressFraction(double frac) { m_progressFraction = frac; }
@@ -46,17 +41,17 @@ namespace EventBuilder {
 		bool GetHitsFromFiles();
 		void SetScalers();
 		void ReadScalerData(const std::string& filename);
+
+		EVBParameters m_params;
+		std::shared_ptr<EVBWorkspace> m_workspace;
 	
-		std::string m_directory, m_scalerinput;
 		std::vector<CompassFile> m_datafiles;
 		unsigned int startIndex; //this is the file we start looking at; increases as we finish files.
 		ShiftMap m_smap;
 		std::unordered_map<std::string, TParameter<Long64_t>> m_scaler_map; //maps scaler files to the TParameter to be saved
 	
-		//Potential branch variables
-		CompassHit hit;
-		CoincEvent event;
-		ProcessedEvent pevent;
+		//Raw hit
+		CompassHit m_hit;
 	
 		//what run is this
 		int m_runNum;

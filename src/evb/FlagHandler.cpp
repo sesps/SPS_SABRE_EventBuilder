@@ -1,4 +1,3 @@
-#include "EventBuilder.h"
 #include "FlagHandler.h"
 
 namespace EventBuilder {

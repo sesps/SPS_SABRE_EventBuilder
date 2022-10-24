@@ -9,25 +9,19 @@
 
 	Updated to also handle scaler data. -- GWM Oct. 2020
 */
-#include "EventBuilder.h"
 #include "CompassRun.h"
-#include "RunCollector.h"
 #include "SlowSort.h"
 #include "FastSort.h"
 #include "SFPAnalyzer.h"
 #include "FlagHandler.h"
+#include "EVBApp.h"
 
 namespace EventBuilder {
-	
-	CompassRun::CompassRun() :
-		m_directory(""), m_scalerinput(""), m_runNum(0), m_scaler_flag(false), m_progressFraction(0.1)
+
+	CompassRun::CompassRun(const EVBParameters& params, const std::shared_ptr<EVBWorkspace>& workspace) :
+		m_params(params), m_workspace(workspace)
 	{
-	}
-	
-	CompassRun::CompassRun(const std::string& dir) :
-		m_directory(dir), m_scalerinput(""), m_runNum(0), m_scaler_flag(false), m_progressFraction(0.1)
-	{
-	
+		m_smap.SetFile(m_params.timeShiftFile);
 	}
 	
 	CompassRun::~CompassRun() {}
@@ -36,7 +30,7 @@ namespace EventBuilder {
 	/*Load em into a map*/
 	void CompassRun::SetScalers() 
 	{
-		std::ifstream input(m_scalerinput);
+		std::ifstream input(m_params.scalerFile);
 		if(!input.is_open()) 
 			return;
 	
@@ -49,7 +43,7 @@ namespace EventBuilder {
 		while(input>>filename) 
 		{
 			input>>varname;
-			filename = m_directory+filename+"_run_"+std::to_string(m_runNum)+".BIN";
+			filename = m_workspace->GetTempDir()+filename+"_run_"+std::to_string(m_runNum)+".BIN";
 			m_scaler_map[filename] = TParameter<Long64_t>(varname.c_str(), init);
 		}
 		input.close();
@@ -57,17 +51,14 @@ namespace EventBuilder {
 	
 	bool CompassRun::GetBinaryFiles() 
 	{
-		std::string prefix = "";
-		std::string suffix = ".BIN"; //binaries
-		RunCollector grabber(m_directory, prefix, suffix);
-		grabber.GrabAllFiles();
-	
+		auto files = m_workspace->GetTempFiles();
+
 		m_datafiles.clear(); //so that the CompassRun can be reused
-		m_datafiles.reserve(grabber.GetFileList().size());
+		m_datafiles.reserve(files.size()); //NOTE: This line is mandatory. We need the memory preallocated to avoid any move semantics with the filestreams.
 		bool scalerd;
 		m_totalHits = 0; //reset total run size
 	
-		for(auto& entry : grabber.GetFileList()) 
+		for(auto& entry : files) 
 		{
 			//Handle scaler files, if they exist
 			if(m_scaler_flag) 
@@ -123,42 +114,35 @@ namespace EventBuilder {
 	
 	/*
 		GetHitsFromFiles() is the function which actually retrieves and sorts the data from the individual
-		files. There are several tricks which allow this to happen. First is that, after sorting, it is impossible
-		to determine which file the data originally came from (short of parsing the name of the file against board/channel).
-		However, we need to let the file know that we want it to pull the next hit. To do this, a pointer to the UsedFlag of the file
-		is retrieved along with the data. This flag is flipped so that on the next hit cycle a new hit is pulled. Second is the use
-		of a rolling start index. Once a file has gone EOF, we no longer need it. If this is the first file in the list, we can just skip
+		files. Once a file has gone EOF, we no longer need it. If this is the first file in the list, we can just skip
 		that index all together. In this way, the loop can go from N times to N-1 times.
 	*/
 	bool CompassRun::GetHitsFromFiles() 
 	{
 	
-		std::pair<CompassHit, bool*> earliestHit = std::make_pair(CompassHit(), nullptr);
+		//std::pair<CompassHit, bool*> earliestHit = std::make_pair(CompassHit(), nullptr);
+		CompassFile* earliestHit = nullptr;
 		for(unsigned int i=startIndex; i<m_datafiles.size(); i++) 
 		{
-			if(m_datafiles[i].CheckHitHasBeenUsed()) 
+			if(m_datafiles[i].CheckHitHasBeenUsed())
 				m_datafiles[i].GetNextHit();
-	
+
 			if(m_datafiles[i].IsEOF()) 
 			{
 				if(i == startIndex)
 					startIndex++;
 				continue;
-			} 
-			else if(i == startIndex) 
-			{
-				earliestHit = std::make_pair(m_datafiles[i].GetCurrentHit(), m_datafiles[i].GetUsedFlagPtr());
-			} 
-			else if(m_datafiles[i].GetCurrentHit().timestamp < earliestHit.first.timestamp) 
-			{
-				earliestHit = std::make_pair(m_datafiles[i].GetCurrentHit(), m_datafiles[i].GetUsedFlagPtr());
 			}
+			else if(i == startIndex) //start with first in the list
+				earliestHit = &m_datafiles[i];
+			else if(m_datafiles[i].GetCurrentHit().timestamp < earliestHit->GetCurrentHit().timestamp) //if earlier
+				earliestHit = &m_datafiles[i];
 		}
 	
-		if(earliestHit.second == nullptr) 
+		if(earliestHit == nullptr) 
 			return false; //Make sure that there actually was a hit
-		hit = earliestHit.first;
-		*earliestHit.second = true;
+		m_hit = earliestHit->GetCurrentHit();
+		earliestHit->SetHitHasBeenUsed();
 		return true;
 	}
 	
@@ -166,12 +150,12 @@ namespace EventBuilder {
 		TFile* output = TFile::Open(name.c_str(), "RECREATE");
 		TTree* outtree = new TTree("Data", "Data");
 	
-		outtree->Branch("Board", &hit.board);
-		outtree->Branch("Channel", &hit.channel);
-		outtree->Branch("Energy", &hit.energy);
-		outtree->Branch("EnergyShort", &hit.energyShort);
-		outtree->Branch("Timestamp", &hit.timestamp);
-		outtree->Branch("Flags", &hit.flags);
+		outtree->Branch("Board", &m_hit.board);
+		outtree->Branch("Channel", &m_hit.channel);
+		outtree->Branch("Energy", &m_hit.energy);
+		outtree->Branch("EnergyShort", &m_hit.energyShort);
+		outtree->Branch("Timestamp", &m_hit.timestamp);
+		outtree->Branch("Flags", &m_hit.flags);
 	
 		if(!m_smap.IsValid()) 
 		{
@@ -214,11 +198,12 @@ namespace EventBuilder {
 		output->Close();
 	}
 	
-	void CompassRun::Convert2SortedRoot(const std::string& name, const std::string& mapfile, double window) 
+	void CompassRun::Convert2SortedRoot(const std::string& name) 
 	{
 		TFile* output = TFile::Open(name.c_str(), "RECREATE");
 		TTree* outtree = new TTree("SortTree", "SortTree");
 	
+		CoincEvent event;
 		outtree->Branch("event", &event);
 	
 		if(!m_smap.IsValid()) 
@@ -237,7 +222,7 @@ namespace EventBuilder {
 		unsigned int count = 0, flush = m_totalHits*m_progressFraction, flush_count = 0;
 	
 		startIndex = 0;
-		SlowSort coincidizer(window, mapfile);
+		SlowSort coincidizer(m_params.slowCoincidenceWindow, m_params.channelMapFile);
 		bool killFlag = false;
 		if(flush == 0) 
 			flush = 1;
@@ -257,13 +242,14 @@ namespace EventBuilder {
 				killFlag = true;
 			} 
 			else
-				coincidizer.AddHitToEvent(hit);
-	
+				coincidizer.AddHitToEvent(m_hit);
+
 			if(coincidizer.IsEventReady()) 
 			{
 				event = coincidizer.GetEvent();
 				outtree->Fill();
-				if(killFlag) break;
+				if(killFlag)
+					break;
 			}
 		}
 	
@@ -276,11 +262,12 @@ namespace EventBuilder {
 		output->Close();
 	}
 	
-	void CompassRun::Convert2FastSortedRoot(const std::string& name, const std::string& mapfile, double window, double fsi_window, double fic_window) 
+	void CompassRun::Convert2FastSortedRoot(const std::string& name) 
 	{
 		TFile* output = TFile::Open(name.c_str(), "RECREATE");
 		TTree* outtree = new TTree("SortTree", "SortTree");
 	
+		CoincEvent event;
 		outtree->Branch("event", &event);
 	
 		if(!m_smap.IsValid()) 
@@ -301,8 +288,8 @@ namespace EventBuilder {
 		startIndex = 0;
 		CoincEvent this_event;
 		std::vector<CoincEvent> fast_events;
-		SlowSort coincidizer(window, mapfile);
-		FastSort speedyCoincidizer(fsi_window, fic_window);
+		SlowSort coincidizer(m_params.slowCoincidenceWindow, m_params.channelMapFile);
+		FastSort speedyCoincidizer(m_params.fastCoincidenceWindowSABRE, m_params.fastCoincidenceWindowIonCh);
 	
 		FlagHandler flagger;
 	
@@ -326,8 +313,8 @@ namespace EventBuilder {
 			} 
 			else 
 			{
-				flagger.CheckFlag(hit.board, hit.channel, hit.flags);
-				coincidizer.AddHitToEvent(hit);
+				flagger.CheckFlag(m_hit.board, m_hit.channel, m_hit.flags);
+				coincidizer.AddHitToEvent(m_hit);
 			}
 	
 			if(coincidizer.IsEventReady()) 
@@ -355,13 +342,13 @@ namespace EventBuilder {
 	}
 	
 	
-	void CompassRun::Convert2SlowAnalyzedRoot(const std::string& name, const std::string& mapfile, double window,
-										  int zt, int at, int zp, int ap, int ze, int ae, double bke, double b, double theta) 
+	void CompassRun::Convert2SlowAnalyzedRoot(const std::string& name) 
 	{
 	
 		TFile* output = TFile::Open(name.c_str(), "RECREATE");
 		TTree* outtree = new TTree("SPSTree", "SPSTree");
 	
+		ProcessedEvent pevent;
 		outtree->Branch("event", &pevent);
 	
 		if(!m_smap.IsValid()) 
@@ -381,20 +368,20 @@ namespace EventBuilder {
 	
 		startIndex = 0;
 		CoincEvent this_event;
-		SlowSort coincidizer(window, mapfile);
-		SFPAnalyzer analyzer(zt, at, zp, ap, ze, ae, bke, theta, b);
+		SlowSort coincidizer(m_params.slowCoincidenceWindow, m_params.channelMapFile);
+		SFPAnalyzer analyzer(m_params.ZT, m_params.AT, m_params.ZP, m_params.AP, m_params.ZE, m_params.AE, m_params.beamEnergy, m_params.spsAngle, m_params.BField);
 	
 		std::vector<TParameter<Double_t>> parvec;
 		parvec.reserve(9);
-		parvec.emplace_back("ZT", zt);
-		parvec.emplace_back("AT", at);
-		parvec.emplace_back("ZP", zp);
-		parvec.emplace_back("AP", ap);
-		parvec.emplace_back("ZE", ze);
-		parvec.emplace_back("AE", ae);
-		parvec.emplace_back("Bfield", b);
-		parvec.emplace_back("BeamKE", bke);
-		parvec.emplace_back("Theta", theta);
+		parvec.emplace_back("ZT", m_params.ZT);
+		parvec.emplace_back("AT", m_params.AT);
+		parvec.emplace_back("ZP", m_params.ZP);
+		parvec.emplace_back("AP", m_params.AP);
+		parvec.emplace_back("ZE", m_params.ZE);
+		parvec.emplace_back("AE", m_params.AE);
+		parvec.emplace_back("Bfield", m_params.BField);
+		parvec.emplace_back("BeamKE", m_params.beamEnergy);
+		parvec.emplace_back("Theta", m_params.spsAngle);
 	
 		bool killFlag = false;
 		if(flush == 0) 
@@ -416,7 +403,7 @@ namespace EventBuilder {
 			} 
 			else 
 			{
-				coincidizer.AddHitToEvent(hit);
+				coincidizer.AddHitToEvent(m_hit);
 			}
 	
 			if(coincidizer.IsEventReady()) 
@@ -443,13 +430,13 @@ namespace EventBuilder {
 		output->Close();
 	}
 	
-	void CompassRun::Convert2FastAnalyzedRoot(const std::string& name, const std::string& mapfile, double window, double fsi_window, double fic_window,
-										  int zt, int at, int zp, int ap, int ze, int ae, double bke, double b, double theta) 
+	void CompassRun::Convert2FastAnalyzedRoot(const std::string& name) 
 	{
 	
 		TFile* output = TFile::Open(name.c_str(), "RECREATE");
 		TTree* outtree = new TTree("SPSTree", "SPSTree");
 	
+		ProcessedEvent pevent;
 		outtree->Branch("event", &pevent);
 	
 		if(!m_smap.IsValid()) 
@@ -470,21 +457,21 @@ namespace EventBuilder {
 		startIndex = 0;
 		CoincEvent this_event;
 		std::vector<CoincEvent> fast_events;
-		SlowSort coincidizer(window, mapfile);
-		FastSort speedyCoincidizer(fsi_window, fic_window);
-		SFPAnalyzer analyzer(zt, at, zp, ap, ze, ae, bke, theta, b);
+		SlowSort coincidizer(m_params.slowCoincidenceWindow, m_params.channelMapFile);
+		FastSort speedyCoincidizer(m_params.fastCoincidenceWindowSABRE, m_params.fastCoincidenceWindowIonCh);
+		SFPAnalyzer analyzer(m_params.ZT, m_params.AT, m_params.ZP, m_params.AP, m_params.ZE, m_params.AE, m_params.beamEnergy, m_params.spsAngle, m_params.BField);
 	
 		std::vector<TParameter<Double_t>> parvec;
 		parvec.reserve(9);
-		parvec.emplace_back("ZT", zt);
-		parvec.emplace_back("AT", at);
-		parvec.emplace_back("ZP", zp);
-		parvec.emplace_back("AP", ap);
-		parvec.emplace_back("ZE", ze);
-		parvec.emplace_back("AE", ae);
-		parvec.emplace_back("Bfield", b);
-		parvec.emplace_back("BeamKE", bke);
-		parvec.emplace_back("Theta", theta);
+		parvec.emplace_back("ZT", m_params.ZT);
+		parvec.emplace_back("AT", m_params.AT);
+		parvec.emplace_back("ZP", m_params.ZP);
+		parvec.emplace_back("AP", m_params.AP);
+		parvec.emplace_back("ZE", m_params.ZE);
+		parvec.emplace_back("AE", m_params.AE);
+		parvec.emplace_back("Bfield", m_params.BField);
+		parvec.emplace_back("BeamKE", m_params.beamEnergy);
+		parvec.emplace_back("Theta", m_params.spsAngle);
 	
 		FlagHandler flagger;
 	
@@ -508,8 +495,8 @@ namespace EventBuilder {
 			} 
 			else 
 			{
-				flagger.CheckFlag(hit.board, hit.channel, hit.flags);
-				coincidizer.AddHitToEvent(hit);
+				flagger.CheckFlag(m_hit.board, m_hit.channel, m_hit.flags);
+				coincidizer.AddHitToEvent(m_hit);
 			}
 	
 			if(coincidizer.IsEventReady()) 

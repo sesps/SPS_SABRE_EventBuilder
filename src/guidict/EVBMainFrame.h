@@ -1,6 +1,7 @@
 #ifndef EVBMAINFRAME_H
 #define EVBMAINFRAME_H
 
+#include "../EventBuilder.h"
 #include <TGClient.h>
 #include <TGWindow.h>
 #include <TGFrame.h>
@@ -38,13 +39,6 @@ public:
 	void DisplayCut(const char* file);
 	void SaveConfig(const char* file);
 	void LoadConfig(const char* file);
-	void UpdateWorkdir();
-	void UpdateCMap();
-	void UpdateSMap();
-	void UpdateScaler();
-	void UpdateCut();
-	void RunPlot();
-	void RunMerge(const char* dir, const char* file);
 	void DisableAllInput();
 	void EnableAllInput();
 	void SetProgressBarPosition(long value, long total);
@@ -98,11 +92,10 @@ private:
 
 	TGFileInfo* fInfo;
 
-	EventBuilder::EVBApp fBuilder;
+	EventBuilder::EVBApp m_builder;
+	EventBuilder::EVBParameters m_parameters;
 
 	int counter;
 	UInt_t MAIN_W, MAIN_H;
-
-
 };
 #endif

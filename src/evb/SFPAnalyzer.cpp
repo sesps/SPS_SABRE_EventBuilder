@@ -9,7 +9,6 @@
  *
  * Position calibrations swapped as of Aug. 2021 due to detector fixes -- GWM
  */
-#include "EventBuilder.h"
 #include "SFPAnalyzer.h"
 
 namespace EventBuilder {
@@ -18,7 +17,7 @@ namespace EventBuilder {
 	SFPAnalyzer::SFPAnalyzer(int zt, int at, int zp, int ap, int ze, int ae, double ep,
 								double angle, double b) 
 	{
-		zfp = Delta_Z(zt, at, zp, ap, ze, ae, ep, angle, b);
+		zfp = Delta_Z(zt, at, zp, ap, ze, ae, ep, angle, b*1000.0); //Convert kG to G
 		event_address = new CoincEvent();
 		rootObj = new THashTable();
 		GetWeights();

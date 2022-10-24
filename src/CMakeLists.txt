@@ -1,6 +1,6 @@
 add_subdirectory(spsdict)
-add_subdirectory(guidict)
 add_subdirectory(evb)
+add_subdirectory(guidict)
 
 
 add_executable(EventBuilder)

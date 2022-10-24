@@ -17,4 +17,5 @@ find_package(ROOT REQUIRED COMPONENTS Gui)
 set(EVB_BINARY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 set(EVB_LIBRARY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 
+add_subdirectory(vendor/yaml-cpp)
 add_subdirectory(src)
