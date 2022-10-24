@@ -27,6 +27,7 @@ For more information see the [wiki](https://github.com/sesps/SPS_SABRE_EventBuil
 Additionally, check the [FAQ](https://github.com/sesps/SPS_SABRE_EventBuilder/wiki/FAQ) if you're having trouble with something.
 
 ## System Requirements
-- Requires ROOT version which supports CMake dictionary generation
+- Requires C++17
+- Requires ROOT version which supports CMake dictionary generation and is C++17 compatible
 - Requires CMake >= 3.16
 - This version is for data from CAEN CoMPASS >= 2.0. Data from older CoMPASS versions are not compatible.
