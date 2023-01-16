@@ -130,9 +130,11 @@ namespace EventBuilder {
         std::vector<std::string> list;
         std::string temp;
         for(int run=runMin; run<=runMax; run++)
+        {   
             temp = GetAnalyzedRun(run);
             if(!temp.empty())
                 list.push_back(temp);
+        }
 
         return list;
     }
