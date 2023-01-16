@@ -191,7 +191,7 @@ namespace EventBuilder {
             return false;
 
         TFile* output = TFile::Open(outputname.c_str(), "RECREATE");
-        if(!output->IsOpen())
+        if(!output || !output->IsOpen())
         {
             EVB_ERROR("Could not open output file {0} for merge", outputname);
             output->Close();
@@ -200,8 +200,15 @@ namespace EventBuilder {
 
         TChain* chain = new TChain("SPSTree", "SPSTree");
         for(auto& entry : files)
+        {   
+            EVB_INFO("Merging file: {0}", entry);
             chain->Add(entry.c_str());
-        chain->Merge(output, 0, "fast");
+        }
+        //Note: TChain merge is kinda fucked. It requires a file passed in, which it then implicitly takes ownership of.
+        //By passing the keep option, we tell TChain we want to keep ownership of the file (otherwise it will automatically close and delete)
+        //We need ownership because the Merge function does not do a good job of handling errors explicitly.
+        chain->Merge(output, 0, "fast|keep");
+
         output->Close();
         return true;
     }
