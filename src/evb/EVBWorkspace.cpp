@@ -58,6 +58,7 @@ namespace EventBuilder {
         m_analyzedDir = m_workspace + "analyzed/";
         m_histogramDir = m_workspace + "histograms/";
         m_cutDir = m_workspace + "cuts/";
+        m_mergedDir = m_workspace + "merged/";
 
         //Check all subdirectories. Terminate if any of them are bad
         m_isValid = CheckSubDirectory(m_binaryDir);
@@ -79,6 +80,9 @@ namespace EventBuilder {
         if(!m_isValid)
             return;
         m_isValid = CheckSubDirectory(m_cutDir);
+        if(!m_isValid)
+            return;
+        m_isValid = CheckSubDirectory(m_mergedDir);
     }
 
     std::string EVBWorkspace::GetBinaryRun(int run)
