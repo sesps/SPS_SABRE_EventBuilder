@@ -54,7 +54,7 @@ namespace EventBuilder {
 	/*Makes histograms where only rejection is unset data*/
 	void SFPPlotter::MakeUncutHistograms(const ProcessedEvent& ev, THashTable* table)
 	{
-		MyFill(table,"x1NoCuts_bothplanes",600,-300,300,ev.x2);
+		MyFill(table,"x1NoCuts_bothplanes",600,-300,300,ev.x1);
 		MyFill(table,"x2NoCuts_bothplanes",600,-300,300,ev.x2);
 		MyFill(table,"xavgNoCuts_bothplanes",600,-300,300,ev.xavg);
 		MyFill(table,"xavgNoCuts_theta_bothplanes",600,-300,300,ev.xavg,100,0,TMath::Pi()/2.,ev.theta);
