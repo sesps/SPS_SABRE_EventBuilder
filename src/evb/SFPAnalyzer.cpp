@@ -17,7 +17,7 @@ namespace EventBuilder {
 	SFPAnalyzer::SFPAnalyzer(int zt, int at, int zp, int ap, int ze, int ae, double ep,
 								double angle, double b) 
 	{
-		zfp = Delta_Z(zt, at, zp, ap, ze, ae, ep, angle, b*1000.0); //Convert kG to G
+		zfp = DeltaZ(zt, at, zp, ap, ze, ae, ep, angle, b);
 		event_address = new CoincEvent();
 		rootObj = new THashTable();
 		GetWeights();
@@ -42,7 +42,7 @@ namespace EventBuilder {
 	 */
 	void SFPAnalyzer::GetWeights() 
 	{
-		w1 = (Wire_Dist()/2.0-zfp)/Wire_Dist();
+		w1 = (WireDist()/2.0-zfp)/WireDist();
 		w2 = 1.0-w1;
 		EVB_INFO("Calculated X-Avg weights of w1={0} and w2={1}",w1,w2);
 	}

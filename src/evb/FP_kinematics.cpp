@@ -39,68 +39,63 @@ namespace EventBuilder {
 
 	//requires (Z,A) for T, P, and E, as well as energy of P,
 	// spectrograph angle of interest, and field value
-	double Delta_Z(int ZT, int AT, int ZP, int AP, int ZE, int AE,
+	double DeltaZ(int ZT, int AT, int ZP, int AP, int ZE, int AE,
 		       double EP, double angle, double B) 
 	{
 	
 		/* CONSTANTS */
-		const double UTOMEV = 931.4940954; //MeV per u;
-		const double MEVTOJ = 1.60218E-13; //J per MeV
-		const double RESTMASS_ELECTRON = 0.000548579909; //amu
-		const double UNIT_CHARGE = 1.602E-19; //Coulombs
-		const double C = 2.9979E8; //m/s
+		static constexpr double s_speedOfLight = 2.9979E8; //m/s
+		static constexpr double s_qbrho2p = s_speedOfLight * 1.0e-9; //Converts QBrho -> p (kG cm -> MeV)
 	
 		/* SESPS-SPECIFIC */
-		const double DISP = 1.96; //dispersion (x/rho)
-		const double MAG = 0.39; //magnification in x
-		const double DEGTORAD = M_PI/180.;
+		static constexpr double s_dispersion = 1.96; //dispersion (x/rho)
+		static constexpr double s_magnification = 0.39; //magnification in x
+		static constexpr double s_deg2rad = M_PI/180.;
+		static constexpr double s_centralTrajAngle = 45.0 * s_deg2rad; //Central trajectory angle to detector plane
 	
-		int ZR = ZT + ZP - ZE, AR = AT + AP - AE;
-		double EE=0; //ejectile energy
+		int ZR = ZT + ZP - ZE;
+		int AR = AT + AP - AE;
+		double ejectileEnergy = 0.0; //ejectile energy
 	
-		double MT=0, MP=0, ME=0, MR=0; //masses (MeV)
+		angle *= s_deg2rad;
 	
-		B /= 10000; //convert to tesla
-		angle *= DEGTORAD;
-	
-		MT = MASS.FindMass(ZT, AT);
-		MP = MASS.FindMass(ZP, AP);
-		ME = MASS.FindMass(ZE, AE);
-		MR = MASS.FindMass(ZR, AR);
+		//reactant masses
+		auto masses = MassLookup::GetInstance();
+		double mt = masses.FindMass(ZT, AT);
+		double mp = masses.FindMass(ZP, AP);
+		double me = masses.FindMass(ZE, AE);
+		double mr = masses.FindMass(ZR, AR);
 		
-		if (MT*MP*ME*MR == 0) 
+		if (
+			MassLookup::IsInvalidMass(mt) ||
+			MassLookup::IsInvalidMass(mp) ||
+			MassLookup::IsInvalidMass(me) ||
+			MassLookup::IsInvalidMass(mr)
+		) 
 		{
 			EVB_WARN("Illegal mass at FP_kinematics::Delta_Z! Returning offset of 0.");
 			return 0;
 		}
 	
-		double Q = MT + MP - ME - MR; //Q-value
+		double Q = mt + mp - me - mr; //Q-value
 		
 		//kinematics a la Iliadis p.590
-		double term1 = sqrt(MP*ME*EP)/(ME + MR)*cos(angle);
-		double term2 = (EP*(MR - MP) + MR*Q)/(ME + MR);
+		double term1 = std::sqrt(mp*me*EP)/(me + mr)*std::cos(angle);
+		double term2 = (EP*(mr - mp) + mr*Q)/(me + mr);
 	
-		EE = term1 + sqrt(term1*term1 + term2);
-		EE *= EE;
+		ejectileEnergy = term1 + std::sqrt(term1*term1 + term2);
+		ejectileEnergy *= ejectileEnergy;
 	
 		//momentum
-		double PE = sqrt(EE*(EE+2*ME));
-	
+		double ejectileP = std::sqrt(ejectileEnergy * (ejectileEnergy + 2.0*me));
 		//calculate rho from B a la B*rho = (proj. momentum)/(proj. charge)
-		double rho = (PE*MEVTOJ)/(ZE*UNIT_CHARGE*C*B)*100; //in cm
-	
-		double K;
-	
-		K  = sqrt(MP*ME*EP/EE);
-		K *= sin(angle);
-	
-		double denom = ME + MR - sqrt(MP*ME*EP/EE)*cos(angle);
-	
-		K /= denom;
-		return -1*rho*DISP*MAG*K; //delta-Z in cm
+		double rho = ejectileP / (ZE * B * s_qbrho2p ); //in cm
+		//kinematic factor K
+		double K = (std::sqrt(mp*me*EP / ejectileEnergy) * std::sin(angle)) /
+				   (me + mr - std::sqrt(mp*me*EP / ejectileEnergy) * std::cos(angle));
+
+		return -1.0*rho*s_dispersion*s_magnification*K * std::cos(s_centralTrajAngle); //delta-Z in cm
 	
 	}
 	
-	double Wire_Dist() {return 4.28625;} //cm
-
 }

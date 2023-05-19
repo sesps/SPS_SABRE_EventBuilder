@@ -11,6 +11,9 @@ Written by G.W. McCann Aug. 2020
 #include "MassLookup.h"
 
 namespace EventBuilder {
+
+	//instantiate
+	MassLookup* MassLookup::s_instance = new MassLookup();
 	
 	/*
 	  Read in AMDC mass file, preformated to remove excess info. Here assumes that by default
@@ -28,18 +31,19 @@ namespace EventBuilder {
 		std::ifstream massfile(filepath);
 		if(massfile.is_open()) 
 		{
-			int Z,A;
-			std::string junk, element, key;
-			double atomicMassBig, atomicMassSmall, isotopicMass;
+			std::string junk, element;
+			NuclearData data;
+			double atomicMassBig, atomicMassSmall;
+			uint32_t id;
 			std::getline(massfile,junk);
 			std::getline(massfile,junk);
 			while(massfile>>junk) 
 			{
-				massfile>>Z>>A>>element>>atomicMassBig>>atomicMassSmall;
-				isotopicMass = (atomicMassBig + atomicMassSmall*1e-6 - Z*electron_mass)*u_to_mev;
-				key = "("+std::to_string(Z)+","+A+")";
-				massTable[key] = isotopicMass;
-				elementTable[Z] = element;
+				massfile >> data.z >> data.a >> element >> atomicMassBig >> atomicMassSmall;
+				data.isotopicMass = (atomicMassBig + atomicMassSmall*1e-6 - data.z*s_electronMass)*s_u2MeV;
+				data.isotopicSymbol = fmt::format("{}{}", data.a, element);
+				id = GetIsotopeID(data.z, data.a);
+				m_dataMap[id] = data;
 			}
 		} 
 		else
@@ -49,28 +53,28 @@ namespace EventBuilder {
 	MassLookup::~MassLookup() {}
 	
 	//Returns nuclear mass in MeV
-	double MassLookup::FindMass(int Z, int A) 
+	double MassLookup::FindMass(uint32_t Z, uint32_t A) 
 	{
-		std::string key = "("+std::to_string(Z)+","+std::to_string(A)+")";
-		auto data = massTable.find(key);
-		if(data == massTable.end()) 
+		uint32_t id = GetIsotopeID(Z, A);
+		auto data = m_dataMap.find(id);
+		if(data == m_dataMap.end()) 
 		{
-			EVB_WARN("Invalid nucleus (Z,A) ({0},{1}) at MassLookup::FindMass; returning zero.",Z,A);
-			return 0;
+			EVB_WARN("Invalid nucleus (Z,A) ({0},{1}) at MassLookup::FindMass; returning invalid.",Z,A);
+			return s_invalidMass;
 		}
-		return data->second;
+		return data->second.isotopicMass;
 	}
 	
 	//returns element symbol
-	std::string MassLookup::FindSymbol(int Z, int A) 
+	std::string MassLookup::FindSymbol(uint32_t Z, uint32_t A) 
 	{
-		auto data = elementTable.find(Z);
-		if(data == elementTable.end()) 
+		uint32_t id = GetIsotopeID(Z, A);
+		auto data = m_dataMap.find(id);
+		if(data == m_dataMap.end()) 
 		{
-			EVB_WARN("Invalid nucleus (Z,A) ({0},{1}) at MassLookup::FindSymbol; returning empty string.",Z,A);
-			return "";
+			EVB_WARN("Invalid nucleus (Z,A) ({0},{1}) at MassLookup::FindSymbol; returning Invalid.",Z,A);
+			return s_invalidSymbol;
 		}
-		std::string fullsymbol = std::to_string(A) + data->second;
-		return fullsymbol;
+		return data->second.isotopicSymbol;
 	}
 }
