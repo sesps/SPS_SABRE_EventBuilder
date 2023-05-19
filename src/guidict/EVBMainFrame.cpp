@@ -145,9 +145,15 @@ EVBMainFrame::EVBMainFrame(const TGWindow* p, UInt_t w, UInt_t h) :
 	fThetaField = new TGNumberEntryField(thetaFrame, Theta, 0, TGNumberEntry::kNESRealFour, TGNumberEntry::kNEANonNegative);
 	thetaFrame->AddFrame(thetalabel, lhints);
 	thetaFrame->AddFrame(fThetaField, fhints);
+	TGHorizontalFrame* nudgeFrame = new TGHorizontalFrame(extraFrame, w*0.175, h*0.15);
+	TGLabel* nudgeLabel = new TGLabel(nudgeFrame, "Nudge (cm):");
+	fNudgeField = new TGNumberEntryField(nudgeFrame, Nudge, 0, TGNumberEntry::kNESRealFour);
+	nudgeFrame->AddFrame(nudgeLabel, lhints);
+	nudgeFrame->AddFrame(fNudgeField, fhints);
 	extraFrame->AddFrame(beamFrame, fhints);
 	extraFrame->AddFrame(bfFrame, fhints);
 	extraFrame->AddFrame(thetaFrame, fhints);
+	extraFrame->AddFrame(nudgeFrame, fhints);
 
 	reactionFrame->AddFrame(targFrame, fhints);
 	reactionFrame->AddFrame(projFrame, fhints);
@@ -399,7 +405,8 @@ bool EVBMainFrame::SetParameters()
 	m_parameters.BField = fBField->GetNumber();
 	m_parameters.beamEnergy = fBKEField->GetNumber();
 	m_parameters.spsAngle = fThetaField->GetNumber();
-
+	m_parameters.nudge = fNudgeField->GetNumber();
+	
 	m_builder.SetParameters(m_parameters);
 	return true;
 }

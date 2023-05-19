@@ -72,6 +72,7 @@ namespace EventBuilder {
 		m_params.BField = data["BField(kG)"].as<double>();
 		m_params.beamEnergy = data["BeamEnergy(MeV)"].as<double>();
 		m_params.spsAngle = data["SPSAngle(deg)"].as<double>();
+		m_params.nudge = data["Nudge(cm)"].as<double>();
 		m_params.runMin = data["MinRun"].as<int>();
 		m_params.runMax = data["MaxRun"].as<int>();
 	
@@ -116,6 +117,7 @@ namespace EventBuilder {
 		yamlStream << YAML::Key << "BField(kG)" << YAML::Value << m_params.BField;
 		yamlStream << YAML::Key << "BeamEnergy(MeV)" << YAML::Value << m_params.beamEnergy;
 		yamlStream << YAML::Key << "SPSAngle(deg)" << YAML::Value << m_params.spsAngle;
+		yamlStream << YAML::Key << "Nudge(cm)" << YAML::Value << m_params.nudge;
 		yamlStream << YAML::Key << "MinRun" << YAML::Value << m_params.runMin;
 		yamlStream << YAML::Key << "MaxRun" << YAML::Value << m_params.runMax;
 		yamlStream << YAML::EndMap;

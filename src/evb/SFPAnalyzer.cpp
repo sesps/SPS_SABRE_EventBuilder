@@ -14,10 +14,11 @@
 namespace EventBuilder {
 
 	/*Constructor takes in kinematic parameters for generating focal plane weights*/
-	SFPAnalyzer::SFPAnalyzer(int zt, int at, int zp, int ap, int ze, int ae, double ep,
-								double angle, double b) 
+	SFPAnalyzer::SFPAnalyzer(const EVBParameters& params) 
 	{
-		zfp = DeltaZ(zt, at, zp, ap, ze, ae, ep, angle, b);
+		zfp = DeltaZ(params.ZT, params.AT, params.ZP, params.AP, params.ZE, params.AE, params.beamEnergy, 
+					params.spsAngle, params.BField, params.nudge);
+		EVB_INFO("Focal Plane Z-Offset (nudge + kinematics): {}", zfp);
 		event_address = new CoincEvent();
 		rootObj = new THashTable();
 		GetWeights();

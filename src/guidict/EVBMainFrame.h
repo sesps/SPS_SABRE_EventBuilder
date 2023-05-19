@@ -67,6 +67,7 @@ public:
 		TypeBox,
 		RMin,
 		RMax,
+		Nudge,
 		M_Load_Config,
 		M_Save_Config,
 		M_Exit
@@ -85,6 +86,7 @@ private:
 	TGNumberEntryField *fBField, *fBKEField, *fThetaField;
 	TGNumberEntryField *fSlowWindowField, *fFastICField, *fFastSABREField;
 	TGNumberEntryField *fRMinField, *fRMaxField;
+	TGNumberEntryField *fNudgeField;
 
 	TGHProgressBar* fProgressBar;
 

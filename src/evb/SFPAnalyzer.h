@@ -12,14 +12,14 @@
 
 #include "DataStructs.h"
 #include "FP_kinematics.h"
+#include "EVBParameters.h"
 
 namespace EventBuilder {
 
 	class SFPAnalyzer
 	{
 	public:
-		SFPAnalyzer(int zt, int at, int zp, int ap, int ze, int ae, double ep, double angle,
-		            double b);
+		SFPAnalyzer(const EVBParameters& params);
 		~SFPAnalyzer();
 		ProcessedEvent GetProcessedEvent(CoincEvent& event);
 		inline void ClearHashTable() { rootObj->Clear(); }

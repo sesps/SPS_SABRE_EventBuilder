@@ -40,7 +40,7 @@ namespace EventBuilder {
 	//requires (Z,A) for T, P, and E, as well as energy of P,
 	// spectrograph angle of interest, and field value
 	double DeltaZ(int ZT, int AT, int ZP, int AP, int ZE, int AE,
-		       double EP, double angle, double B) 
+		       double EP, double angle, double B, double nudge) 
 	{
 	
 		/* CONSTANTS */
@@ -94,7 +94,7 @@ namespace EventBuilder {
 		double K = (std::sqrt(mp*me*EP / ejectileEnergy) * std::sin(angle)) /
 				   (me + mr - std::sqrt(mp*me*EP / ejectileEnergy) * std::cos(angle));
 
-		return -1.0*rho*s_dispersion*s_magnification*K * std::cos(s_centralTrajAngle); //delta-Z in cm
+		return -1.0*rho*s_dispersion*s_magnification*K * std::cos(s_centralTrajAngle) + nudge; //delta-Z in cm
 	
 	}
 	

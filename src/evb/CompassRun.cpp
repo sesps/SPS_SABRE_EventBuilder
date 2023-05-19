@@ -369,7 +369,7 @@ namespace EventBuilder {
 		startIndex = 0;
 		CoincEvent this_event;
 		SlowSort coincidizer(m_params.slowCoincidenceWindow, m_params.channelMapFile);
-		SFPAnalyzer analyzer(m_params.ZT, m_params.AT, m_params.ZP, m_params.AP, m_params.ZE, m_params.AE, m_params.beamEnergy, m_params.spsAngle, m_params.BField);
+		SFPAnalyzer analyzer(m_params);
 	
 		std::vector<TParameter<Double_t>> parvec;
 		parvec.reserve(9);
@@ -459,7 +459,7 @@ namespace EventBuilder {
 		std::vector<CoincEvent> fast_events;
 		SlowSort coincidizer(m_params.slowCoincidenceWindow, m_params.channelMapFile);
 		FastSort speedyCoincidizer(m_params.fastCoincidenceWindowSABRE, m_params.fastCoincidenceWindowIonCh);
-		SFPAnalyzer analyzer(m_params.ZT, m_params.AT, m_params.ZP, m_params.AP, m_params.ZE, m_params.AE, m_params.beamEnergy, m_params.spsAngle, m_params.BField);
+		SFPAnalyzer analyzer(m_params);
 	
 		std::vector<TParameter<Double_t>> parvec;
 		parvec.reserve(9);

@@ -39,7 +39,7 @@ namespace EventBuilder {
      //requires (Z,A) for T, P, and E, as well as energy of P,
      // spectrograph angle of interest, and field value
      double DeltaZ(int ZT, int AT, int ZP, int AP, int ZE, int AE,
-     	       double EP, double angle, double B); 
+     	       double EP, double angle, double B, double nudge = 0); 
      
      static constexpr double WireDist() { return 4.28625; } //cm
 
